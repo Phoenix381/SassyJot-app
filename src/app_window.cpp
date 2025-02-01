@@ -14,6 +14,7 @@ AppWindow::AppWindow() {
     //  setting up window
     setWindowFlags(Qt::FramelessWindowHint);
     showMaximized();
+    qputenv("QTWEBENGINE_CHROMIUM_FLAGS", QByteArray("--force-dark-mode"));
 
     // init web views
     main_page = new QWebEngineView();
@@ -29,10 +30,12 @@ AppWindow::AppWindow() {
     // space between widgets
     main_layout->setContentsMargins(0,0,0,0);
     main_layout->setSpacing(2);
-    dev_view->setStyleSheet("background-color: lightblue;");
 
     // init content
     main_page->load(QUrl("https://google.com"));
+    sidebar->load(QUrl("qrc:/html/sidepanel.html"));
+    controls->load(QUrl("qrc:/html/controls.html"));
+    controls->page()->setDevToolsPage(dev_view->page());
 
     // laying out widgets
     page_layout->addWidget(main_page);

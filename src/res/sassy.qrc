@@ -1,0 +1,10 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="">
+    <file alias="/html/">./html</file>
+    <file alias="/html/img/">./html/img</file>
+    <file alias="/html/scripts/">./html/scripts</file>
+    <file alias="/html/styles/">./html/styles</file>
+    <file alias="/html/3rd_party/">./html/3rd_party</file>
+</qresource>
+</RCC>
+

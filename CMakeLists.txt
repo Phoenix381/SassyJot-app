@@ -16,9 +16,9 @@ file(GLOB SOURCES "src/*.cpp")
 file(GLOB HEADERS "src/include/*.h")
 
 # resources
-# qt_add_resources(RESOURCES
-#     src/res/sassy.qrc
-# )
+qt_add_resources(RESOURCES
+    src/res/sassy.qrc
+)
 
 qt_add_executable(SassyJot
     ${SOURCES}
