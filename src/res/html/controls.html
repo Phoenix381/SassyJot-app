@@ -1,11 +1,78 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>controls</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>controls</title>
+
+  <link href="styles/theme.css" rel="stylesheet">
+  <link href="styles/controls.css" rel="stylesheet">
+  <link href="3rd_party/bootstrap.css" rel="stylesheet">
 </head>
 <body>
+  <script src="3rd_party/bootstrap.js"></script>
 
+  <div class="controls">
+    <!-- ==================================================== -->
+    <!-- top row -->
+    <!-- ==================================================== -->
+
+    <div class="top-row d-flex justify-content-between align-items-center">
+      <div class="tabs-container">
+        
+      </div>
+
+      <div id="space">
+        <!-- space for drag and drop -->
+      </div>
+
+      <div class="window-controls d-flex">
+        <button class="rounded borderless background">
+          <i class="material-symbols" id="minButton">minimize</i>
+        </button>
+
+        <button class="rounded borderless background">
+          <i class="material-symbols" id="maxButton">crop_square</i>
+        </button>
+
+        <button class="rounded borderless background">
+          <i class="material-symbols" id="closeButton">close</i>
+        </button>
+      </div>
+    </div>
+
+    <!-- ==================================================== -->
+    <!-- top row -->
+    <!-- ==================================================== -->
+
+    <div class="bottom-row surface d-flex justify-content-between align-items-center">
+      <div class="page-controls d-flex ms-1">
+        <button class="rounded borderless surface">
+          <i class="material-symbols" id="backButton">arrow_back</i>
+        </button>
+
+        <button class="rounded borderless surface">
+          <i class="material-symbols" id="forwardButton">arrow_forward</i>
+        </button>
+
+        <button class="rounded borderless surface">
+          <i class="material-symbols" id="refreshButton">refresh</i>
+        </button>
+      </div>
+
+      <div class="address-bar mx-2">
+        <form id="adress-form">
+          <input type="text" id="address-input" class="surface" autofocus autocomplete="off">
+        </form>
+      </div>
+
+      <!-- TODO border if more than one button -->
+      <div class="status-controls me-1">
+        <button class="rounded borderless surface">
+          <i class="material-symbols" id="favButton">star</i>
+        </button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

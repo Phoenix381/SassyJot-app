@@ -15,13 +15,15 @@ AppWindow::AppWindow() {
     //  setting up window
     setWindowFlags(Qt::FramelessWindowHint);
     showMaximized();
-    qputenv("QTWEBENGINE_CHROMIUM_FLAGS", QByteArray("--force-dark-mode"));
+    // qputenv("QTWEBENGINE_CHROMIUM_FLAGS", QByteArray("--force-dark-mode"));
 
     // init web views
     main_page = new QWebEngineView();
     dev_view = new QWebEngineView();
-    sidebar = new QWebEngineView();
     controls = new QWebEngineView();
+
+    sidebar = new QWebEngineView();
+    sidebar->setVisible(false);
     
     // setting up size
     controls->setFixedHeight(84);

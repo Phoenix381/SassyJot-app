@@ -1,0 +1,74 @@
+
+/* ================================================== */
+/* top row styling */
+/* ================================================== */
+
+.top-row {
+    max-height: 42px;
+    min-height: 42px;
+}
+
+.top-row > div > button > i {
+    font-size: 14px !important;
+}
+
+.tabs-container {
+
+}
+
+#space {
+    flex-grow: 1;
+}
+
+.window-controls {
+    gap: 2px;
+    margin-right: 2px;
+}
+
+/* ================================================== */
+/* bottom row styling */
+/* ================================================== */
+
+.bottom-row {
+    max-height: 42px;
+    min-height: 42px;
+}
+
+.bottom-row > div > button {
+    height: 32px;
+    width: 32px;
+}
+
+.bottom-row > div > button > i {
+    font-size: 18px !important;
+}
+
+.page-controls {
+    gap: 2px;
+}
+
+/* bar -> form -> input */
+.address-bar {
+    flex-grow: 1;
+    height: 100%;
+}
+
+#address-input {
+    width: 100%;
+
+    padding: 3px 5px 3px 10px;
+    font-size: 14px;
+}
+
+.status-controls {
+
+}
+
+/* ================================================== */
+/* elements */
+/* ================================================== */
+
+button {
+    height: 32px;
+    width: 32px;
+}
