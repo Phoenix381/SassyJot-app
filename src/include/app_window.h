@@ -5,6 +5,10 @@
 #include <QMainWindow>
 #include <QWebEngineView>
 
+#include "controllers.h"
+// forward declarations for controllers
+class WindowController;
+
 // =============================================================================
 // app window class
 // =============================================================================
@@ -22,6 +26,9 @@ public:
     
     // modal
     QWebEngineView* modal;
+
+    // controllers
+    WindowController* window_controller;
 public slots:
 
 };

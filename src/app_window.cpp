@@ -65,9 +65,11 @@ AppWindow::AppWindow() {
     main_layout->addWidget(sidepanel_spliter);
 
     // init content
+    controls->load(QUrl("qrc:/html/controls.html"));
     main_page->load(QUrl("https://google.com"));
     sidebar->load(QUrl("qrc:/html/sidepanel.html"));
-    controls->load(QUrl("qrc:/html/controls.html"));
     controls->page()->setDevToolsPage(dev_view->page());
 
+    // creating controllers
+    window_controller = new WindowController(this);
 }
