@@ -29,6 +29,10 @@ public:
 
     // controllers
     WindowController* window_controller;
+protected:
+    // handling window drag anad drop
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
 public slots:
 
 };

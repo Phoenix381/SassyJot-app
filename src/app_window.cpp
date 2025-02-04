@@ -4,6 +4,9 @@
 #include <QSplitter>
 
 #include <QUrl>
+#include <QMouseEvent>
+
+#include <QWebChannel>
 
 #include "include/app_window.h"
 
@@ -16,6 +19,9 @@ AppWindow::AppWindow() {
     setWindowFlags(Qt::FramelessWindowHint);
     showMaximized();
     // qputenv("QTWEBENGINE_CHROMIUM_FLAGS", QByteArray("--force-dark-mode"));
+
+    // creating controllers
+    window_controller = new WindowController(this);
 
     // init web views
     main_page = new QWebEngineView();
@@ -64,12 +70,51 @@ AppWindow::AppWindow() {
     main_layout->addWidget(controls);
     main_layout->addWidget(sidepanel_spliter);
 
-    // init content
+    // setting up web channel
     controls->load(QUrl("qrc:/html/controls.html"));
+    QWebChannel *controls_channel = new QWebChannel(controls);
+    controls_channel->registerObject("window_controller", window_controller);
+    controls->page()->setWebChannel(controls_channel);
+
+    // init content
     main_page->load(QUrl("https://google.com"));
     sidebar->load(QUrl("qrc:/html/sidepanel.html"));
     controls->page()->setDevToolsPage(dev_view->page());
+}
 
-    // creating controllers
-    window_controller = new WindowController(this);
+// =============================================================================
+// redefining mouse bahavior
+// =============================================================================
+
+// dragging window with mouse
+void AppWindow::mouseMoveEvent(QMouseEvent *event) {
+    if (window_controller->dragging) {   
+        QPoint globalPos = event->globalPosition().toPoint();
+        window()->move(globalPos.x() - window_controller->localPos.x(), globalPos.y() - window_controller->localPos.y());
+
+        // Find the screen where the cursor is located
+        QScreen *screen = QGuiApplication::screenAt(globalPos);
+        if (screen) {
+            QRect screenGeometry = screen->geometry();
+
+            if (!this->isMaximized() && globalPos.y() <= screenGeometry.top()) {
+                window_controller->maximized = true;
+                this->showMaximized(); 
+            } else if (globalPos.y() > screenGeometry.top()) {
+                if(window_controller->maximized) {
+                    window_controller->maximized = false;
+                    this->showNormal();
+                    this->resize(window_controller->lastSize);
+                }
+            }
+        }
+    }
+}
+
+// handling lmb release
+void AppWindow::mouseReleaseEvent(QMouseEvent *event) {
+    if (window_controller->dragging && event->button() == Qt::LeftButton) {
+        window_controller->dragging = false;
+        releaseMouse();
+    }
 }
