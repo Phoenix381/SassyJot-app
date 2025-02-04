@@ -88,6 +88,7 @@ AppWindow::AppWindow() {
 
 // dragging window with mouse
 void AppWindow::mouseMoveEvent(QMouseEvent *event) {
+    // TODO improve dragging
     if (window_controller->dragging) {   
         QPoint globalPos = event->globalPosition().toPoint();
         window()->move(globalPos.x() - window_controller->localPos.x(), globalPos.y() - window_controller->localPos.y());

@@ -9,6 +9,7 @@
 
 // forward declarations
 class AppWindow;
+class jsCaller;
 
 // =============================================================================
 // window controller
@@ -25,6 +26,8 @@ public:
     // resizing window
     QSize lastSize;
     bool maximized = false;
+
+    jsCaller *js;
 private:
     AppWindow *window;
 public slots:
