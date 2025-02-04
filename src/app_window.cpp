@@ -51,7 +51,7 @@ AppWindow::AppWindow() {
 
     page_splitter->setHandleWidth(2);
     page_splitter->setStyleSheet(
-        "QWidget { background-color: red; }"
+        "QSplitter { background-color: red; }"
     );
 
     // laying out widgets

@@ -71,6 +71,8 @@ button {
   justify-content: center;
 
   border: 2px solid var(--border);
+
+  user-select: none;
 }
 
 button > i {
