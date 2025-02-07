@@ -1,11 +1,28 @@
 
 /* ================================================== */
+/* controls page */
+/* ================================================== */
+
+.controls {
+    max-height: 420px;
+    min-height: 420px;
+
+    background-color: transparent !important;
+}
+
+body {
+    background-color: transparent !important;
+}
+
+/* ================================================== */
 /* top row styling */
 /* ================================================== */
 
 .top-row {
-    max-height: 42px;
-    min-height: 42px;
+    max-height: 41px;
+    min-height: 41px;
+
+    background-color: var(--background);
 }
 
 .top-row > div > button > i {
@@ -31,8 +48,10 @@
 /* ================================================== */
 
 .bottom-row {
-    max-height: 42px;
-    min-height: 42px;
+    max-height: 43px;
+    min-height: 43px;
+
+    border-bottom: 1px solid var(--border);
 }
 
 .bottom-row > div > button {

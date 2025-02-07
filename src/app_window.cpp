@@ -2,7 +2,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QSplitter>
-
+#include <QLabel>
 #include <QUrl>
 #include <QMouseEvent>
 
@@ -10,76 +10,83 @@
 
 #include "include/app_window.h"
 
+#include <iostream>
+
 // =============================================================================
 // app window initialization
 // =============================================================================
 
 AppWindow::AppWindow() {
-    //  setting up window
-    setWindowFlags(Qt::FramelessWindowHint);
-    showMaximized();
-    // qputenv("QTWEBENGINE_CHROMIUM_FLAGS", QByteArray("--force-dark-mode"));
-
     // creating controllers
     window_controller = new WindowController(this);
 
-    // init web views
-    main_page = new QWebEngineView();
-    dev_view = new QWebEngineView();
-    controls = new QWebEngineView();
-
-    sidebar = new QWebEngineView();
-    sidebar->setVisible(false);
-    
-    // setting up size
-    controls->setFixedHeight(84);
-    controls->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-
-    // laying out app window
-    QVBoxLayout *main_layout = new QVBoxLayout();
+    // creating main layout parts
     QWidget *window = new QWidget();
-
-    window->setLayout(main_layout);
     this->setCentralWidget(window);
 
-    QSplitter *page_splitter = new QSplitter(Qt::Vertical);
-    QSplitter *sidepanel_spliter = new QSplitter(Qt::Horizontal);
+    overlapping_widget = new QWidget(window);
+    overlapping_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    
+    QVBoxLayout *app_layout = new QVBoxLayout(window);
+    app_layout->setContentsMargins(0, 0, 0, 0);
+    app_layout->setSpacing(0);
 
-    // space between widgets
-    main_layout->setContentsMargins(0,0,0,0);
-    main_layout->setSpacing(2);
+    // setting up window
+    setWindowFlags(Qt::FramelessWindowHint);
+    showMaximized();
 
-    // styling
-    setStyleSheet(
-        "QWidget { padding: 0px; margin: 0px; }"
-        "QWidget { background-color: #282828; }"
-    );
-
-    page_splitter->setHandleWidth(2);
-    page_splitter->setStyleSheet(
-        "QSplitter { background-color: red; }"
-    );
-
-    // laying out widgets
-    page_splitter->addWidget(main_page);
-    page_splitter->addWidget(dev_view);
-
-    sidepanel_spliter->addWidget(page_splitter);
-    sidepanel_spliter->addWidget(sidebar);
-
-    main_layout->addWidget(controls);
-    main_layout->addWidget(sidepanel_spliter);
-
-    // setting up web channel
+    // app controls view
+    controls = new QWebEngineView();
+    controls->setFixedHeight(420);
+    controls->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    controls->page()->setBackgroundColor(Qt::transparent);
     controls->load(QUrl("qrc:/html/controls.html"));
+
+    // main app layout
+    app_layout->addWidget(controls);
+    app_layout->addStretch();
+
+    // content views
+    main_page = new QWebEngineView();
+    dev_view = new QWebEngineView();
+    sidebar = new QWebEngineView();
+    sidebar->setVisible(false);
+
+    // minimus size for aux views
+    dev_view->setMinimumHeight(200);
+    sidebar->setMinimumWidth(200);
+
+    // splitters between content views
+    QSplitter *side_spliter = new QSplitter(Qt::Horizontal);
+    QSplitter *dev_splitter = new QSplitter(Qt::Vertical);
+    dev_splitter->setHandleWidth(2);
+    dev_splitter->setStyleSheet("QSplitter { background-color: red; }");
+
+    // setting up content layout
+    dev_splitter->addWidget(main_page);
+    dev_splitter->addWidget(dev_view);
+
+    side_spliter->addWidget(dev_splitter);
+    side_spliter->addWidget(sidebar);
+
+    QVBoxLayout *overlapping_layout = new QVBoxLayout();
+    overlapping_layout->setContentsMargins(0, 0, 0, 0);
+
+    overlapping_widget->setLayout(overlapping_layout);
+    overlapping_layout->addWidget(side_spliter);
+
+    // setting up web channel for controls
     QWebChannel *controls_channel = new QWebChannel(controls);
     controls_channel->registerObject("window_controller", window_controller);
     controls->page()->setWebChannel(controls_channel);
 
-    // init content
-    main_page->load(QUrl("https://google.com"));
+    // init content views
+    main_page->load(QUrl("https://google.ru"));
     sidebar->load(QUrl("qrc:/html/sidepanel.html"));
     controls->page()->setDevToolsPage(dev_view->page());
+
+    // init app geometery
+    overlapping_widget->setGeometry(0, 84, width(), height() - 84);
 }
 
 // =============================================================================
@@ -118,4 +125,13 @@ void AppWindow::mouseReleaseEvent(QMouseEvent *event) {
         window_controller->dragging = false;
         releaseMouse();
     }
+}
+
+// =============================================================================
+// keeping layout sizes
+// =============================================================================
+
+void AppWindow::resizeEvent(QResizeEvent *event) {
+    QMainWindow::resizeEvent(event);
+    overlapping_widget->resize(width(), height() - 84);
 }

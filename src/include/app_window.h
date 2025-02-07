@@ -18,14 +18,14 @@ class AppWindow : public QMainWindow {
 public:
     AppWindow();
 
-    // window parts
+    // app web views
     QWebEngineView* controls;
     QWebEngineView* main_page;
     QWebEngineView* dev_view;
     QWebEngineView* sidebar;
     
-    // modal
-    QWebEngineView* modal;
+    // main content widget
+    QWidget* overlapping_widget;
 
     // controllers
     WindowController* window_controller;
@@ -33,6 +33,8 @@ protected:
     // handling window drag anad drop
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
+    // hadlinig window resize
+    void resizeEvent(QResizeEvent *event) override;
 public slots:
 
 };
