@@ -1,16 +1,16 @@
 
+#include "include/app_window.h"
+
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QSplitter>
 #include <QLabel>
 #include <QUrl>
+
 #include <QMouseEvent>
+#include <QApplication>
 
 #include <QWebChannel>
-
-#include "include/app_window.h"
-
-#include <iostream>
 
 // =============================================================================
 // app window initialization
@@ -87,6 +87,9 @@ AppWindow::AppWindow() {
 
     // init app geometery
     overlapping_widget->setGeometry(0, 84, width(), height() - 84);
+
+    // install event filter
+    QCoreApplication::instance()->installEventFilter(this);
 }
 
 // =============================================================================
@@ -134,4 +137,29 @@ void AppWindow::mouseReleaseEvent(QMouseEvent *event) {
 void AppWindow::resizeEvent(QResizeEvent *event) {
     QMainWindow::resizeEvent(event);
     overlapping_widget->resize(width(), height() - 84);
+}
+
+// =============================================================================
+// passing events
+// =============================================================================
+
+bool AppWindow::eventFilter(QObject *obj, QEvent *e) {
+    if (obj == controls->focusProxy() && (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseMove)) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(e);
+
+        auto pos = mouseEvent->position();
+        pos.setY(pos.y() - 84);
+        
+        QMouseEvent newEvent(mouseEvent->type(), 
+                            pos,
+                            mouseEvent->scenePosition(),  // Provide scene position
+                     mouseEvent->globalPosition(), // Provide global position
+                     mouseEvent->button(),
+                     mouseEvent->buttons(),
+                     mouseEvent->modifiers());
+
+        QApplication::sendEvent(main_page->focusProxy(), &newEvent);
+    }
+
+    return false;
 }

@@ -20,6 +20,7 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
 // page elements
 // ============================================================================
 
+const controls = document.getElementById('controls');
 
 // ============================================================================
 // window and page controls

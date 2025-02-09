@@ -35,6 +35,8 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
     // hadlinig window resize
     void resizeEvent(QResizeEvent *event) override;
+    // redirecting events from controls
+    bool eventFilter(QObject *obj, QEvent *e) override;
 public slots:
 
 };
