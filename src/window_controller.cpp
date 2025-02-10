@@ -7,10 +7,10 @@
 
 class jsCaller {
 public:
-	AppWindow *window;
+	AppWindow *app;
 
-	jsCaller(AppWindow *window) {	
-		this->window = window;
+	jsCaller(AppWindow *app) {	
+		this->app = app;
 	}
 };
 
@@ -19,33 +19,33 @@ public:
 // =============================================================================
 
 // constructor
-WindowController::WindowController(AppWindow *window) {
-    this->window = window;
-    this->js = new jsCaller(window);
+WindowController::WindowController(AppWindow *app) {
+    this->app = app;
+    this->js = new jsCaller(app);
 }
 
 // closing window
 void WindowController::closeWindow() {
-    window->close();   
+    app->close();   
 }
 
 // minimizing window
 void WindowController::minWindow() {
-    window->showMinimized();
+    app->showMinimized();
 }
 
 // maximizing window
 void WindowController::maxWindow() {
-    if (window->isMaximized()) {
-        window->showNormal();
+    if (app->isMaximized()) {
+        app->showNormal();
     } else {
-        window->showMaximized();
+        app->showMaximized();
     }
 }
 
 // handling lmb press from js controls
 void WindowController::windowMove() {
     dragging = true;
-    window->grabMouse();
-    localPos = window->mapFromGlobal(QCursor::pos());
+    app->grabMouse();
+    localPos = app->mapFromGlobal(QCursor::pos());
 }

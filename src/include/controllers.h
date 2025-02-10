@@ -2,10 +2,12 @@
 #ifndef CONTROLLERS_H
 #define CONTROLLERS_H
 
+#include "app_window.h"
+
 #include <QPoint>
 #include <QSize>
 
-#include "app_window.h"
+#include <vector>
 
 // forward declarations
 class AppWindow;
@@ -18,7 +20,7 @@ class jsCaller;
 class WindowController : public QObject {
     Q_OBJECT
 public:
-    WindowController(AppWindow *window);
+    WindowController(AppWindow *app);
 
     // moving window
     bool dragging = false;
@@ -29,13 +31,45 @@ public:
 
     jsCaller *js;
 private:
-    AppWindow *window;
+    AppWindow *app;
 public slots:
     void closeWindow();
     void minWindow();
     void maxWindow();
 
     void windowMove();
+};
+
+// =============================================================================
+// tab controller
+// =============================================================================
+
+// class Tab : public QWebEngineView {
+//     Q_OBJECT
+// public:
+//     Tab(AppWindow *app);
+//     // TODO dev, aux
+// private:
+//     AppWindow *app;
+// };
+
+class TabController : public QObject {
+    Q_OBJECT
+public:
+    TabController(AppWindow *app);
+
+    // tabs
+    // QTabWidget *tabWidget;
+    int currentTab = 0;
+private:
+    AppWindow *app;
+public slots:
+    void createTab(QString url);
+
+    void pageBack();
+    void pageForward();
+    void pageReload();
+    void pageChangeUrl(QString url);
 };
 
 #endif

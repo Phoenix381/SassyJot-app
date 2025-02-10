@@ -10,6 +10,8 @@
 #include <QMouseEvent>
 #include <QApplication>
 
+#include <QTabBar>
+
 #include <QWebChannel>
 
 // =============================================================================
@@ -19,10 +21,10 @@
 AppWindow::AppWindow() {
     // creating controllers
     window_controller = new WindowController(this);
+    tab_controller = new TabController(this);
 
     // creating main layout parts
     QWidget *window = new QWidget();
-    this->setCentralWidget(window);
 
     overlapping_widget = new QWidget(window);
     overlapping_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -47,10 +49,14 @@ AppWindow::AppWindow() {
     app_layout->addStretch();
 
     // content views
-    main_page = new QWebEngineView();
     dev_view = new QWebEngineView();
     sidebar = new QWebEngineView();
     sidebar->setVisible(false);
+
+    // Tab widget
+    tabWidget = new QTabWidget();
+    tabWidget->tabBar()->setVisible(false);
+    tabWidget->setMinimumHeight(340);
 
     // minimus size for aux views
     dev_view->setMinimumHeight(200);
@@ -63,7 +69,7 @@ AppWindow::AppWindow() {
     dev_splitter->setStyleSheet("QSplitter { background-color: red; }");
 
     // setting up content layout
-    dev_splitter->addWidget(main_page);
+    dev_splitter->addWidget(tabWidget);
     dev_splitter->addWidget(dev_view);
 
     side_spliter->addWidget(dev_splitter);
@@ -81,12 +87,15 @@ AppWindow::AppWindow() {
     controls->page()->setWebChannel(controls_channel);
 
     // init content views
-    main_page->load(QUrl("https://google.ru"));
     sidebar->load(QUrl("qrc:/html/sidepanel.html"));
     controls->page()->setDevToolsPage(dev_view->page());
 
     // init app geometery
     overlapping_widget->setGeometry(0, 84, width(), height() - 84);
+    this->setCentralWidget(window);
+
+    // TODO init from session
+    tab_controller->createTab("https://google.ru");
 
     // install event filter
     QCoreApplication::instance()->installEventFilter(this);
@@ -152,13 +161,15 @@ bool AppWindow::eventFilter(QObject *obj, QEvent *e) {
         
         QMouseEvent newEvent(mouseEvent->type(), 
                             pos,
-                            mouseEvent->scenePosition(),  // Provide scene position
-                     mouseEvent->globalPosition(), // Provide global position
-                     mouseEvent->button(),
-                     mouseEvent->buttons(),
-                     mouseEvent->modifiers());
-
-        QApplication::sendEvent(main_page->focusProxy(), &newEvent);
+                            mouseEvent->scenePosition(),
+                            mouseEvent->globalPosition(),
+                            mouseEvent->button(),
+                            mouseEvent->buttons(),
+                            mouseEvent->modifiers());
+        
+        // TODO track current widget
+        QWebEngineView *webView = qobject_cast<QWebEngineView *>(tabWidget->currentWidget());
+        QCoreApplication::sendEvent(webView->focusProxy(), &newEvent);
     }
 
     return false;

@@ -4,10 +4,12 @@
 
 #include <QMainWindow>
 #include <QWebEngineView>
+#include <QTabWidget>
 
 #include "controllers.h"
 // forward declarations for controllers
 class WindowController;
+class TabController;
 
 // =============================================================================
 // app window class
@@ -20,15 +22,18 @@ public:
 
     // app web views
     QWebEngineView* controls;
-    QWebEngineView* main_page;
     QWebEngineView* dev_view;
     QWebEngineView* sidebar;
+
+    // main page container
+    QTabWidget *tabWidget;
     
     // main content widget
     QWidget* overlapping_widget;
 
     // controllers
     WindowController* window_controller;
+    TabController* tab_controller;
 protected:
     // handling window drag anad drop
     void mouseMoveEvent(QMouseEvent *event) override;
