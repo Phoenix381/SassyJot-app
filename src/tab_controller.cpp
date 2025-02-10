@@ -26,8 +26,8 @@ void TabController::createTab(QString url) {
 	// TODO web channels etc
 
 	// adding to tab widget
-	int index = app->tabWidget->addTab(newTab, "New tab");
-	app->tabWidget->setCurrentIndex(index);
+	int index = app->tab_widget->addTab(newTab, "New tab");
+	app->tab_widget->setCurrentIndex(index);
 
 	// TODO maybe move events init to subclass
 
@@ -45,21 +45,21 @@ void TabController::createTab(QString url) {
 
 // go back in history
 void TabController::pageBack() {
-    QWebEngineView *webView = qobject_cast<QWebEngineView *>(app->tabWidget->currentWidget());
+    QWebEngineView *webView = qobject_cast<QWebEngineView *>(app->tab_widget->currentWidget());
     if (webView)
         webView->back();
 }
 
 // go forward in history
 void TabController::pageForward() {
-    QWebEngineView *webView = qobject_cast<QWebEngineView *>(app->tabWidget->currentWidget());
+    QWebEngineView *webView = qobject_cast<QWebEngineView *>(app->tab_widget->currentWidget());
     if (webView)
         webView->forward();
 }
 
 // reload current page
 void TabController::pageReload() {
-    QWebEngineView *webView = qobject_cast<QWebEngineView *>(app->tabWidget->currentWidget());
+    QWebEngineView *webView = qobject_cast<QWebEngineView *>(app->tab_widget->currentWidget());
     if (webView)
         webView->reload();
 }

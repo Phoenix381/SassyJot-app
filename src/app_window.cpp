@@ -54,9 +54,9 @@ AppWindow::AppWindow() {
     sidebar->setVisible(false);
 
     // Tab widget
-    tabWidget = new QTabWidget();
-    tabWidget->tabBar()->setVisible(false);
-    tabWidget->setMinimumHeight(340);
+    tab_widget = new QTabWidget();
+    tab_widget->tabBar()->setVisible(false);
+    tab_widget->setMinimumHeight(340);
 
     // minimus size for aux views
     dev_view->setMinimumHeight(200);
@@ -69,7 +69,7 @@ AppWindow::AppWindow() {
     dev_splitter->setStyleSheet("QSplitter { background-color: red; }");
 
     // setting up content layout
-    dev_splitter->addWidget(tabWidget);
+    dev_splitter->addWidget(tab_widget);
     dev_splitter->addWidget(dev_view);
 
     side_spliter->addWidget(dev_splitter);
@@ -166,9 +166,9 @@ bool AppWindow::eventFilter(QObject *obj, QEvent *e) {
                             mouseEvent->button(),
                             mouseEvent->buttons(),
                             mouseEvent->modifiers());
-        
+
         // TODO track current widget
-        QWebEngineView *webView = qobject_cast<QWebEngineView *>(tabWidget->currentWidget());
+        QWebEngineView *webView = qobject_cast<QWebEngineView *>(tab_widget->currentWidget());
         QCoreApplication::sendEvent(webView->focusProxy(), &newEvent);
     }
 

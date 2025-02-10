@@ -59,8 +59,9 @@ public:
     TabController(AppWindow *app);
 
     // tabs
-    // QTabWidget *tabWidget;
-    int currentTab = 0;
+    // TODO keeping track of current tab
+    // int currentTab = 0;
+    // QWebEngineView *current_page;
 private:
     AppWindow *app;
 public slots:

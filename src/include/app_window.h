@@ -26,7 +26,7 @@ public:
     QWebEngineView* sidebar;
 
     // main page container
-    QTabWidget *tabWidget;
+    QTabWidget *tab_widget;
     
     // main content widget
     QWidget* overlapping_widget;
