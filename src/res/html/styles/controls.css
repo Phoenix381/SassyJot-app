@@ -23,6 +23,7 @@ body {
     min-height: 41px;
 
     background-color: var(--background);
+
 }
 
 .top-row > div > button > i {
@@ -35,12 +36,18 @@ body {
 
 #space {
     flex-grow: 1;
-    height: 42px;
+    height: 41px;
+    border-bottom: 1px solid var(--border);
 }
 
 .window-controls {
     gap: 2px;
-    margin-right: 2px;
+    padding-right: 2px;
+
+    display: flex;
+    align-items: center;
+    height: 41px;
+    border-bottom: 1px solid var(--border);
 }
 
 /* ================================================== */
@@ -93,6 +100,127 @@ body {
 
 .status-controls {
 
+}
+
+/* ================================================== */
+/* tabs container */
+/* ================================================== */
+
+:root {
+    --tab-width: 200px;
+}
+
+.tabs-outer-wrapper {
+    display: flex;
+    align-items: center;
+    max-width: 40%;
+    height: 41px;
+}
+
+.tabs-scrollable {
+    overflow: hidden;
+    height: 100%;
+}
+
+#tabs-container {
+    display: flex;
+    height: 41px;
+    border-bottom: 1px solid var(--border);
+    padding: 0px 5px 0px 5px;
+}
+
+#addButton {
+    height: 41px;
+}
+
+
+#scroll-left,#scroll-right {
+    height: 100%;
+}
+
+.tabs-outer-wrapper > i, .tabs-outer-wrapper > button {
+    border-bottom: 1px solid var(--border);
+}
+
+
+.tab {
+    display: flex;
+    align-items: center;
+
+    padding: 0px 5px 0px 3px;
+
+    color: white;
+
+    border-top: 1px solid;
+    border-left: 1px solid;
+    border-right: 1px solid;
+
+    border-radius: 10px 10px 0 0;
+
+    border-color: var(--background);
+}
+
+.tab:not(.selected):hover {
+    background-color: #333;
+}
+
+.tab-content {
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.tab-content i {
+    font-size: 20px;
+}
+
+.tab-title {
+    max-width: var(--tab-width);
+    overflow: hidden;
+    font-size: 14px;
+    box-sizing: border-box;
+    mask-image: linear-gradient(90deg, #666 90%, transparent);
+}
+
+.selected {
+    position: relative;
+    background: var(--surface);
+    margin-bottom: -1px;
+    border-color: var(--border);
+    z-index: 3;
+}
+
+.selected:before,
+.selected:after {
+    position: absolute;
+    bottom: -1px;
+
+    width: 12px;
+    height: 12px;
+
+    border: 1px solid white;
+    content: " ";
+}
+
+.selected:before {
+    left: -12px;
+
+    border-bottom-right-radius: 12px;
+    border-width: 0 1px 1px 0;
+    border-color: var(--border);
+
+    box-shadow: 4px 4px 0 var(--surface);
+}
+
+.selected:after {
+    right: -12px;
+
+    border-bottom-left-radius: 12px;
+    border-width: 0 0 1px 1px;
+    border-color: var(--border);
+
+    box-shadow: -4px 4px 0 var(--surface);
 }
 
 /* ================================================== */

@@ -8,6 +8,7 @@
 
 #include "controllers.h"
 // forward declarations for controllers
+class jsCaller;
 class WindowController;
 class TabController;
 

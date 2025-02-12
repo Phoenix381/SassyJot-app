@@ -11,7 +11,22 @@
 
 // forward declarations
 class AppWindow;
-class jsCaller;
+
+// =============================================================================
+// js caller object
+// =============================================================================
+
+class jsCaller {
+public:
+    QWebEngineView* controls;
+
+    jsCaller(QWebEngineView *controls) {  
+        this->controls = controls;
+    }
+
+    // creating new tab
+    void createTab() { controls->page()->runJavaScript("newTab()"); }
+};
 
 // =============================================================================
 // window controller

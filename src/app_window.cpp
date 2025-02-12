@@ -8,6 +8,7 @@
 #include <QUrl>
 
 #include <QMouseEvent>
+#include <QContextMenuEvent>
 #include <QApplication>
 
 #include <QTabBar>
@@ -19,10 +20,6 @@
 // =============================================================================
 
 AppWindow::AppWindow() {
-    // creating controllers
-    window_controller = new WindowController(this);
-    tab_controller = new TabController(this);
-
     // creating main layout parts
     QWidget *window = new QWidget();
 
@@ -41,6 +38,7 @@ AppWindow::AppWindow() {
     controls = new QWebEngineView();
     controls->setFixedHeight(420);
     controls->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    controls->setContextMenuPolicy(Qt::PreventContextMenu);
     controls->page()->setBackgroundColor(Qt::transparent);
     controls->load(QUrl("qrc:/html/controls.html"));
 
@@ -81,9 +79,14 @@ AppWindow::AppWindow() {
     overlapping_widget->setLayout(overlapping_layout);
     overlapping_layout->addWidget(side_spliter);
 
+    // creating controllers
+    window_controller = new WindowController(this);
+    tab_controller = new TabController(this);
+
     // setting up web channel for controls
     QWebChannel *controls_channel = new QWebChannel(controls);
     controls_channel->registerObject("window_controller", window_controller);
+    controls_channel->registerObject("tab_controller", tab_controller);
     controls->page()->setWebChannel(controls_channel);
 
     // init content views
@@ -94,11 +97,17 @@ AppWindow::AppWindow() {
     overlapping_widget->setGeometry(0, 84, width(), height() - 84);
     this->setCentralWidget(window);
 
-    // TODO init from session
-    tab_controller->createTab("https://google.ru");
-
     // install event filter
     QCoreApplication::instance()->installEventFilter(this);
+
+    // init after controls loaded
+    connect(controls, &QWebEngineView::loadFinished, this, 
+        [this](){
+            // TODO init from session
+            tab_controller->createTab("https://google.ru");
+            window_controller->js->createTab();
+        }
+    );
 }
 
 // =============================================================================
@@ -153,23 +162,52 @@ void AppWindow::resizeEvent(QResizeEvent *event) {
 // =============================================================================
 
 bool AppWindow::eventFilter(QObject *obj, QEvent *e) {
-    if (obj == controls->focusProxy() && (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseMove)) {
-        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(e);
+    if (obj == controls->focusProxy()) {
+        // passing mouse move through controls
+        if(e->type() == QEvent::MouseMove) {
+            QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(e);
+            if (mouseEvent->position().y() > 84) {
+                auto pos = mouseEvent->position();
+                pos.setY(pos.y() - 84);
+                
+                QMouseEvent newEvent(mouseEvent->type(), 
+                                    pos,
+                                    mouseEvent->scenePosition(),
+                                    mouseEvent->globalPosition(),
+                                    mouseEvent->button(),
+                                    mouseEvent->buttons(),
+                                    mouseEvent->modifiers());
 
-        auto pos = mouseEvent->position();
-        pos.setY(pos.y() - 84);
-        
-        QMouseEvent newEvent(mouseEvent->type(), 
-                            pos,
-                            mouseEvent->scenePosition(),
-                            mouseEvent->globalPosition(),
-                            mouseEvent->button(),
-                            mouseEvent->buttons(),
-                            mouseEvent->modifiers());
+                QWebEngineView *webView = qobject_cast<QWebEngineView *>(tab_widget->currentWidget());
+                QCoreApplication::sendEvent(webView->focusProxy(), &newEvent);
+            }
+        }
+        // passing mouse press and release through controls
+        else if (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonRelease) {
+            QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(e);
+            if (mouseEvent->position().y() > 84) {
+                auto pos = mouseEvent->position();
+                pos.setY(pos.y() - 84);
+                
+                QMouseEvent newEvent(mouseEvent->type(), 
+                                    pos,
+                                    mouseEvent->scenePosition(),
+                                    mouseEvent->globalPosition(),
+                                    mouseEvent->button(),
+                                    mouseEvent->buttons(),
+                                    mouseEvent->modifiers());
 
-        // TODO track current widget
-        QWebEngineView *webView = qobject_cast<QWebEngineView *>(tab_widget->currentWidget());
-        QCoreApplication::sendEvent(webView->focusProxy(), &newEvent);
+                QWebEngineView *webView = qobject_cast<QWebEngineView *>(tab_widget->currentWidget());
+                QCoreApplication::sendEvent(webView->focusProxy(), &newEvent);
+
+                // also focus
+                webView->setFocus();
+            }
+        }
+        // disabling context menu for controls
+        else if (e->type() == QEvent::ContextMenu) {
+            return true; 
+        }
     }
 
     return false;

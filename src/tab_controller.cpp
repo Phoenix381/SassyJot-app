@@ -34,7 +34,6 @@ void TabController::createTab(QString url) {
 	// tab events here
 
 	// loading url if needed
-    qDebug() << "Tab loading";
     if (!url.isEmpty())
         newTab->load(QUrl(url));
     else

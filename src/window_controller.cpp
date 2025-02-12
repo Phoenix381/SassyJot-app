@@ -2,26 +2,13 @@
 #include "include/controllers.h"
 
 // =============================================================================
-// js caller object
-// =============================================================================
-
-class jsCaller {
-public:
-	AppWindow *app;
-
-	jsCaller(AppWindow *app) {	
-		this->app = app;
-	}
-};
-
-// =============================================================================
 // app window controller
 // =============================================================================
 
 // constructor
 WindowController::WindowController(AppWindow *app) {
     this->app = app;
-    this->js = new jsCaller(app);
+    this->js = new jsCaller(this->app->controls);
 }
 
 // closing window
