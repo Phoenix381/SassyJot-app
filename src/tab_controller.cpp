@@ -67,3 +67,24 @@ void TabController::pageReload() {
 void TabController::pageChangeUrl(QString url) {
     // TODO url validation
 }
+
+// selecting tab by index and handling changes
+void TabController::selectTab(int index) {
+    app->tab_widget->setCurrentIndex(index);
+
+    // TODO fav checking here prob
+}
+
+// closing tab by index
+// FIX next index double calculation
+void TabController::closeTab(int index) {
+    // calculating new index
+    int nextIndex;
+    if (index == app->tab_widget->count() - 1)
+        nextIndex = index;
+    else
+        nextIndex = index+1;
+
+    // removing tab
+    app->tab_widget->removeTab(index-1);
+}

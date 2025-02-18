@@ -32,6 +32,8 @@ const leftScroll = document.getElementById('scroll-left');
 const rightScroll = document.getElementById('scroll-right');
 const tabs = document.getElementsByClassName('tab');
 
+const addressBar = document.getElementById('address-input');
+
 // ============================================================================
 // window and page controls
 // ============================================================================
@@ -65,6 +67,8 @@ function windowControls() {
 // tab controls
 // ============================================================================
 
+tabList = [];
+
 // tab callbacks
 function tabControls() {
     // new tab
@@ -96,6 +100,14 @@ function checkOverflow() {
         console.log('no overflow');
 }
 
+// tab selection
+function selectTab(i) {
+    for (let tab of tabs) {    
+        tab.classList.remove('selected');
+    }
+    tabs[i].classList.add('selected');
+}
+
 // new tab div
 function newTab() {
     // tab element
@@ -122,22 +134,41 @@ function newTab() {
     content.appendChild(text);
     newTab.appendChild(content);
 
+    // keeping tab in list
+    tabList.push(newTab);
+
     // tab selection
     newTab.addEventListener('click', function(e) {
-        for (let tab of tabs) { 
-            tab.classList.remove('selected');
-        }
-        e.currentTarget.classList.add('selected');
+        let i = tabList.indexOf(e.currentTarget);
+        tabController.selectTab(i);
+        selectTab(i);
     });
 
     // tab closing
     newTab.addEventListener('auxclick', function(e) {
-        e.currentTarget.remove();
+        if(tabList.length == 1) {
+            return;
+        }
+
+        // calculating indexes
+        let i = tabList.indexOf(e.currentTarget);
+        newIndex = i == tabList.length - 1 ? i - 1 : i;
+
+        // closing backend
+        tabController.closeTab(i);
+
+        // closing frontend
+        tabList[i].remove();
+        tabList[newIndex].click();
+        tabList.splice(i, 1);
+
+        // recalculating width
         checkOverflow();
     });
 
     tabContainer.appendChild(newTab);
     newTab.click();
+    addressBar.focus();
 
     checkOverflow();
 }

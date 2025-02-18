@@ -81,6 +81,8 @@ private:
     AppWindow *app;
 public slots:
     void createTab(QString url);
+    void selectTab(int index);
+    void closeTab(int index);
 
     void pageBack();
     void pageForward();
