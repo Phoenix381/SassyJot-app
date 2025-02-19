@@ -104,7 +104,7 @@ AppWindow::AppWindow() {
     connect(controls, &QWebEngineView::loadFinished, this, 
         [this](){
             // TODO init from session
-            tab_controller->createTab("https://google.ru");
+            tab_controller->createTab("qrc:/html/dashboard.html");
             window_controller->js->createTab();
         }
     );

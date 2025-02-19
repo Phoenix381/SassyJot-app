@@ -3,11 +3,43 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>sidepanel</title>
+    <title>dashboard</title>
 
     <link href="styles/theme.css" rel="stylesheet">
+    <link href="styles/dashboard.css" rel="stylesheet">
+    <link href="styles/calendar.css" rel="stylesheet">
+
+    <link href="3rd_party/bootstrap.css" rel="stylesheet">
 </head>
-<body>
-    dashboard
+<body class="background">
+    <script src="3rd_party/bootstrap.js"></script>
+    <script src="3rd_party/qwebchannel.js"></script>
+
+    <div class="app">
+        <div id="calendar">
+            calendar
+        </div>
+
+        <div class="content">
+            <div class="left surface">
+                left
+            </div>
+
+            <div class="middle">
+                <div id="sticky" class="surface">
+                    sticky
+                </div>
+                <div class="control-buttons">
+                    buttons
+                </div>
+            </div>
+
+            <div class="right surface">
+                right
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts/calendar.js"></script>
 </body>
 </html>
