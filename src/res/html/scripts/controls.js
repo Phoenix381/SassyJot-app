@@ -100,6 +100,11 @@ function checkOverflow() {
         console.log('no overflow');
 }
 
+// updating tab title from qt
+function updateTabTitle(i, title) {
+    tabs[i].getElementsByClassName('tab-title')[0].innerHTML = title;
+}
+
 // tab selection
 function selectTab(i) {
     for (let tab of tabs) {    

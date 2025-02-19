@@ -26,6 +26,9 @@ public:
 
     // creating new tab
     void createTab() { controls->page()->runJavaScript("newTab()"); }
+    void updateTabTitle(int index, QString title) { 
+        controls->page()->runJavaScript(QString("updateTabTitle(%1, '%2')").arg(index).arg(title));
+    }
 };
 
 // =============================================================================

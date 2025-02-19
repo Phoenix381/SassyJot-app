@@ -33,6 +33,15 @@ void TabController::createTab(QString url) {
 
 	// tab events here
 
+    // updating tab titles on page event
+    connect(newTab->page(), &QWebEnginePage::titleChanged, this, [this, newTab](const QString &title) {
+        int index = app->tab_widget->indexOf(newTab);
+        if (index != -1) {
+            // sending to js
+            this->app->window_controller->js->updateTabTitle(index, title);
+        }
+    });
+
 	// loading url if needed
     if (!url.isEmpty())
         newTab->load(QUrl(url));
