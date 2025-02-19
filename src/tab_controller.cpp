@@ -1,6 +1,8 @@
 
 #include "include/controllers.h"
 
+#include <QBuffer>
+
 // =============================================================================
 // tab class
 // =============================================================================
@@ -39,6 +41,22 @@ void TabController::createTab(QString url) {
         if (index != -1) {
             // sending to js
             this->app->window_controller->js->updateTabTitle(index, title);
+        }
+    });
+
+    // updating tab icons on page event
+    connect(newTab->page(), &QWebEnginePage::iconChanged, this, [this, newTab](const QIcon &icon) {
+        int index = app->tab_widget->indexOf(newTab);
+        if (index != -1) {
+            // converting icon to pixmap (resizing and converting to base64 later)
+            auto pixmap = icon.pixmap(16, 16);
+            QByteArray pixels;
+            QBuffer buffer(&pixels);
+            buffer.open(QIODevice::WriteOnly);
+            pixmap.save(&buffer, "PNG");
+
+            // sending to js
+            this->app->window_controller->js->updateTabIcon(index, pixels.toBase64());
         }
     });
 

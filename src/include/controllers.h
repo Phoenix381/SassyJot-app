@@ -29,6 +29,9 @@ public:
     void updateTabTitle(int index, QString title) { 
         controls->page()->runJavaScript(QString("updateTabTitle(%1, '%2')").arg(index).arg(title));
     }
+    void updateTabIcon(int index, QString icon) {
+        controls->page()->runJavaScript(QString("updateTabIcon(%1, '%2')").arg(index).arg(icon));   
+    }
 };
 
 // =============================================================================

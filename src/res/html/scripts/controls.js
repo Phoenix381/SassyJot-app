@@ -105,6 +105,12 @@ function updateTabTitle(i, title) {
     tabs[i].getElementsByClassName('tab-title')[0].innerHTML = title;
 }
 
+// updating icon from qt
+function updateTabIcon(i, icon) {
+    if(icon)
+        tabs[i].getElementsByClassName('tab-icon')[0].src = "data:image/png;base64," + icon;
+}
+
 // tab selection
 function selectTab(i) {
     for (let tab of tabs) {    
@@ -124,9 +130,9 @@ function newTab() {
     let content = document.createElement('div');
     content.classList.add('tab-content');
 
-    let icon = document.createElement('i');
-    icon.classList.add('material-symbols');
-    icon.innerHTML = 'globe';
+    let icon = document.createElement('img');
+    icon.classList.add('tab-icon');
+    icon.src = 'img/globe_small.png';
 
     let text = document.createElement('div');
     text.classList.add('tab-title');
