@@ -17,13 +17,16 @@
 
 TabController::TabController(AppWindow *app) {
 	this->app = app;
+
+    this->profile = new QWebEngineProfile("web_profile");
+    profile->setPersistentStoragePath("./web_profile_data");
 }
 
 // creating new tab backend
 void TabController::createTab(QString url) {
 	// tab view
 	// TODO use Tab subclass
-	QWebEngineView *newTab = new QWebEngineView();
+	QWebEngineView *newTab = new QWebEngineView(profile);
 
 	// TODO web channels etc
 

@@ -6,6 +6,7 @@
 
 #include <QPoint>
 #include <QSize>
+#include <QWebEngineProfile>
 
 #include <vector>
 
@@ -85,6 +86,7 @@ public:
     // QWebEngineView *current_page;
 private:
     AppWindow *app;
+    QWebEngineProfile *profile;
 public slots:
     void createTab(QString url);
     void selectTab(int index);
