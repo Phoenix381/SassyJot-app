@@ -17,6 +17,7 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
     // setting callbacks here
     windowControls();
     tabControls();
+    adressBarCallback();
 });
 
 // ============================================================================
@@ -33,6 +34,7 @@ const rightScroll = document.getElementById('scroll-right');
 const tabs = document.getElementsByClassName('tab');
 
 const addressBar = document.getElementById('address-input');
+const addressFormElement = document.getElementById('address-form');
 
 // ============================================================================
 // window and page controls
@@ -182,4 +184,17 @@ function newTab() {
     addressBar.focus();
 
     checkOverflow();
+}
+
+// ============================================================================
+// address input
+// ============================================================================
+
+function adressBarCallback() {
+    addressFormElement.addEventListener('submit', function(event) {
+        tabController.pageChangeUrl(addressBar.value);
+
+        addressBar.blur();
+        event.preventDefault();
+    });
 }

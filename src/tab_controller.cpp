@@ -19,14 +19,16 @@ TabController::TabController(AppWindow *app) {
 	this->app = app;
 
     this->profile = new QWebEngineProfile("web_profile");
-    profile->setPersistentStoragePath("./web_profile_data");
+    this->profile->setPersistentStoragePath("./web_profile_data");
 }
 
 // creating new tab backend
 void TabController::createTab(QString url) {
 	// tab view
 	// TODO use Tab subclass
-	QWebEngineView *newTab = new QWebEngineView(profile);
+    // QWebEnginePage *page = new QWebEnginePage(this->profile);
+	// QWebEngineView *newTab = new QWebEngineView(page);
+    QWebEngineView *newTab = new QWebEngineView();
 
 	// TODO web channels etc
 
@@ -96,6 +98,15 @@ void TabController::pageReload() {
 // change url
 void TabController::pageChangeUrl(QString url) {
     // TODO url validation
+
+    QWebEngineView *webView = qobject_cast<QWebEngineView *>(app->tab_widget->currentWidget());
+    if (webView) {
+        if (!url.startsWith("http://") && !url.startsWith("https://"))
+            url.prepend("http://");
+
+        webView->setUrl(QUrl(url));
+    }
+
 }
 
 // selecting tab by index and handling changes
