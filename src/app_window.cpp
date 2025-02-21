@@ -58,6 +58,7 @@ AppWindow::AppWindow() {
 
     // minimus size for aux views
     dev_view->setMinimumHeight(200);
+    dev_view->setFixedHeight(200);
     sidebar->setMinimumWidth(200);
 
     // splitters between content views

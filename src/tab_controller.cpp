@@ -2,6 +2,7 @@
 #include "include/controllers.h"
 
 #include <QBuffer>
+#include <QStandardPaths>
 
 // =============================================================================
 // tab class
@@ -19,7 +20,12 @@ TabController::TabController(AppWindow *app) {
 	this->app = app;
 
     this->profile = new QWebEngineProfile("web_profile");
-    this->profile->setPersistentStoragePath("./web_profile_data");
+
+    QString storagePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/QtWebEngine/sassy_profile";
+    this->profile->setPersistentStoragePath(storagePath);
+    this->profile->setCachePath(storagePath);
+    this->profile->setHttpCacheType(QWebEngineProfile::DiskHttpCache);
+    this->profile->setPersistentCookiesPolicy(QWebEngineProfile::AllowPersistentCookies);
 }
 
 // creating new tab backend
@@ -28,7 +34,7 @@ void TabController::createTab(QString url) {
 	// TODO use Tab subclass
     // QWebEnginePage *page = new QWebEnginePage(this->profile);
 	// QWebEngineView *newTab = new QWebEngineView(page);
-    QWebEngineView *newTab = new QWebEngineView();
+    QWebEngineView *newTab = new QWebEngineView(this->profile);
 
 	// TODO web channels etc
 
