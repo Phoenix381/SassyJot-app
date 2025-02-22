@@ -99,3 +99,20 @@ body {
 .left-content {
     flex: 1;
 }
+
+/* ================================================== */
+/* modal */
+/* ================================================== */
+
+.modal-content {
+    background-color: transparent;
+}
+
+.modal-content input {
+    border-radius: 10px !important;
+}
+
+#project-color {
+    height: 38px;
+    border-radius: 5px;
+}

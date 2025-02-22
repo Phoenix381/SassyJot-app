@@ -80,6 +80,7 @@ function tabControls() {
     });
 }
 
+// TODO min and max scrolls values
 // scrolling tabs container
 leftScroll.addEventListener('click', () => {
     scrollable.scrollBy(-100, 0);

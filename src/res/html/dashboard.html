@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>dashboard</title>
 
+    <link href="3rd_party/bootstrap.css" rel="stylesheet">
+
     <link href="styles/theme.css" rel="stylesheet">
     <link href="styles/dashboard.css" rel="stylesheet">
     <link href="styles/calendar.css" rel="stylesheet">
-
-    <link href="3rd_party/bootstrap.css" rel="stylesheet">
 </head>
 <body class="background">
     <script src="3rd_party/bootstrap.js"></script>
@@ -68,7 +68,9 @@
                             <option>Option 1</option>
                         </select>
 
-                        <button class="background" id="addProjectButton">
+                        <button class="background" id="addProjectButton"
+                            data-bs-toggle="modal" data-bs-target="#addProjectModal"
+                        >
                             <i class="material-symbols">add</i>
                         </button>
                     </div>
@@ -122,6 +124,30 @@
                     <button class="background" id="forwardButton">
                         <i class="material-symbols">add</i>
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================== -->
+    <!-- add project modal -->
+    <!-- ================================================== -->
+
+    <div class="modal fade" id="addProjectModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content d-flex align-items-center justify-content-center">
+                <div class="d-flex gap-2 justify-center">
+                    
+                    <input type="color" id="project-color" value="#b8bb26">
+
+                    <div class="d-flex flex-column gap-1">
+                        <input class="text-input text-bordered surface" type="text" id="project-name" placeholder="Name">
+                    </div>
+
+                    <button class="btn btn-sm bordered surface" id="project-add-button">
+                        Create
+                    </button>
+
                 </div>
             </div>
         </div>
