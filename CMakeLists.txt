@@ -40,5 +40,5 @@ target_link_libraries(SassyJot PRIVATE
 )
 
 # linking sqlite orm
-# add_subdirectory(src/deps)
-# target_link_libraries(SassyJot PRIVATE sqlite_orm::sqlite_orm)
+add_subdirectory(src/deps)
+target_link_libraries(SassyJot PRIVATE sqlite_orm::sqlite_orm)
