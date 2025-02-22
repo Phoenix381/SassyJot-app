@@ -30,31 +30,51 @@ html {
 
 .focused {
   background-color: var(--focused);
+  color: var(--text);
 }
 
 .choice {
   background-color: var(--choice);
+  color: var(--text);
 }
 
 .selectable {
   background-color: var(--selectable);
+  color: var(--text);
 }
 
 .surface {
   background-color: var(--surface);
   color: var(--text);
+
+  border-radius: 10px;
+  padding: 5px;
 }
 
 .surface-dark {
   background-color: var(--surface-dark);
+  color: var(--text);
+
+  border-radius: 10px;
+  padding: 5px;
 }
 
 .background {
   background-color: var(--background);
+  color: var(--text-secondary);
 }
 
 .transparent {
   background-color: transparent;
+}
+
+
+.bordered {
+  border: 2px solid var(--border);
+}
+
+.borderless {
+  border: none;
 }
 
 /* ================================================== */
@@ -67,6 +87,7 @@ button {
   justify-content: center;
 
   border: 2px solid var(--border);
+  border-radius: 5px !important;
 
   user-select: none;
 }
@@ -76,15 +97,11 @@ button > i {
 }
 
 button:hover {
-  opacity: 0.8;
+  transition: background-color 0.1s;
 }
 
 button.rounded {
   border-radius: 50% !important;
-}
-
-button.borderless {
-  border: none;
 }
 
 button.surface:hover {
@@ -92,12 +109,12 @@ button.surface:hover {
 }
 
 button.background:hover {
-  background-color: var(--surface);
+  background-color: var(--choice);
 }
 
 /* selection with "tab" */
 button:focus {
-  outline: 1px solid var(--border);
+  outline: 2px solid var(--accent);
 }
 
 /* ================================================== */
@@ -142,6 +159,26 @@ input[type="text"].surface:focus {
   color: var(--text);
 
   outline: none;
+}
+
+
+select {
+  background-color: transparent;
+  color: var(--text-secondary);
+
+  border: 2px solid var(--border);
+  border-radius: 5px;
+
+  padding: 2px 5px 2px 5px;
+}
+
+select:hover {
+  background-color: var(--choice);
+  transition: background-color 0.1s;
+}
+
+select:focus {
+  outline: 2px solid var(--accent);
 }
 
 /* ================================================== */
