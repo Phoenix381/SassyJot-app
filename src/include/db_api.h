@@ -16,15 +16,15 @@ using namespace sqlite_orm;
 // db objects
 // =============================================================================
 
-// base
-class DbObject {
+// base class for serialization
+class Serializable {
 public:  
     virtual QString toString() = 0;
     virtual void fromString(QString str) = 0;
 };
 
 // project
-class Project : public DbObject {
+class Project : public Serializable {
 public: 
     int id;
     std::string name;
@@ -61,19 +61,17 @@ public:
 
 class DBController;
 
-class ProjectAPI : public QObject {
-    Q_OBJECT
+class ProjectAPI {
 public:
     ProjectAPI(DBController* db) : db(db) {}
-private:
-    DBController* db;
-public slots:
     // CRUD
     int create(QString name, QString color);
     Project read(int id);
     std::vector<Project> ReadAll();
     void update(int id, QString name, QString color);
     void remove(int id);
+private:
+    DBController* db;
 };
 
 // =============================================================================

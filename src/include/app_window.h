@@ -7,10 +7,12 @@
 #include <QTabWidget>
 
 #include "controllers.h"
+#include "db_api.h"
 // forward declarations for controllers
 class jsCaller;
 class WindowController;
 class TabController;
+class ProjectController;
 
 // =============================================================================
 // app window class
@@ -33,8 +35,10 @@ public:
     QWidget* overlapping_widget;
 
     // controllers
+    DBController* db;
     WindowController* window_controller;
     TabController* tab_controller;
+    ProjectController* project_controller;
 protected:
     // handling window drag anad drop
     void mouseMoveEvent(QMouseEvent *event) override;

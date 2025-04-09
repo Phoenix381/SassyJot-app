@@ -2,7 +2,7 @@
 #include "include/db_api.h"
 
 // =============================================================================
-// CRUD
+// data layer CRUD
 // =============================================================================
 
 // create
@@ -46,10 +46,26 @@ std::vector<Project> ProjectAPI::ReadAll() {
 
 // update by id
 void ProjectAPI::update(int id, QString name, QString color) {
-
+    try {
+        Project project;
+        project.id = id;
+        project.name = name.toStdString();
+        project.color = color.toStdString();
+        return db->storage.update(project);
+    } catch (std::system_error e) {
+        qDebug() << e.what();   
+    } catch (...){
+        qDebug() << "unknown exeption when updating project by id";
+    }
 }
 
 // delete by id
 void ProjectAPI::remove(int id) {
-
+    try {
+        return db->storage.remove<Project>(id);
+    } catch (std::system_error e) {
+        qDebug() << e.what();  
+    } catch (...){
+        qDebug() << "unknown exeption when deleting project by id";
+    }
 }

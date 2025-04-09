@@ -81,8 +81,11 @@ AppWindow::AppWindow() {
     overlapping_layout->addWidget(side_spliter);
 
     // creating controllers
+    db = new DBController();
+    project_controller = new ProjectController(this);
     window_controller = new WindowController(this);
     tab_controller = new TabController(this);
+    project_controller = new ProjectController(this);
 
     // setting up web channel for controls
     QWebChannel *controls_channel = new QWebChannel(controls);

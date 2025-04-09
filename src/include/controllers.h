@@ -3,6 +3,7 @@
 #define CONTROLLERS_H
 
 #include "app_window.h"
+#include "db_api.h"
 
 #include <QPoint>
 #include <QSize>
@@ -96,6 +97,20 @@ public slots:
     void pageForward();
     void pageReload();
     void pageChangeUrl(QString url);
+};
+
+// =============================================================================
+// project controller
+// =============================================================================
+
+class ProjectController : public QObject {
+    Q_OBJECT
+public:
+    ProjectController(AppWindow *app);
+private:
+    AppWindow *app;
+public slots:
+    void createProject(QString name, QString color);
 };
 
 #endif
