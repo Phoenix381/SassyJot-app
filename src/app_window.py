@@ -8,6 +8,8 @@ from PySide6.QtCore import Qt
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
 from src.db_controller import DBController
+from src.tab_controller import TabController
+from src.window_controller import WindowController
 
 class AppWindow(QMainWindow):
     def __init__(self):
@@ -77,11 +79,19 @@ class AppWindow(QMainWindow):
         
         # init logic
         self.db = DBController()
+        self.tab_controller = TabController(self)
+        self.window_controller = WindowController(self)
+
+        # waiting for app to load
+        self.controls.loadFinished.connect(self.init_after_load)
 
         # Add web view to layout
         # self.web_view = QWebEngineView()
         # self.web_view.setUrl(QUrl("https://www.google.com"))        
         # layout.addWidget(self.web_view)
+
+    def init_after_load(self):
+        pass
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
