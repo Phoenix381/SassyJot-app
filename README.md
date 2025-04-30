@@ -1,6 +1,6 @@
 # SassyJot-app
 SassyJot desktop app.
 
-## Building
+## Running
 Depends on qt6: WebEngineWidgets WebChannel Widgets.
-Building using CMake.
+Using PySide2.
