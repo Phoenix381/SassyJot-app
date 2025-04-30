@@ -7,6 +7,8 @@ from PySide6.QtCore import Qt
 
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
+from src.db_controller import DBController
+
 class AppWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -73,6 +75,9 @@ class AppWindow(QMainWindow):
 
         self.overlapping_widget.setGeometry(0, 84, self.width(), self.height() - 84)
         
+        # init logic
+        self.db = DBController()
+
         # Add web view to layout
         # self.web_view = QWebEngineView()
         # self.web_view.setUrl(QUrl("https://www.google.com"))        
