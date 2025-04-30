@@ -1,5 +1,6 @@
 
 import sys
+import src.res.sassy_rc
 from src.app_window import AppWindow
 from PyQt6.QtWidgets import QApplication
 

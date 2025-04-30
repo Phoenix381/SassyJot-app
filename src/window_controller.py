@@ -1,4 +1,7 @@
 
-class WindowController:
+from PySide6.QtCore import QObject
+
+class WindowController(QObject):
     def __init__(self, app):
-        pass
+        super().__init__()
+        self.app = app

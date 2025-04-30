@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>controls</title>
+
+  <link href="styles/theme.css" rel="stylesheet">
+  <link href="styles/controls.css" rel="stylesheet">
+  <link href="deps/bootstrap.css" rel="stylesheet">
+</head>
+<body>
+  <script src="deps/bootstrap.js"></script>
+  <script src="deps/qwebchannel.js"></script>
+
+  <div class="controls" id="controls">
+    <!-- ==================================================== -->
+    <!-- top row -->
+    <!-- ==================================================== -->
+
+    <div class="top-row d-flex justify-content-between align-items-center">
+      <!-- wrapper positions scroll buttons -->
+      <div class="tabs-outer-wrapper">
+          <button class="borderless background" id="scroll-left">
+            <i class="material-symbols">chevron_left</i>
+          </button>
+
+          <!-- hides overflow -->
+          <div class="tabs-scrollable">
+              <div id="tabs-container">
+                <!-- contains tabs -->
+              </div>
+          </div>
+
+          <button class="borderless background" id="scroll-right">
+            <i class="material-symbols">chevron_right</i>
+          </button>
+
+          <button class="borderless background" id="addButton">
+            <i class="material-symbols">add</i>
+          </button>
+      </div>
+
+      <div id="space">
+        <!-- space for drag and drop -->
+      </div>
+
+      <div class="window-controls d-flex">
+        <button class="rounded borderless background" id="minButton">
+          <i class="material-symbols">minimize</i>
+        </button>
+
+        <button class="rounded borderless background" id="maxButton">
+          <i class="material-symbols">crop_square</i>
+        </button>
+
+        <button class="rounded borderless background" id="closeButton">
+          <i class="material-symbols">close</i>
+        </button>
+      </div>
+    </div>
+
+    <!-- ==================================================== -->
+    <!-- top row -->
+    <!-- ==================================================== -->
+
+    <div class="bottom-row surface d-flex justify-content-between align-items-center">
+      <div class="page-controls d-flex ms-1">
+        <button class="rounded borderless surface" id="backButton">
+          <i class="material-symbols">arrow_back</i>
+        </button>
+
+        <button class="rounded borderless surface" id="forwardButton">
+          <i class="material-symbols">arrow_forward</i>
+        </button>
+
+        <button class="rounded borderless surface" id="refreshButton">
+          <i class="material-symbols">refresh</i>
+        </button>
+      </div>
+
+      <div class="address-bar mx-2">
+        <form id="address-form">
+          <input type="text" id="address-input" class="surface" autofocus autocomplete="off">
+        </form>
+      </div>
+
+      <!-- TODO border if more than one button -->
+      <div class="status-controls me-1">
+        <button class="rounded borderless surface" id="favButton">
+          <i class="material-symbols">star</i>
+        </button>
+      </div>
+    </div>
+
+    <!-- ==================================================== -->
+    <!-- other parts -->
+    <!-- ==================================================== -->
+
+    <div class="d-flex justify-content-center align-items-center">
+      <div>
+        <!-- results element will be placed here -->
+      </div>
+    </div>
+  </div>
+
+  <script src="scripts/controls.js"></script>
+</body>
+</html>

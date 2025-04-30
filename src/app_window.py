@@ -6,6 +6,7 @@ from PySide6.QtCore import QUrl
 from PySide6.QtCore import Qt
 
 from PySide6.QtWebEngineWidgets import QWebEngineView
+from PySide6.QtWebChannel import QWebChannel
 
 from src.db_controller import DBController
 from src.tab_controller import TabController
@@ -37,8 +38,7 @@ class AppWindow(QMainWindow):
         self.controls.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.controls.setContextMenuPolicy(Qt.PreventContextMenu)
         self.controls.page().setBackgroundColor(Qt.transparent)
-        # self.controls.load(QUrl("qrc:/html/controls.html"))
-        self.controls.load(QUrl("https://www.duckduckgo.com"))
+        self.controls.load(QUrl("qrc:/html/controls.html"))
         
         # main view content
         self.dev_view = QWebEngineView()
@@ -85,10 +85,14 @@ class AppWindow(QMainWindow):
         # waiting for app to load
         self.controls.loadFinished.connect(self.init_after_load)
 
-        # Add web view to layout
-        # self.web_view = QWebEngineView()
-        # self.web_view.setUrl(QUrl("https://www.google.com"))        
-        # layout.addWidget(self.web_view)
+        # connect dev view to controls
+        self.controls.page().setDevToolsPage(self.dev_view.page())
+
+        # Web channel setup
+        controls_channel = QWebChannel(self.controls)
+        controls_channel.registerObject("window_controller", self.window_controller)
+        controls_channel.registerObject("tab_controller", self.tab_controller)
+        self.controls.page().setWebChannel(controls_channel)
 
     def init_after_load(self):
         pass
