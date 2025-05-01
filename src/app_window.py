@@ -1,6 +1,7 @@
 
 from PySide6.QtWidgets import QMainWindow, QWidget, QSplitter, QTabWidget
 from PySide6.QtWidgets import QVBoxLayout, QSizePolicy
+from PySide6.QtWidgets import QApplication
 
 from PySide6.QtCore import QUrl
 from PySide6.QtCore import Qt
@@ -95,8 +96,37 @@ class AppWindow(QMainWindow):
         self.controls.page().setWebChannel(controls_channel)
 
     def init_after_load(self):
+        """A function that is called after the app has loaded."""
         pass
 
     def resizeEvent(self, event):
+        """Handling the resize event."""
         super().resizeEvent(event)
         self.overlapping_widget.resize(self.width(), self.height() - 84)
+
+    # event handling
+    def mouseMoveEvent(self, event):
+        """Handling the mouse move event."""
+        # TODO resizing, sticking to the sides, moving from fullscreen
+        if self.window_controller.dragging:
+            global_pos = event.globalPosition().toPoint()
+            self.move(global_pos - self.window_controller.local_pos)
+            
+            screen = QApplication.screenAt(global_pos)
+            if screen:
+                screen_geometry = screen.geometry()
+                
+                if not self.isMaximized() and global_pos.y() <= screen_geometry.top():
+                    self.window_controller.maximized = True
+                    self.showMaximized()
+                elif global_pos.y() > screen_geometry.top() and self.window_controller.maximized:
+                    self.window_controller.maximized = False
+                    self.showNormal()
+                    if self.window_controller.last_size:
+                        self.resize(self.window_controller.last_size)
+
+    def mouseReleaseEvent(self, event):
+        """Handling the mouse release event."""
+        if event.button() == Qt.LeftButton and self.window_controller.dragging:
+            self.window_controller.dragging = False
+            self.releaseMouse()
