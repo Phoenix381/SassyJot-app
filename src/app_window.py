@@ -45,8 +45,8 @@ class AppWindow(QMainWindow):
         self.dev_view = QWebEngineView()
         self.sidebar = QWebEngineView()
 
-        self.dev_view.setMinimumHeight(200)
-        # self.dev_view.setFixedHeight(200)
+        self.dev_view.setMinimumHeight(400)
+        self.dev_view.setFixedHeight(400)
         self.sidebar.setMinimumWidth(200)
         self.sidebar.setVisible(False)
 
@@ -97,7 +97,8 @@ class AppWindow(QMainWindow):
 
     def init_after_load(self):
         """A function that is called after the app has loaded."""
-        pass
+        self.tab_controller.createTab()
+        self.window_controller.js.createTab()
 
     def resizeEvent(self, event):
         """Handling the resize event."""
