@@ -21,6 +21,7 @@ class Project(BaseModel):
     name = CharField()
     color = CharField()
     description = TextField()
+    active = BooleanField(default=True)
 
 class OpenedLink(BaseModel):
     url = CharField()
@@ -44,6 +45,8 @@ class DBController:
             Setting.get(Setting.key == "current")
         except Setting.DoesNotExist:
             # making first project
+            print("DB is empty, initializing...")
+
             project = Project.create(
                 name="Default", 
                 color="#000000", 
@@ -63,3 +66,36 @@ class DBController:
                 value=project.id
             )
             setting.save()
+
+    # SETTING
+    def get_setting(self, key):
+        try:
+            return Setting.get(Setting.key == key).value
+        except Setting.DoesNotExist:
+            print("Setting does not exist: " + key)
+            return None
+
+    def set_setting(self, key, value):
+        setting = Setting.replace(key=key, value=value)
+        setting.save()
+
+    # PROJECT
+    def create_project(self, name, color, description):
+        project = Project.create(
+            name=name, 
+            color=color, 
+            description=description
+        )
+        project.save()
+        return project
+
+    def get_projects(self):
+        try:
+            return Project.select().where(Project.active == True)
+        except Project.DoesNotExist:
+            print("There is no projects in db")
+            return None
+
+    # VISITED
+
+    # OPENED LINK
