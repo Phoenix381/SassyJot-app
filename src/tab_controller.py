@@ -52,6 +52,10 @@ class TabController(QObject):
         else:
             new_tab.load(QUrl("qrc:/html/dashboard.html"))
 
+        # set up dev view for current tab
+        current = self._current_web_view()
+        current.page().setDevToolsPage(self.app.dev_view.page())
+
     def _handle_title_change(self, view, title):
         """Handle tab title change"""
         index = self.app.tab_widget.indexOf(view)
@@ -100,6 +104,10 @@ class TabController(QObject):
     def selectTab(self, index):
         """Select tab"""
         self.app.tab_widget.setCurrentIndex(index)
+        
+        # set up dev view for current tab
+        current = self._current_web_view()
+        current.page().setDevToolsPage(self.app.dev_view.page())
 
     @Slot(int)
     def closeTab(self, index):

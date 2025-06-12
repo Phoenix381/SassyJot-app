@@ -14,6 +14,7 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
 
     // setting callbacks here
     modalActions();
+    loadTasks();
 });
 
 // ============================================================================
@@ -27,6 +28,7 @@ const addProjectModal = new bootstrap.Modal(addProjectModalElement);
 const projectColorInput = document.getElementById("project-color");
 const projectNameInput = document.getElementById("project-name");
 
+const tasks = document.getElementById("tasks");
 
 // ============================================================================
 // modal actions
@@ -36,4 +38,13 @@ function modalActions() {
     addProjectButton.addEventListener("click", () => {   
          addProjectModal.hide();
     });
+}
+
+// ============================================================================
+// tasks
+// ============================================================================
+
+function loadTasks() {
+    let taskList = projectController.get_projects();
+    tasks.innerHTML = taskList;
 }

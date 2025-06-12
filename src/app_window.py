@@ -90,7 +90,7 @@ class AppWindow(QMainWindow):
         self.controls.loadFinished.connect(self.init_after_load)
 
         # connect dev view to controls
-        self.controls.page().setDevToolsPage(self.dev_view.page())
+        # self.controls.page().setDevToolsPage(self.dev_view.page())
 
         # Web channel setup
         controls_channel = QWebChannel(self.controls)
@@ -140,12 +140,8 @@ class AppWindow(QMainWindow):
             self.releaseMouse()
 
     def eventFilter(self, obj, event):
-        print("out", obj, event)
-
         # """Pass event through transparent part of controls."""
         if obj == self.controls.focusProxy():
-            print("in", obj, event)
-
             etype = event.type()
 
             if etype == QEvent.MouseMove:
