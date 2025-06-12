@@ -3,6 +3,9 @@ from PySide6.QtWidgets import QMainWindow, QWidget, QSplitter, QTabWidget
 from PySide6.QtWidgets import QVBoxLayout, QSizePolicy
 from PySide6.QtWidgets import QApplication
 
+from PySide6.QtCore import QEvent
+from PySide6.QtGui import QMouseEvent
+
 from PySide6.QtCore import QUrl
 from PySide6.QtCore import Qt
 
@@ -95,6 +98,10 @@ class AppWindow(QMainWindow):
         controls_channel.registerObject("tab_controller", self.tab_controller)
         self.controls.page().setWebChannel(controls_channel)
 
+        # Enable event filter
+        self.controls.setMouseTracking(True)
+        self.controls.focusProxy().installEventFilter(self)
+
     def init_after_load(self):
         """A function that is called after the app has loaded."""
         self.tab_controller.createTab()
@@ -131,3 +138,46 @@ class AppWindow(QMainWindow):
         if event.button() == Qt.LeftButton and self.window_controller.dragging:
             self.window_controller.dragging = False
             self.releaseMouse()
+
+    def eventFilter(self, obj, event):
+        print("out", obj, event)
+
+        # """Pass event through transparent part of controls."""
+        if obj == self.controls.focusProxy():
+            print("in", obj, event)
+
+            etype = event.type()
+
+            if etype == QEvent.MouseMove:
+                mouse_event = event
+                if mouse_event.position().y() > 84:
+                    new_pos = mouse_event.position()
+                    new_pos.setY(new_pos.y() - 84)
+                    self.forward_mouse_event(mouse_event, new_pos)
+                    
+            elif etype in (QEvent.MouseButtonPress, QEvent.MouseButtonRelease):
+                mouse_event = event
+                if mouse_event.position().y() > 84:
+                    new_pos = mouse_event.position()
+                    new_pos.setY(new_pos.y() - 84)
+                    self.forward_mouse_event(mouse_event, new_pos)
+                    if current := self.tab_widget.currentWidget():
+                        current.setFocus()
+                        
+            elif etype == QEvent.ContextMenu:
+                return True
+                
+        return False
+
+    def forward_mouse_event(self, original_event, new_pos):
+        new_event = QMouseEvent(
+            original_event.type(),
+            new_pos,
+            original_event.globalPosition(),
+            original_event.button(),
+            original_event.buttons(),
+            original_event.modifiers()
+        )
+        
+        if current := self.tab_widget.currentWidget():
+            QApplication.sendEvent(current.focusProxy(), new_event)
