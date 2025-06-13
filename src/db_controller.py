@@ -91,7 +91,8 @@ class DBController:
 
     def get_projects(self):
         try:
-            return Project.select().where(Project.active == True)
+            return list( Project.select() )
+            # return list( Project.select().where(Project.active == True).get() )
         except Project.DoesNotExist:
             print("There is no projects in db")
             return None

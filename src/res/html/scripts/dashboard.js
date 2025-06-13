@@ -45,6 +45,7 @@ function modalActions() {
 // ============================================================================
 
 function loadTasks() {
-    let taskList = projectController.get_projects();
-    tasks.innerHTML = taskList;
+    projectController.get_projects().then(projects => {
+        tasks.innerHTML = projects;
+    });
 }

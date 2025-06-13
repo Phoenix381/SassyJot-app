@@ -32,9 +32,9 @@ class TabController(QObject):
         new_tab = QWebEngineView(self.profile)
         
         # Setup web channel
-        tab_channel = QWebChannel(new_tab)
-        # tab_channel.registerObject("project_controller", self.app.project_controller)
-        new_tab.page().setWebChannel(tab_channel)
+        project_channel = QWebChannel(new_tab)
+        project_channel.registerObject("project_controller", self.app.project_controller)
+        new_tab.page().setWebChannel(project_channel)
         
         # Add to tab widget
         index = self.app.tab_widget.addTab(new_tab, "New tab")
@@ -104,7 +104,7 @@ class TabController(QObject):
     def selectTab(self, index):
         """Select tab"""
         self.app.tab_widget.setCurrentIndex(index)
-        
+
         # set up dev view for current tab
         current = self._current_web_view()
         current.page().setDevToolsPage(self.app.dev_view.page())

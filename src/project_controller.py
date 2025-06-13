@@ -1,6 +1,7 @@
 
-from PySide6.QtCore import QObject
+from PySide6.QtCore import QObject, Slot
 from playhouse.shortcuts import model_to_dict
+import json
 
 class ProjectController(QObject):
     def __init__(self, app):
@@ -21,9 +22,12 @@ class ProjectController(QObject):
         # TODO top level task?
         return id
 
+    @Slot(result=str)
     def get_projects(self):
+        print('get projects')
         try:
-            projects = self.app.db.get_projects().get()
-            return model_to_dict(projects)
+            projects = self.app.db.get_projects()
+            projects = [model_to_dict(project) for project in projects]
+            return json.dumps(projects)
         except:
-            return []
+            return json.dumps([])

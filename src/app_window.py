@@ -15,6 +15,7 @@ from PySide6.QtWebChannel import QWebChannel
 from src.db_controller import DBController
 from src.tab_controller import TabController
 from src.window_controller import WindowController
+from src.project_controller import ProjectController
 
 class AppWindow(QMainWindow):
     def __init__(self):
@@ -85,6 +86,7 @@ class AppWindow(QMainWindow):
         self.db = DBController()
         self.tab_controller = TabController(self)
         self.window_controller = WindowController(self)
+        self.project_controller = ProjectController(self)
 
         # waiting for app to load
         self.controls.loadFinished.connect(self.init_after_load)
