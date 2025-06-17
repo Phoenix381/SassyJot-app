@@ -1,5 +1,6 @@
 
 from peewee import *
+from playhouse.shortcuts import model_to_dict
 
 db = SqliteDatabase("jot.db")
 
@@ -23,6 +24,16 @@ class Project(BaseModel):
     description = TextField()
     active = BooleanField(default=True)
 
+class Task(BaseModel):
+    name = CharField()
+    parent_id = ForeignKeyField('self', backref='children', to_field="id", null=True)
+    project_id = ForeignKeyField(Project, backref='tasks', to_field="id")
+
+    def get_all_dict(self):
+        data = model_to_dict(self)
+        data['children'] = [child.get_all_dict() for child in self.children]
+        return data
+
 class OpenedLink(BaseModel):
     url = CharField()
     order = IntegerField()
@@ -38,7 +49,7 @@ class DBController:
         self.db = db
 
         db.connect()
-        db.create_tables([Setting, Visited, Project, OpenedLink])
+        db.create_tables([Setting, Visited, Project, Task, OpenedLink])
 
         # check if first run
         try:
@@ -48,11 +59,46 @@ class DBController:
             print("DB is empty, initializing...")
 
             project = Project.create(
-                name="Default", 
+                name="Default project", 
                 color="#000000", 
                 description="Default project"
             )
             project.save()
+
+            task = Task.create(
+                name="Default task",
+                parent_id=None,
+                project_id=project,
+            )
+            # task.save()
+
+
+            # TODO remove test structure or move to separate tests
+            task2 = Task.create(
+                name="Default task 2",
+                parent_id=task,
+                project_id=project,
+            )
+
+            task3 = Task.create(
+                name="Default task 3",
+                parent_id=task,
+                project_id=project,
+            )
+
+            project2 = Project.create(
+                name="Default project 2", 
+                color="#000000", 
+                description="Default project"
+            )
+            
+            task4 = Task.create(
+                name="Default task 4",
+                parent_id=None,
+                project_id=project2,
+            )
+
+
 
             link = OpenedLink.create(
                 url="https://www.google.com",
@@ -91,10 +137,40 @@ class DBController:
 
     def get_projects(self):
         try:
-            return list( Project.select() )
+            return Project.select()
             # return list( Project.select().where(Project.active == True).get() )
         except Project.DoesNotExist:
             print("There is no projects in db")
+            return None
+
+    # TASK
+    def create_task(self, name, project_id):
+        task = Task.create(
+            name=name,
+            project_id=project_id
+        )
+        task.save()
+        return task
+
+    def get_task(self, task_id):
+        try:
+            return Task.get(Task.id == task_id)
+        except Task.DoesNotExist:
+            print(f"There is no tasks with {task_id = } in db")
+            return None
+
+    def get_task_children(self, task_id):
+        try:
+            return list( Task.select().where(Task.parent_id == task_id) )
+        except Task.DoesNotExist:
+            print("There is no tasks in db")
+            return None
+
+    def get_project_tasks(self, project_id):
+        try:
+            return list( Task.select().where(Task.project == project_id) )
+        except Task.DoesNotExist:
+            print("There is no tasks in db")
             return None
 
     # VISITED

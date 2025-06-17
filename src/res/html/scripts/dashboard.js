@@ -44,8 +44,40 @@ function modalActions() {
 // tasks
 // ============================================================================
 
+// recursively add tasks
+function addTasks(target, tasks, level) {
+    let task_container = document.createElement("div");
+    task_container.classList.add("task-container");
+    task_container.style = "padding-left: " + level * 10 + "px";
+    task_container.innerHTML = tasks.name;
+
+    if (tasks.children) {
+        tasks.children.forEach(task => {
+            addTasks(task_container, task, level + 1);
+        });
+    }
+
+    target.appendChild(task_container);
+}
+
+// load tasks to dashboard left pane
 function loadTasks() {
-    projectController.get_projects().then(projects => {
-        tasks.innerHTML = projects;
+    projectController.get_projects_tasks().then(projects => {
+        tasks.innerHTML = "";
+        let data = JSON.parse(projects);
+
+        // create projects
+        data.forEach(project => {
+            let proj_container = document.createElement("div");
+            proj_container.classList.add("project-container");
+            proj_container.innerHTML = project.name;
+
+            // fill with tasks
+            project.children.forEach(task => {
+               addTasks(proj_container, task, 1);
+            });
+
+            tasks.appendChild(proj_container);
+        });
     });
 }
