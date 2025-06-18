@@ -73,6 +73,7 @@ class TabController(QObject):
             pixmap.save(buffer, "PNG")
             self.app.window_controller.js.updateTabIcon(index, byte_array.toBase64().data().decode())
 
+    # TODO inactive state
     @Slot()
     def pageBack(self):
         """Page back"""

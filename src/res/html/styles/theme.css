@@ -181,6 +181,15 @@ select:focus {
   outline: 2px solid var(--accent);
 }
 
+a {
+  text-decoration: none;
+  color: var(--text);
+}
+
+a:hover {
+  color: var(--text-secondary);
+}
+
 /* ================================================== */
 /* material symbols */
 /* ================================================== */

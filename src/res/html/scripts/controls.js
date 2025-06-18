@@ -57,6 +57,21 @@ function windowControls() {
         windowController.minWindow();
     });
 
+    // history
+    // TODO inactive state
+    document.getElementById('backButton').addEventListener('click', function() {
+       tabController.pageBack(); 
+    });
+
+    document.getElementById('forwardButton').addEventListener('click', function() {
+       tabController.pageForward(); 
+    });
+
+    // refresh
+    document.getElementById('refreshButton').addEventListener('click', function() {
+       tabController.pageReload(); 
+    });
+
     // drag window (passing event to qt)
     const dragElement = document.getElementById('space');
 
@@ -76,7 +91,7 @@ function tabControls() {
     // new tab
     createTab.addEventListener('click', function() {
         newTab();
-        tabController.createTab("https://duckduckgo.com/");
+        tabController.createTab("");
     });
 }
 

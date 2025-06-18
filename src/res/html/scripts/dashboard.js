@@ -49,7 +49,11 @@ function addTasks(target, tasks, level) {
     let task_container = document.createElement("div");
     task_container.classList.add("task-container");
     task_container.style = "padding-left: " + level * 10 + "px";
-    task_container.innerHTML = tasks.name;
+
+    task_link = document.createElement("a");
+    task_link.setAttribute("href", "task.html?id="+tasks.id);
+    task_link.innerHTML = tasks.name;
+    task_container.appendChild(task_link);
 
     if (tasks.children) {
         tasks.children.forEach(task => {
@@ -70,7 +74,11 @@ function loadTasks() {
         data.forEach(project => {
             let proj_container = document.createElement("div");
             proj_container.classList.add("project-container");
-            proj_container.innerHTML = project.name;
+
+            project_link = document.createElement("a");
+            project_link.setAttribute("href", "project.html?id="+project.id);
+            project_link.innerHTML = project.name;
+            proj_container.appendChild(project_link);
 
             // fill with tasks
             project.children.forEach(task => {
