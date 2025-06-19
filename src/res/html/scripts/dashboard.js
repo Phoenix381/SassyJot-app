@@ -48,20 +48,20 @@ function modalActions() {
 function addTasks(target, tasks, level) {
     let task_container = document.createElement("div");
     task_container.classList.add("task-container");
-    task_container.style = "padding-left: " + level * 10 + "px";
+    task_container.style = "padding-left: " + level * 20 + "px";
 
     task_link = document.createElement("a");
     task_link.setAttribute("href", "task.html?id="+tasks.id);
     task_link.innerHTML = tasks.name;
     task_container.appendChild(task_link);
 
+    target.appendChild(task_container);
+
     if (tasks.children) {
         tasks.children.forEach(task => {
-            addTasks(task_container, task, level + 1);
+            addTasks(target, task, level + 1);
         });
     }
-
-    target.appendChild(task_container);
 }
 
 // load tasks to dashboard left pane

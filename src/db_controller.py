@@ -86,14 +86,26 @@ class DBController:
                 project_id=project,
             )
 
+            task4 = Task.create(
+                name="Default task 4",
+                parent_id=task3,
+                project_id=project,
+            )
+
+            task5 = Task.create(
+                name="Default task 5",
+                parent_id=None,
+                project_id=project,
+            )
+
             project2 = Project.create(
                 name="Default project 2", 
                 color="#000000", 
                 description="Default project"
             )
             
-            task4 = Task.create(
-                name="Default task 4",
+            task6 = Task.create(
+                name="Default task 6",
                 parent_id=None,
                 project_id=project2,
             )
