@@ -100,6 +100,18 @@ body {
     flex: 1;
 }
 
+.surface-dark {
+    padding: 1em;
+}
+
+.selected {
+    font-weight: bold;
+}
+
+.selected-task {
+    text-decoration: underline;
+}
+
 /* ================================================== */
 /* modal */
 /* ================================================== */

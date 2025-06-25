@@ -5,12 +5,20 @@
 
 var projectController;
 
+var proj_id;
+var task_id;
+
 // async channel creation
 var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
     console.log("QWebChannel created for controls");
     console.log("Available objects:", channel.objects);
 
     projectController = channel.objects.project_controller;
+
+    // selected task
+    const urlParams = new URLSearchParams(window.location.search);
+    proj_id = urlParams.get('proj_id');
+    task_id = urlParams.get('task_id');
 
     // setting callbacks here
     modalActions();
@@ -52,6 +60,10 @@ function addTasks(target, tasks, level) {
 
     task_link = document.createElement("a");
     task_link.setAttribute("href", "task.html?id="+tasks.id);
+    if (tasks.id == proj_id) {
+        task_link.classList.add("selected");
+        task_link.classList.add("selected-task");
+    }
     task_link.innerHTML = tasks.name;
     task_container.appendChild(task_link);
 
@@ -77,6 +89,8 @@ function loadTasks() {
 
             project_link = document.createElement("a");
             project_link.setAttribute("href", "project.html?id="+project.id);
+            if (project.id == proj_id)
+                project_link.classList.add("selected");
             project_link.innerHTML = project.name;
             proj_container.appendChild(project_link);
 

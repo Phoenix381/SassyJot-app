@@ -10,17 +10,21 @@ class ProjectController(QObject):
         super().__init__()
         self.app = app
 
-        self.current_task = self.app.db.get_setting('current')
-        task = self.app.db.get_task(self.current_task)
+        self.current = self.app.db.get_setting('current')
+        self.current = self.app.db.get_task(self.current)
+        task = self.app.db.get_task(self.current)
         self.current_project = task.project_id
 
-        if not self.current_task:
+        if not self.current:
             print('No current project option in db')
 
     def select_task(self, id):
-        self.current_task = id
+        self.current = id
         self.app.db.set_setting('current', id)
         # TODO reopen tabs
+
+    def get_current_task(self):
+        current = self.app.db.get_setting('current')
 
     def create_project(self, name, color, description):
         project = self.app.db.create_project(name, color, description)
