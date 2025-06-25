@@ -8,6 +8,9 @@ var projectController;
 var proj_id;
 var task_id;
 
+var task;
+var proj;
+
 // async channel creation
 var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
     console.log("QWebChannel created for controls");
@@ -19,6 +22,16 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
     const urlParams = new URLSearchParams(window.location.search);
     proj_id = urlParams.get('proj_id');
     task_id = urlParams.get('task_id');
+
+    proj = projectController.get_project(proj_id).then(project => {
+        proj = JSON.parse(project);
+        projName.innerHTML = proj.name;
+    });
+
+    task = projectController.get_task(task_id).then(t => {
+        task = JSON.parse(t);
+        taskName.innerHTML = task.name;
+    });
 
     // setting callbacks here
     modalActions();
@@ -37,6 +50,9 @@ const projectColorInput = document.getElementById("project-color");
 const projectNameInput = document.getElementById("project-name");
 
 const tasks = document.getElementById("tasks");
+
+const projName = document.getElementById("projectName");
+const taskName = document.getElementById("taskName");
 
 // ============================================================================
 // modal actions

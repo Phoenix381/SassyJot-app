@@ -25,6 +25,7 @@ class ProjectController(QObject):
 
     def get_current_task(self):
         current = self.app.db.get_setting('current')
+        return current
 
     def create_project(self, name, color, description):
         project = self.app.db.create_project(name, color, description)
@@ -54,3 +55,11 @@ class ProjectController(QObject):
             print(e)
             print('Error getting tasks')
             return json.dumps([])
+
+    @Slot(int, result=str)
+    def get_task(self, id):
+        return json.dumps(model_to_dict(self.app.db.get_task(id)))
+
+    @Slot(int, result=str)
+    def get_project(self, id):
+        return json.dumps(model_to_dict(self.app.db.get_project(id)))

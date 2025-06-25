@@ -155,6 +155,13 @@ class DBController:
             print("There is no projects in db")
             return None
 
+    def get_project(self, project_id):
+        try:
+            return Project.get(Project.id == project_id)
+        except Project.DoesNotExist:
+            print(f"There is no project with {project_id = } in db")
+            return None
+
     # TASK
     def create_task(self, name, project_id):
         task = Task.create(
