@@ -4,19 +4,51 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>task</title>
+
+    <link href="deps/bootstrap.css" rel="stylesheet">
+
+    <link href="styles/theme.css" rel="stylesheet">
+    <link href="styles/task.css" rel="stylesheet">
 </head>
-<body>
-    <div id="root"></div>
+<body class="background">
+    <script src="deps/bootstrap.js"></script>
+    <script src="deps/qwebchannel.js"></script>
 
-    <script>
-        const root = document.getElementById('root');
+    <div class="app">
+        <div class="left-side">
+            <div class="task-header">
+                <div class="controls controls-block">
+                    <input class="text-input text-bordered surface" 
+                        type="text" 
+                        id="task-filter" placeholder="Filter"
+                    >
+                    
+                    <select>
+                        <option>Option 1</option>
+                    </select>
+                </div>
+                <div class="rename-block controls-block">
+                    <input class="text-input text-bordered surface" 
+                        type="text" 
+                        id="task-name" placeholder="Task name"
+                    >
 
-        // Get the current URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const id = urlParams.get('id');
+                    <button class="background" id="renameButton">
+                        <i class="material-symbols">add</i>
+                    </button>
+                </div>
+            </div>
 
-        console.log(id);
-        root.innerHTML = "task " + id;
-    </script>
+            <div class="surface-dark bordered" id="kanban-container">
+                kanban
+            </div>
+        </div>
+
+        <div class="surface-dark bordered" id="stats-container">
+            stats
+        </div>
+    </div>
+
+    <script src="scripts/task.js"></script>
 </body>
 </html>
