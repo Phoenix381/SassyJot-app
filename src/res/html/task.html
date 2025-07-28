@@ -26,15 +26,23 @@
                     <select>
                         <option>Option 1</option>
                     </select>
+
+                    <button class="background" id="addColumnButton"
+                        data-bs-toggle="modal" data-bs-target="#addColumnModal"
+                    >
+                        <i class="material-symbols">add</i>
+                        Add column
+                    </button>
                 </div>
                 <div class="rename-block controls-block">
                     <input class="text-input text-bordered surface" 
                         type="text" 
                         id="task-name" placeholder="Task name"
+                        disabled
                     >
 
                     <button class="background" id="renameButton">
-                        <i class="material-symbols">add</i>
+                        <i class="material-symbols">edit</i>
                     </button>
                 </div>
             </div>
@@ -45,7 +53,29 @@
         </div>
 
         <div class="surface-dark bordered" id="stats-container">
-            stats
+            notes
+        </div>
+    </div>
+
+    <!-- ================================================== -->
+    <!-- add kanban column modal -->
+    <!-- ================================================== -->
+
+    <div class="modal fade" id="addColumnModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content d-flex align-items-center justify-content-center">
+                <div class="d-flex gap-2 justify-center">
+
+                    <div class="d-flex flex-column gap-1">
+                        <input class="text-input text-bordered surface" type="text" id="column-name" placeholder="Name">
+                    </div>
+
+                    <button class="btn btn-sm bordered surface" id="add-column-button">
+                        Create
+                    </button>
+
+                </div>
+            </div>
         </div>
     </div>
 

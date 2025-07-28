@@ -20,24 +20,38 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get('id');
 
-    proj = projectController.get_project(proj_id).then(project => {
+    proj = projectController.get_project(id).then(project => {
         proj = JSON.parse(project);
-        projName.innerHTML = proj.name;
+        projName.value = proj.name;
     });
 
     // setting callbacks here
-
+    modalActions();
 });
 
 // ============================================================================
 // page elements
 // ============================================================================
 
+const addColumnButton = document.getElementById("add-column-button");
+const columnNameInput = document.getElementById("column-name");
+const addColumnModalElement = document.getElementById("addColumnModal");
+const addColumnModal = new bootstrap.Modal(addColumnModalElement);
 
+const projName = document.getElementById("project-name");
 
 // ============================================================================
 // modal actions
 // ============================================================================
 
+function modalActions() {
+    addColumnButton.addEventListener("click", () => {
+        projectController.create_proj_column(proj.id, columnNameInput.value).then(() => {
+            // reload
 
+        });
+
+        addColumnModal.hide();
+    });
+}
 

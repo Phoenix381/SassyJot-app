@@ -5,11 +5,8 @@
 
 var projectController;
 
-var proj_id;
 var task_id;
-
 var task;
-var proj;
 
 // async channel creation
 var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
@@ -20,17 +17,12 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
 
     // selected task
     const urlParams = new URLSearchParams(window.location.search);
-    proj_id = urlParams.get('proj_id');
     task_id = urlParams.get('task_id');
 
-    proj = projectController.get_project(proj_id).then(project => {
-        proj = JSON.parse(project);
-        projName.innerHTML = proj.name;
-    });
-
-    task = projectController.get_task(task_id).then(t => {
+    task = projectController.get_current_task().then(t => {
         task = JSON.parse(t);
         taskName.innerHTML = task.name;
+        task_id = task.id;
     });
 
     // setting callbacks here
@@ -42,16 +34,15 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
 // page elements
 // ============================================================================
 
-const addProjectButton = document.getElementById("add-project-button");
+const addTaskButton = document.getElementById("add-task-button");
 
-const addProjectModalElement = document.getElementById("addProjectModal");
-const addProjectModal = new bootstrap.Modal(addProjectModalElement);
-const projectColorInput = document.getElementById("project-color");
-const projectNameInput = document.getElementById("project-name");
+const addTaskModalElement = document.getElementById("addTaskModal");
+const addTaskModal = new bootstrap.Modal(addTaskModalElement);
+const taskColorInput = document.getElementById("task-color");
+const taskNameInput = document.getElementById("task-name");
 
 const tasks = document.getElementById("tasks");
 
-const projName = document.getElementById("projectName");
 const taskName = document.getElementById("taskName");
 
 // ============================================================================
@@ -59,8 +50,21 @@ const taskName = document.getElementById("taskName");
 // ============================================================================
 
 function modalActions() {
-    addProjectButton.addEventListener("click", () => {   
-         addProjectModal.hide();
+    addTaskButton.addEventListener("click", () => {
+        projectController.create_task(taskNameInput.value, taskColorInput.value, 0).then(id => {
+            taskName.innerHTML = taskNameInput.value;
+            task_id = id;
+
+            task = projectController.get_task(id).then(t => {
+                task = JSON.parse(t);
+                taskName.innerHTML = task.name;
+            });
+
+            loadTasks();
+            addTaskModal.hide();
+        });
+
+
     });
 }
 
@@ -70,52 +74,36 @@ function modalActions() {
 
 // recursively add tasks
 function addTasks(target, tasks, level) {
-    let task_container = document.createElement("div");
-    task_container.classList.add("task-container");
-    task_container.style = "padding-left: " + level * 20 + "px";
+    tasks.forEach(task => {
+        // add to DOM
+        let task_container = document.createElement("div");
+        task_container.classList.add("task-container");
+        task_container.style = "padding-left: " + level * 20 + "px";
 
-    task_link = document.createElement("a");
-    task_link.setAttribute("href", "task.html?id="+tasks.id);
-    if (tasks.id == proj_id) {
-        task_link.classList.add("selected");
-        task_link.classList.add("selected-task");
-    }
-    task_link.innerHTML = tasks.name;
-    task_container.appendChild(task_link);
+        task_link = document.createElement("a");
+        task_link.setAttribute("href", "task.html?id="+task.id);
+        if (task.id == task_id) {
+            task_link.classList.add("selected");
+            task_link.classList.add("selected-task");
+        }
+        task_link.innerHTML = task.name;
+        task_container.appendChild(task_link);
 
-    target.appendChild(task_container);
+        target.appendChild(task_container);
 
-    if (tasks.children) {
-        tasks.children.forEach(task => {
-            addTasks(target, task, level + 1);
-        });
-    }
+        // same for children
+        if (task.children) {
+            addTasks(target, task.children, level + 1);
+        }
+    });
 }
 
 // load tasks to dashboard left pane
 function loadTasks() {
-    projectController.get_projects_tasks().then(projects => {
+    projectController.get_task_tree().then(projects => {
         tasks.innerHTML = "";
         let data = JSON.parse(projects);
 
-        // create projects
-        data.forEach(project => {
-            let proj_container = document.createElement("div");
-            proj_container.classList.add("project-container");
-
-            project_link = document.createElement("a");
-            project_link.setAttribute("href", "project.html?id="+project.id);
-            if (project.id == proj_id)
-                project_link.classList.add("selected");
-            project_link.innerHTML = project.name;
-            proj_container.appendChild(project_link);
-
-            // fill with tasks
-            project.children.forEach(task => {
-               addTasks(proj_container, task, 1);
-            });
-
-            tasks.appendChild(proj_container);
-        });
+        addTasks(tasks, data, 0);
     });
 }

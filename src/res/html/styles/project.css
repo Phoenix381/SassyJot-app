@@ -56,3 +56,11 @@ body {
 input[type="text"] {
     border-radius: 10px !important;
 }
+
+/* ================================================== */
+/* modal */
+/* ================================================== */
+
+.modal-content {
+    background-color: transparent;
+}

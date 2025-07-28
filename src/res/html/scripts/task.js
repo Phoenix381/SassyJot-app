@@ -19,29 +19,44 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get('id');
 
-    proj = projectController.get_project(proj_id).then(project => {
-        proj = JSON.parse(project);
-        projName.innerHTML = proj.name;
-    });
 
-    task = projectController.get_task(task_id).then(t => {
+
+    task = projectController.get_task(id).then(t => {
         task = JSON.parse(t);
-        taskName.innerHTML = task.name;
+        taskName.value = task.name;
+
+        proj = projectController.get_project(task.project.id).then(project => {
+            proj = JSON.parse(project);
+        });
     });
 
     // setting callbacks here
-
+    modalActions();
 });
 
 // ============================================================================
 // page elements
 // ============================================================================
 
+const addColumnButton = document.getElementById("add-column-button");
+const columnNameInput = document.getElementById("column-name");
+const addColumnModalElement = document.getElementById("addColumnModal");
+const addColumnModal = new bootstrap.Modal(addColumnModalElement);
 
+const taskName = document.getElementById("task-name");
 
 // ============================================================================
 // modal actions
 // ============================================================================
 
+function modalActions() {
+    addColumnButton.addEventListener("click", () => {
+        projectController.create_column(task.id, columnNameInput.value).then(() => {
+            // reload
 
+        });
+
+        addColumnModal.hide();
+    });
+}
 

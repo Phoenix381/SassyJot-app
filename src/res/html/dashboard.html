@@ -25,17 +25,10 @@
                 <div class="current-info-details">
                     <div class="info-names">
                         <div>
-                            project:
-                            <br>
                             task:
                         </div>
-                        <div>
-                            <div id="projectName">
-                                project_name
-                            </div>
-                            <div id="taskName">
-                                task_name
-                            </div>
+                        <div id="taskName">
+                            task_name
                         </div>
                     </div>
 
@@ -60,7 +53,7 @@
             <div class="column">
                 <div class="column-title">
                     <h4 class="title">
-                        Projects
+                        Tasks
                     </h4>
 
                     <div class="column-controls">
@@ -68,8 +61,8 @@
                             <option>Option 1</option>
                         </select>
 
-                        <button class="background" id="addProjectButton"
-                            data-bs-toggle="modal" data-bs-target="#addProjectModal"
+                        <button class="background" id="addTaskButton"
+                            data-bs-toggle="modal" data-bs-target="#addTaskModal"
                         >
                             <i class="material-symbols">add</i>
                         </button>
@@ -136,18 +129,18 @@
     <!-- add project modal -->
     <!-- ================================================== -->
 
-    <div class="modal fade" id="addProjectModal" tabindex="-1">
+    <div class="modal fade" id="addTaskModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content d-flex align-items-center justify-content-center">
                 <div class="d-flex gap-2 justify-center">
                     
-                    <input type="color" id="project-color" value="#b8bb26">
+                    <input type="color" id="task-color" value="#b8bb26">
 
                     <div class="d-flex flex-column gap-1">
-                        <input class="text-input text-bordered surface" type="text" id="project-name" placeholder="Name">
+                        <input class="text-input text-bordered surface" type="text" id="task-name" placeholder="Name">
                     </div>
 
-                    <button class="btn btn-sm bordered surface" id="add-project-button">
+                    <button class="btn btn-sm bordered surface" id="add-task-button">
                         Create
                     </button>
 
