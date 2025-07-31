@@ -18,29 +18,30 @@ class Visited(BaseModel):
     title = CharField()
     timestamp = DateTimeField()
 
-class Project(BaseModel):
-    name = CharField()
-    color = CharField()
-    description = TextField()
-    active = BooleanField(default=True)
-
 class Task(BaseModel):
     name = CharField()
-    parent_id = ForeignKeyField('self', backref='children', to_field="id", null=True)
-    project_id = ForeignKeyField(Project, backref='tasks', to_field="id")
+    color = CharField(default="#000000")
+    parent = ForeignKeyField('self', backref='children', to_field="id", null=True)
+    # TODO types
 
     def get_all_dict(self):
         data = model_to_dict(self)
         data['children'] = [child.get_all_dict() for child in self.children]
         return data
 
+class KanbanColumn(BaseModel):
+    name = CharField()
+    order = IntegerField()
+    visible = BooleanField(default=True)
+    task = ForeignKeyField(Task, backref='columns', to_field="id")
+
 class OpenedLink(BaseModel):
     url = CharField()
     order = IntegerField()
-    project = ForeignKeyField(Project, backref='links', to_field="id")
+    task = ForeignKeyField(Task, backref='links', to_field="id")
 
     class Meta:
-        primary_key = CompositeKey('project', 'order')
+        primary_key = CompositeKey('task', 'order')
     
 
 # CONTROLLER
@@ -49,7 +50,7 @@ class DBController:
         self.db = db
 
         db.connect()
-        db.create_tables([Setting, Visited, Project, Task, OpenedLink])
+        db.create_tables([Setting, Visited, Task, OpenedLink])
 
         # check if first run
         try:
@@ -58,70 +59,57 @@ class DBController:
             # making first project
             print("DB is empty, initializing...")
 
-            project = Project.create(
-                name="Default project", 
-                color="#000000", 
-                description="Default project"
-            )
-            project.save()
-
             task = Task.create(
-                name="Default task",
-                parent_id=None,
-                project_id=project,
+                name="Default project",
+                parent=None,
             )
-            # task.save()
-
 
             # TODO remove test structure or move to separate tests
             task2 = Task.create(
                 name="Default task 2",
-                parent_id=task,
-                project_id=project,
+                parent=task,
+            )
+
+            task6 = Task.create(
+                name="Default task 6",
+                parent=task,
+            )
+
+            task7 = Task.create(
+                name="Project 2",
+                parent=None,
             )
 
             task3 = Task.create(
                 name="Default task 3",
-                parent_id=task,
-                project_id=project,
+                parent=task2,
             )
 
             task4 = Task.create(
                 name="Default task 4",
-                parent_id=task3,
-                project_id=project,
+                parent=task2,
             )
 
             task5 = Task.create(
                 name="Default task 5",
-                parent_id=None,
-                project_id=project,
+                parent=task4,
             )
 
-            project2 = Project.create(
-                name="Default project 2", 
-                color="#000000", 
-                description="Default project"
+            task8 = Task.create(
+                name="Default task 8",
+                parent=task7,
             )
-            
-            task6 = Task.create(
-                name="Default task 6",
-                parent_id=None,
-                project_id=project2,
-            )
-
-
 
             link = OpenedLink.create(
                 url="https://www.google.com",
                 order=0,
-                project_id=project
+                task=task
             )
             link.save()
 
             setting = Setting.create(
                 key="current",
-                value=project.id
+                value=task.id
             )
             setting.save()
 
@@ -134,39 +122,15 @@ class DBController:
             return None
 
     def set_setting(self, key, value):
-        setting = Setting.replace(key=key, value=value)
-        setting.save()
-
-    # PROJECT
-    def create_project(self, name, color, description):
-        project = Project.create(
-            name=name, 
-            color=color, 
-            description=description
-        )
-        project.save()
-        return project
-
-    def get_projects(self):
-        try:
-            return Project.select()
-            # return list( Project.select().where(Project.active == True).get() )
-        except Project.DoesNotExist:
-            print("There is no projects in db")
-            return None
-
-    def get_project(self, project_id):
-        try:
-            return Project.get(Project.id == project_id)
-        except Project.DoesNotExist:
-            print(f"There is no project with {project_id = } in db")
-            return None
+        setting = Setting.replace(key=key, value=value).execute()
+        # setting.save()
 
     # TASK
-    def create_task(self, name, project_id):
+    def create_task(self, name, color, parent_id):
         task = Task.create(
             name=name,
-            project_id=project_id
+            color=color,
+            parent=parent_id
         )
         task.save()
         return task
@@ -178,19 +142,50 @@ class DBController:
             print(f"There is no tasks with {task_id = } in db")
             return None
 
-    def get_task_children(self, task_id):
+    def get_top_tasks(self):
         try:
-            return list( Task.select().where(Task.parent_id == task_id) )
+            return list( Task.select().where(Task.parent == None) )
         except Task.DoesNotExist:
             print("There is no tasks in db")
             return None
 
-    def get_project_tasks(self, project_id):
+    # KANBAN COLUMN
+    def create_column(self, name, order, task_id):
+        column = KanbanColumn.create(
+            name=name,
+            order=order,
+            task=task_id
+        )
+        column.save()
+        return column
+
+    def get_columns(self, task_id):
         try:
-            return list( Task.select().where(Task.project == project_id) )
-        except Task.DoesNotExist:
-            print("There is no tasks in db")
-            return None
+            return list( KanbanColumn.select().where(KanbanColumn.task == task_id) )
+        except KanbanColumn.DoesNotExist:
+            print(f"There is no columns in db for {task_id = }")
+            return []
+
+    def switch_places_column(self, task_id, source, target):
+        try:
+            column1 = KanbanColumn.get(task == task_id and order == source)
+            column2 = KanbanColumn.get(task == task_id and order == target)
+
+            column1.order = target
+            column2.order = source
+
+            column1.save()
+            column2.save()
+        except KanbanColumn.DoesNotExist:
+            print(f"There is no column with {task_id = } and {order = } in db")
+
+    def toggle_visibility_column(self, task_id, order, visible):
+        try:
+            column = KanbanColumn.get(task == task_id and order == order)
+            column.visible = visible
+            column.save()
+        except KanbanColumn.DoesNotExist:
+            print(f"There is no column with {task_id = } and {order = } in db")
 
     # VISITED
 

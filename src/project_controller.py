@@ -12,43 +12,51 @@ class ProjectController(QObject):
 
         self.current = self.app.db.get_setting('current')
         self.current = self.app.db.get_task(self.current)
-        task = self.app.db.get_task(self.current)
-        self.current_project = task.project_id
 
         if not self.current:
             print('No current project option in db')
 
-    def select_task(self, id):
-        self.current = id
-        self.app.db.set_setting('current', id)
+    def select_task(self, task):
+        self.current = task
+        self.app.db.set_setting('current', task.id)
         # TODO reopen tabs
 
+    @Slot(result=str)
     def get_current_task(self):
         current = self.app.db.get_setting('current')
-        return current
+        current = self.app.db.get_task(current)
+        return json.dumps(model_to_dict(current))
 
-    def create_project(self, name, color, description):
-        project = self.app.db.create_project(name, color, description)
-        # TODO top level task?
-        task = self.app.db.create_task(name, project.id)
-        self.select_task(tasks.id)
-        return id
+    @Slot(str, str, int, result=int)
+    def create_task(self, name, color, parent_id):
+        if parent_id == 0:
+            parent_id = None
+        task = self.app.db.create_task(name, color, parent_id)
+        self.select_task(task)
+        return task.id
+
+    @Slot(int, str)
+    def create_column(self, task_id, name):
+        # create_column(self, name, order, task):
+        order = len(self.app.db.get_columns(task_id))
+        self.app.db.create_column(order, name, task_id)
+
+    @Slot(int, result=str)
+    def get_columns(self, task_id):
+        return json.dumps([model_to_dict(c) for c in self.app.db.get_columns(task_id)])
 
     @Slot(result=str)
-    def get_projects_tasks(self):
+    def get_task_tree(self):
         try:
+            # get top level tasks
+            tasks = self.app.db.get_top_tasks()
             result = []
 
-            # get projects
-            projects = self.app.db.get_projects()
+            # construct task tree
+            for task in tasks:
+                all_tasks = task.get_all_dict()
+                result.append(all_tasks)
 
-            # get tasks
-            for project in projects:
-                tasks = [task.get_all_dict() for task in project.tasks if task.parent_id is None]
-                p = model_to_dict(project)
-                p['children'] = tasks
-                result.append(p)
-                
             return json.dumps(result)
 
         except Exception as e:
@@ -59,7 +67,3 @@ class ProjectController(QObject):
     @Slot(int, result=str)
     def get_task(self, id):
         return json.dumps(model_to_dict(self.app.db.get_task(id)))
-
-    @Slot(int, result=str)
-    def get_project(self, id):
-        return json.dumps(model_to_dict(self.app.db.get_project(id)))

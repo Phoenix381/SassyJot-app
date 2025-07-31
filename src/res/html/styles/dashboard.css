@@ -8,12 +8,11 @@ html, body {
 }
 
 body {
-    height: 96vh;
+    height: calc(100vh - 2em);
     overflow: hidden;
 }
 
 .app {
-/*    width: 100%;*/
     margin: 1em;
     display: flex;
     flex-direction: column;
@@ -26,6 +25,7 @@ body {
     justify-content: space-between;
     gap: 1em;
     flex: 1;
+    min-height: 0;
 }
 
 .top-row {

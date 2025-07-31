@@ -50,9 +50,7 @@ class TabController(QObject):
         if url:
             new_tab.load(QUrl(url))
         else:
-            proj_id = self.app.project_controller.current.project_id
-            task_id = self.app.project_controller.current.id
-            new_tab.load(QUrl(f"qrc:/html/dashboard.html?proj_id={proj_id}&task_id={task_id}"))
+            new_tab.load(QUrl("qrc:/html/dashboard.html"))
 
         # set up dev view for current tab
         current = self._current_web_view()
