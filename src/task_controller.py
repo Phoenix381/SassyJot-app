@@ -16,6 +16,7 @@ class TaskController(QObject):
         if not self.current:
             print('No current task option in db')
 
+    # select by id
     @Slot(int)
     def select_task(self, task_id):
         task = self.app.db.get_task(task_id)
@@ -23,12 +24,14 @@ class TaskController(QObject):
         self.app.db.set_setting('current', task.id)
         # TODO reopen tabs
 
+    # get currently selected
     @Slot(result=str)
     def get_current_task(self):
         current = self.app.db.get_setting('current')
         current = self.app.db.get_task(current)
         return json.dumps(model_to_dict(current))
 
+    # create
     @Slot(str, str, int, result=int)
     def create_task(self, name, color, parent_id):
         if parent_id == 0:
@@ -36,6 +39,13 @@ class TaskController(QObject):
         task = self.app.db.create_task(name, color, parent_id)
         self.select_task(task)
         return task.id
+
+    # rename task
+    @Slot(int, str)
+    def rename_task(self, task_id, name):
+        task = self.app.db.get_task(task_id)
+        task.name = name
+        task.save()
 
     @Slot(int, str)
     def create_column(self, task_id, name):
@@ -47,6 +57,7 @@ class TaskController(QObject):
     def get_columns(self, task_id):
         return json.dumps([model_to_dict(c) for c in self.app.db.get_columns(task_id)])
 
+    # get full tree
     @Slot(result=str)
     def get_task_tree(self):
         try:
@@ -66,6 +77,8 @@ class TaskController(QObject):
             print('Error getting tasks')
             return json.dumps([])
 
+    # get task by id
+    # TODO check if used
     @Slot(int, result=str)
     def get_task(self, id):
         return json.dumps(model_to_dict(self.app.db.get_task(id)))

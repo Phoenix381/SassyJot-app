@@ -32,7 +32,7 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
                 // select task click
                 selectButton.addEventListener("click", () => {
                     taskController.select_task(task.id).then(() => {
-                       selectButton.setAttribute("hidden", true);
+                        selectButton.setAttribute("hidden", true);
                     });
                 });
             }
@@ -40,6 +40,7 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
     });
 
     // setting callbacks here
+    renameActions();
     modalActions();
 });
 
@@ -54,8 +55,40 @@ const addColumnModal = new bootstrap.Modal(addColumnModalElement);
 
 const taskName = document.getElementById("task-name");
 
-const renameButton = document.getElementById("rename-button");
 const selectButton = document.getElementById("select-button");
+const renameButton = document.getElementById("rename-button");
+const renameOkButton = document.getElementById("rename-ok-button");
+const renameCancelButton = document.getElementById("rename-cancel-button");
+
+// ============================================================================
+// rename actions
+// ============================================================================
+function renameActions() {
+    renameButton.addEventListener("click", () => {
+        renameButton.setAttribute("hidden", true);
+        renameOkButton.removeAttribute("hidden");
+        renameCancelButton.removeAttribute("hidden");
+        taskName.removeAttribute("disabled");
+        taskName.focus();
+    });
+
+    renameOkButton.addEventListener("click", () => {
+        taskController.rename_task(task.id, taskName.value).then(() => {
+            renameOkButton.setAttribute("hidden", true);  
+            renameCancelButton.setAttribute("hidden", true);
+            taskName.setAttribute("disabled", true);
+            renameButton.removeAttribute("hidden");
+        });
+    });
+
+    renameCancelButton.addEventListener("click", () => {
+       renameOkButton.setAttribute("hidden", true); 
+       renameCancelButton.setAttribute("hidden", true);
+       taskName.value = task.name;
+       taskName.setAttribute("disabled", true);
+       renameButton.removeAttribute("hidden");
+    });
+}
 
 // ============================================================================
 // modal actions
