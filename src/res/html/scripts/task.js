@@ -3,17 +3,16 @@
 // web channel init
 // ============================================================================
 
-var projectController;
+var taskController;
 
 var task;
-var proj;
 
 // async channel creation
 var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
     console.log("QWebChannel created for controls");
     console.log("Available objects:", channel.objects);
 
-    projectController = channel.objects.project_controller;
+    taskController = channel.objects.task_controller;
 
     // selected task
     const urlParams = new URLSearchParams(window.location.search);
@@ -21,13 +20,9 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
 
 
 
-    task = projectController.get_task(id).then(t => {
+    task = taskController.get_task(id).then(t => {
         task = JSON.parse(t);
         taskName.value = task.name;
-
-        proj = projectController.get_project(task.project.id).then(project => {
-            proj = JSON.parse(project);
-        });
     });
 
     // setting callbacks here
@@ -51,7 +46,7 @@ const taskName = document.getElementById("task-name");
 
 function modalActions() {
     addColumnButton.addEventListener("click", () => {
-        projectController.create_column(task.id, columnNameInput.value).then(() => {
+        taskController.create_column(task.id, columnNameInput.value).then(() => {
             // reload
 
         });

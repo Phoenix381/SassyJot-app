@@ -60,7 +60,7 @@ class DBController:
             print("DB is empty, initializing...")
 
             task = Task.create(
-                name="Default project",
+                name="Default task",
                 parent=None,
             )
 

@@ -3,7 +3,7 @@
 // web channel init
 // ============================================================================
 
-var projectController;
+var taskController;
 
 var task_id;
 var task;
@@ -13,13 +13,13 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
     console.log("QWebChannel created for controls");
     console.log("Available objects:", channel.objects);
 
-    projectController = channel.objects.project_controller;
+    taskController = channel.objects.task_controller;
 
     // selected task
     const urlParams = new URLSearchParams(window.location.search);
     task_id = urlParams.get('task_id');
 
-    task = projectController.get_current_task().then(t => {
+    task = taskController.get_current_task().then(t => {
         task = JSON.parse(t);
         taskName.innerHTML = task.name;
         task_id = task.id;
@@ -41,7 +41,7 @@ const addTaskModal = new bootstrap.Modal(addTaskModalElement);
 const taskColorInput = document.getElementById("task-color");
 const taskNameInput = document.getElementById("task-name");
 
-const tasks = document.getElementById("tasks");
+const tasksContainer = document.getElementById("tasks");
 
 const taskName = document.getElementById("taskName");
 
@@ -51,11 +51,11 @@ const taskName = document.getElementById("taskName");
 
 function modalActions() {
     addTaskButton.addEventListener("click", () => {
-        projectController.create_task(taskNameInput.value, taskColorInput.value, 0).then(id => {
+        taskController.create_task(taskNameInput.value, taskColorInput.value, 0).then(id => {
             taskName.innerHTML = taskNameInput.value;
             task_id = id;
 
-            task = projectController.get_task(id).then(t => {
+            task = taskController.get_task(id).then(t => {
                 task = JSON.parse(t);
                 taskName.innerHTML = task.name;
             });
@@ -100,10 +100,10 @@ function addTasks(target, tasks, level) {
 
 // load tasks to dashboard left pane
 function loadTasks() {
-    projectController.get_task_tree().then(projects => {
-        tasks.innerHTML = "";
-        let data = JSON.parse(projects);
+    taskController.get_task_tree().then(tasks => {
+        tasksContainer.innerHTML = "";
+        let data = JSON.parse(tasks);
 
-        addTasks(tasks, data, 0);
+        addTasks(tasksContainer, data, 0);
     });
 }

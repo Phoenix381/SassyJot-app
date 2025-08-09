@@ -5,7 +5,7 @@ from playhouse.shortcuts import model_to_dict
 # from .db_controller import Project, Task
 import json
 
-class ProjectController(QObject):
+class TaskController(QObject):
     def __init__(self, app):
         super().__init__()
         self.app = app
@@ -14,7 +14,7 @@ class ProjectController(QObject):
         self.current = self.app.db.get_task(self.current)
 
         if not self.current:
-            print('No current project option in db')
+            print('No current task option in db')
 
     def select_task(self, task):
         self.current = task
