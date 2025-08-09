@@ -47,6 +47,7 @@ body {
 
 .info-names {
     display: flex;
+    align-items: center;
     gap: 1em;
 }
 
@@ -59,6 +60,9 @@ body {
     margin: 0;
 }
 
+.bold-caption {
+    font-weight: bold;
+}
 
 .column {
     flex: 1;
