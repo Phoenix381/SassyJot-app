@@ -6,6 +6,7 @@
 var taskController;
 
 var task;
+var selected;
 
 // async channel creation
 var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
@@ -18,11 +19,24 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get('id');
 
-
-
     task = taskController.get_task(id).then(t => {
         task = JSON.parse(t);
         taskName.value = task.name;
+
+        selected = taskController.get_current_task().then(t => {
+            selected = JSON.parse(t);
+
+            if (selected.id != task.id) {
+                selectButton.removeAttribute("hidden");
+
+                // select task click
+                selectButton.addEventListener("click", () => {
+                    taskController.select_task(task.id).then(() => {
+                       selectButton.setAttribute("hidden", true);
+                    });
+                });
+            }
+        });
     });
 
     // setting callbacks here
@@ -39,6 +53,9 @@ const addColumnModalElement = document.getElementById("addColumnModal");
 const addColumnModal = new bootstrap.Modal(addColumnModalElement);
 
 const taskName = document.getElementById("task-name");
+
+const renameButton = document.getElementById("rename-button");
+const selectButton = document.getElementById("select-button");
 
 // ============================================================================
 // modal actions

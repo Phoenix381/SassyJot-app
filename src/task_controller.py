@@ -16,7 +16,9 @@ class TaskController(QObject):
         if not self.current:
             print('No current task option in db')
 
-    def select_task(self, task):
+    @Slot(int)
+    def select_task(self, task_id):
+        task = self.app.db.get_task(task_id)
         self.current = task
         self.app.db.set_setting('current', task.id)
         # TODO reopen tabs
