@@ -47,7 +47,7 @@ html {
   background-color: var(--surface);
   color: var(--text);
 
-  border-radius: 10px;
+  border-radius: 5px;
   padding: 5px;
 }
 
@@ -55,7 +55,7 @@ html {
   background-color: var(--surface-dark);
   color: var(--text);
 
-  border-radius: 10px;
+  border-radius: 5px;
   padding: 5px;
 }
 
@@ -126,7 +126,7 @@ input[type="text"] {
   color: var(--text-secondary);
 
   border: 2px solid var(--selectable);
-  border-radius: 15px;
+  border-radius: 10px;
 
   text-overflow: ellipsis;
 }
@@ -149,7 +149,7 @@ input[type="text"].surface {
   color: var(--text-secondary);
 
   border: 2px solid var(--surface);
-  border-radius: 15px;
+  border-radius: 10px;
 
   text-overflow: ellipsis;
 }

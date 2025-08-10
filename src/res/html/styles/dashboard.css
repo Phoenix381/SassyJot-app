@@ -95,10 +95,14 @@ body {
 
 #sticky {
     flex: 1;
+    min-height: 0;
+    overflow-y: auto;
 }
 
 #cards {
     flex: 1;
+    min-height: 0;
+    overflow-y: auto;
 }
 
 #tasks {
