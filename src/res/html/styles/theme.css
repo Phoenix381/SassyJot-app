@@ -126,7 +126,7 @@ input[type="text"] {
   color: var(--text-secondary);
 
   border: 2px solid var(--selectable);
-  border-radius: 10px;
+  border-radius: 5px;
 
   text-overflow: ellipsis;
 }
@@ -149,7 +149,7 @@ input[type="text"].surface {
   color: var(--text-secondary);
 
   border: 2px solid var(--surface);
-  border-radius: 10px;
+  border-radius: 5px;
 
   text-overflow: ellipsis;
 }
@@ -198,7 +198,7 @@ a:hover {
   font-family: 'Material Symbols Outlined';
   font-style: normal;
   font-weight: 400;
-  src: url(../deps/material_symbols.woff2) format('woff2');
+  src: url(../deps/material_symbols_var.woff2) format('woff2');
 }
 
 .material-symbols {

@@ -19,6 +19,12 @@ class JSCaller(QObject):
     def updateTabUrl(self, index, url):
         self.controls.page().runJavaScript(f"updateTabUrl({index}, '{url}')")
 
+    def setFavStatus(self, status):
+        self.controls.page().runJavaScript(f"setFavStatus({status})")
+    
+    def updateAddressBar(self, url):
+        self.controls.page().runJavaScript(f"updateAddressBar('{url}')")
+
 class WindowController(QObject):
     def __init__(self, app):
         super().__init__()

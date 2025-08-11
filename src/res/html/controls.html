@@ -14,6 +14,7 @@
   <script src="deps/qwebchannel.js"></script>
 
   <div class="controls" id="controls">
+    <div id="controls-overlay">
     <!-- ==================================================== -->
     <!-- top row -->
     <!-- ==================================================== -->
@@ -61,7 +62,7 @@
     </div>
 
     <!-- ==================================================== -->
-    <!-- top row -->
+    <!-- bottom row -->
     <!-- ==================================================== -->
 
     <div class="bottom-row surface d-flex justify-content-between align-items-center">
@@ -85,12 +86,49 @@
         </form>
       </div>
 
-      <!-- TODO border if more than one button -->
+      <!-- top row right side actions block -->
+      <!-- TODO add border, add other actions -->
       <div class="status-controls me-1">
-        <button class="rounded borderless surface" id="favButton">
+        <button 
+          class="rounded borderless surface" id="favButton"
+          data-bs-toggle="modal" data-bs-target="#favModal"
+        >
           <i class="material-symbols">star</i>
         </button>
       </div>
+    </div>
+
+    <!-- ==================================================== -->
+    <!-- fav dialog -->
+    <!-- ==================================================== -->
+
+    <div class="modal fade" id="favModal" tabindex="-1" data-bs-backdrop="false">
+      <div class="modal-dialog">
+        <div class="modal-content d-flex align-items-center justify-content-center">
+          <div id="fav-dialog" class="pt-2 pb-1 justify-center">
+
+            <div id="fav-address">
+              <div class="px-2"><img id="favIcon"/></div>
+              <div>
+                <input class="text-input text-bordered accent" type="text" id="fav-title">
+              </div>
+            </div>
+
+            <div id="fav-controls">
+              <button class="bordered surface" id="fav-remove-button" data-bs-dismiss="modal">
+                Remove
+              </button>
+
+              <button class="bordered surface" id="fav-save-button" data-bs-dismiss="modal">
+                Save
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
     </div>
 
     <!-- ==================================================== -->
@@ -102,6 +140,7 @@
         <!-- results element will be placed here -->
       </div>
     </div>
+
   </div>
 
   <script src="scripts/controls.js"></script>

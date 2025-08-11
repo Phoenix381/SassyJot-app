@@ -18,6 +18,12 @@ class Visited(BaseModel):
     title = CharField()
     timestamp = DateTimeField()
 
+class Fav(BaseModel):
+    url = CharField()
+    title = CharField()
+    # TODO description etc
+    # TODO icon
+
 class Task(BaseModel):
     name = CharField()
     color = CharField(default="#000000")
@@ -49,8 +55,9 @@ class DBController:
     def __init__(self):
         self.db = db
 
+        # init db and tables
         db.connect()
-        db.create_tables([Setting, Visited, Task, OpenedLink])
+        db.create_tables([Setting, Visited, Fav, Task, OpenedLink])
 
         # check if first run
         try:
@@ -99,6 +106,12 @@ class DBController:
                 name="Default task 8",
                 parent=task7,
             )
+
+            fav = Fav.create(
+                url="https://www.google.com",
+                title="Google",
+            )
+            fav.save()
 
             link = OpenedLink.create(
                 url="https://www.google.com",
@@ -186,6 +199,30 @@ class DBController:
             column.save()
         except KanbanColumn.DoesNotExist:
             print(f"There is no column with {task_id = } and {order = } in db")
+
+    # FAVORITE
+    def create_fav(self, url, title):
+        fav = Fav.create(
+            url=url,
+            title=title
+        )
+        fav.save()
+
+    def delete_fav(self, url):
+        try:
+            fav = Fav.get(Fav.url == url)
+            fav.delete_instance()
+        except Fav.DoesNotExist:
+            print(f"Try to delete not existing fav: {url}")
+
+    # TODO update fav
+
+    def check_fav(self, url):
+        try:
+            fav = Fav.get(Fav.url == url)
+            return 1
+        except Fav.DoesNotExist:
+            return 0
 
     # VISITED
 

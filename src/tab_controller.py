@@ -46,6 +46,9 @@ class TabController(QObject):
         # Connect icon changed signal
         new_tab.page().iconChanged.connect( lambda icon, view=new_tab: self._handle_icon_change(view, icon) )
         
+        # Connect url changed signal
+        new_tab.urlChanged.connect( lambda url, view=new_tab: self._handle_url_change(view, url) )
+
         # Load URL
         if url:
             new_tab.load(QUrl(url))
@@ -72,6 +75,18 @@ class TabController(QObject):
             buffer.open(QBuffer.WriteOnly)
             pixmap.save(buffer, "PNG")
             self.app.window_controller.js.updateTabIcon(index, byte_array.toBase64().data().decode())
+
+    def _handle_url_change(self, view, url):
+        """Handle tab url change"""
+        index = self.app.tab_widget.indexOf(view)
+        current = self.app.tab_widget.currentIndex()
+
+        if index != -1 and index == current:
+            # update address bar
+            self.app.window_controller.js.updateAddressBar(url.toString())
+
+            # update fav status
+            self.check_fav(url.toString())
 
     # TODO inactive state
     @Slot()
@@ -110,6 +125,13 @@ class TabController(QObject):
         current = self._current_web_view()
         current.page().setDevToolsPage(self.app.dev_view.page())
 
+        if index != -1:
+            # update address bar
+            self.app.window_controller.js.updateAddressBar(current.url().toString())
+
+            # update fav status
+            self.check_fav(current.url().toString())
+
     @Slot(int)
     def closeTab(self, index):
         """Close tab"""
@@ -124,3 +146,32 @@ class TabController(QObject):
     def _current_web_view(self):
         """Get current web view"""
         return self.app.tab_widget.currentWidget()
+
+    @Slot(result=str)
+    def get_current_title(self):
+        """Get current tab title"""
+        if current := self._current_web_view():
+            return current.title()
+        return ""
+
+    # create fav
+    @Slot(str)
+    def create_fav(self, title):
+        """Save fav"""
+        url = self._current_web_view().url().toString()
+        self.app.db.create_fav(url, title)
+
+    # delete fav
+    @Slot()
+    def delete_fav(self):
+        """Delete fav"""
+        url = self._current_web_view().url().toString()
+        self.app.db.delete_fav(url)
+
+    # check fav by url
+    @Slot(str)
+    def check_fav(self, url):
+        """Check fav by url"""
+        status = self.app.db.check_fav(url)
+        self.app.window_controller.js.setFavStatus(status)
+        

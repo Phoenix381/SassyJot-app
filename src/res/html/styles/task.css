@@ -56,11 +56,14 @@ body {
 }
 
 #task-name {
-    border: 1px solid var(--border);
+    border: 2px solid var(--accent);
+    margin: 0px;
     border-radius: 5px !important;
 }
 
 #task-name:disabled {
+    border: 1px solid var(--border);
+    margin: 1px;
     color: var(--text-secondary) !important;
 }
 
@@ -106,6 +109,9 @@ body {
 
 .dashboard-block {
     border-radius: 5px;
+    padding: 1em;
+
+    color: var(--text);
 }
 
 /* ================================================== */

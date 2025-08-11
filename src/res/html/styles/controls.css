@@ -101,10 +101,120 @@ body {
     padding: 3px 5px 3px 10px;
 /*    margin: 3px 0 3px 0;*/
     font-size: 14px;
+
+    border-radius: 15px;
 }
 
 .status-controls {
 
+}
+
+.faved {
+    font-variation-settings: 'FILL' 1 !important;
+}
+
+.faved > i {   
+    color: var(--accent) !important;
+    transform: scale(1.2) !important;
+}
+
+/* ================================================== */
+/* fav modal */
+/* ================================================== */
+
+/* positioning */
+#favModal.modal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 0;
+    margin: 0;
+
+    background-color: transparent !important;
+}
+
+/* sizing */
+#favModal .modal-dialog {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 84px !important;
+    margin: 0 !important;
+    position: static;
+}
+
+/* rectanglifying */
+#favModal .modal-content {
+    height: 100%;
+    border-radius: 0 !important;
+    border: none !important;
+
+    background-color: var(--background) !important;
+}
+
+#favModal.modal .modal-backdrop {
+    display: none !important;
+}
+
+
+/* actual modal elements */
+.text-bordered {
+    border: 1px solid var(--border-color);
+}
+
+
+#fav-modal {
+    gap: 1em;
+}
+
+#fav-dialog {
+    display: flex;
+    align-items: center;
+    max-width: 400px;
+
+    gap: 10px;
+}
+
+#fav-controls {
+    display: flex;
+/*    flex-direction: column;*/
+    gap: 0.5em;
+}
+
+#fav-controls button {
+    width: 100%;
+}
+
+#fav-remove {
+    
+}
+
+#fav-address {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+#fav-address div input {
+    width: 100%;
+}
+
+#fav-title {
+    min-width: 20em;
+    padding: 3px 5px 3px 10px;
+}
+
+#fav-remove-button {
+    width: 6em !important;
+}
+
+#fav-save-button {
+    width: 6em !important;
+    background-color: var(--choice);
+}
+
+#fav-save-button:hover {
+    background-color: #897d73;
 }
 
 /* ================================================== */
