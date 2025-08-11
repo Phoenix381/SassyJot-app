@@ -10,6 +10,12 @@ class JSCaller(QObject):
     def createTab(self):
         self.controls.page().runJavaScript("newTab()")
 
+    def closeCurrentTab(self):
+        self.controls.page().runJavaScript("closeCurrentTab()")
+
+    def selectTab(self, index):
+        self.controls.page().runJavaScript(f"selectTab({index})")
+
     def updateTabTitle(self, index, title):
         self.controls.page().runJavaScript(f"updateTabTitle({index}, '{title}')")
 
@@ -19,11 +25,17 @@ class JSCaller(QObject):
     def updateTabUrl(self, index, url):
         self.controls.page().runJavaScript(f"updateTabUrl({index}, '{url}')")
 
+    def openFavModal(self):
+        self.controls.page().runJavaScript("openFavModal()")
+
     def setFavStatus(self, status):
         self.controls.page().runJavaScript(f"setFavStatus({status})")
     
     def updateAddressBar(self, url):
         self.controls.page().runJavaScript(f"updateAddressBar('{url}')")
+
+    def focusAddressBar(self):
+        self.controls.page().runJavaScript("focusAddressBar()")
 
 class WindowController(QObject):
     def __init__(self, app):
@@ -59,3 +71,10 @@ class WindowController(QObject):
         self.dragging = True
         self.app.grabMouse()
         self.local_pos = self.app.mapFromGlobal(QCursor.pos())
+
+    def favModal(self):
+        self.controls.page().runJavaScript("openFavModal()")
+
+    def focusAddressBar(self):
+        self.app.controls.setFocus()
+        self.app.controls.page().runJavaScript("focusAddressBar()")

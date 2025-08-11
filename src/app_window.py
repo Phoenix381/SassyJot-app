@@ -5,6 +5,7 @@ from PySide6.QtWidgets import QApplication
 
 from PySide6.QtCore import QEvent
 from PySide6.QtGui import QMouseEvent
+from PySide6.QtGui import QShortcut
 
 from PySide6.QtCore import QUrl
 from PySide6.QtCore import Qt
@@ -104,6 +105,9 @@ class AppWindow(QMainWindow):
         self.controls.setMouseTracking(True)
         self.controls.focusProxy().installEventFilter(self)
 
+        # register hotkeys
+        self.register_hotkeys()
+
     def init_after_load(self):
         """A function that is called after the app has loaded."""
         self.tab_controller.createTab()
@@ -179,3 +183,16 @@ class AppWindow(QMainWindow):
         
         if current := self.tab_widget.currentWidget():
             QApplication.sendEvent(current.focusProxy(), new_event)
+
+    # hotkeys
+    def register_hotkeys(self):
+        # tab controls
+        QShortcut("Ctrl+T", self).activated.connect(self.tab_controller.createBrowserTab)
+        QShortcut("Ctrl+W", self).activated.connect(self.tab_controller.closeCurrentTab)
+        QShortcut("Ctrl+Tab", self).activated.connect(self.tab_controller.nextTab)
+        QShortcut("Ctrl+Shift+Tab", self).activated.connect(self.tab_controller.prevTab)
+
+        QShortcut("Ctrl+R", self).activated.connect(self.tab_controller.pageReload)
+
+        QShortcut("Ctrl+D", self).activated.connect(self.window_controller.js.openFavModal)
+        QShortcut("Esc", self).activated.connect(self.window_controller.focusAddressBar)

@@ -34,13 +34,18 @@ const leftScroll = document.getElementById('scroll-left');
 const rightScroll = document.getElementById('scroll-right');
 const tabs = document.getElementsByClassName('tab');
 
+// address bar
 const addressBar = document.getElementById('address-input');
 const addressFormElement = document.getElementById('address-form');
 
+// fav
 const favTitle = document.getElementById('fav-title');
 const favButton = document.getElementById('favButton');
 const favRemoveButton = document.getElementById('fav-remove-button');
 const favSaveButton = document.getElementById('fav-save-button');
+
+// modals
+const favModal = new bootstrap.Modal(document.getElementById('favModal'));
 
 // ============================================================================
 // window and page controls
@@ -141,6 +146,28 @@ function selectTab(i) {
         tab.classList.remove('selected');
     }
     tabs[i].classList.add('selected');
+}
+
+// close currently selected
+function closeCurrentTab() {
+    if(tabList.length == 1) {
+        return;
+    }
+
+    // calculating indexes
+    let i = tabList.indexOf(document.getElementsByClassName('selected')[0]);
+    newIndex = i == tabList.length - 1 ? i - 1 : i;
+
+    // closing backend
+    tabController.closeTab(i);
+
+    // closing frontend
+    tabList[i].remove();
+    tabList[newIndex].click();
+    tabList.splice(i, 1);
+
+    // recalculating width
+    checkOverflow();
 }
 
 // new tab div
@@ -259,4 +286,19 @@ function favControls() {
     favSaveButton.addEventListener('click', function() {
         
     });
+}
+
+function openFavModal() {
+    favModal.show();
+}
+
+// ============================================================================
+// focus
+// ============================================================================
+
+function focusAddressBar() {
+    if(favModal._element.classList.contains('show'))
+        favModal.hide()
+    
+    addressBar.focus();
 }

@@ -25,6 +25,34 @@ class TabController(QObject):
         self.profile.setHttpCacheType(QWebEngineProfile.DiskHttpCache)
         self.profile.setPersistentCookiesPolicy(QWebEngineProfile.AllowPersistentCookies)
 
+    # create tab
+    def createBrowserTab(self, url=""):
+        self.createTab(url)
+        self.app.window_controller.js.createTab()
+
+    # close currently selected tab
+    def closeCurrentTab(self):
+        self.app.window_controller.js.closeCurrentTab()
+
+    # select next tab
+    def nextTab(self):
+        current = self.app.tab_widget.currentIndex()
+        total = self.app.tab_widget.count()
+        new = (current + 1) % total
+
+        self.selectTab(new)
+        self.app.window_controller.js.selectTab(new)
+
+    # select prev tab
+    def prevTab(self):
+        current = self.app.tab_widget.currentIndex()
+        total = self.app.tab_widget.count()
+        new = (current - 1) % total
+
+        self.selectTab(new)
+        self.app.window_controller.js.selectTab(new)
+
+    # create backend only tab
     @Slot(str)
     def createTab(self, url=""):
         """Creating tab inside tab widget"""
@@ -116,6 +144,7 @@ class TabController(QObject):
         if current := self._current_web_view():
             current.setUrl(QUrl(url))
 
+    # select tab on backend
     @Slot(int)
     def selectTab(self, index):
         """Select tab"""
