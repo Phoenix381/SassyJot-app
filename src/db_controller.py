@@ -227,3 +227,49 @@ class DBController:
     # VISITED
 
     # OPENED LINK
+    # save one link to position
+    def save_link(self, url, order, task_id):
+        try:
+            link = OpenedLink.get(
+                (OpenedLink.task == task_id) & 
+                (OpenedLink.order == order)
+            )
+            link.url = url
+            link.save()
+        except:
+            try:
+                link = OpenedLink.create(
+                    url=url,
+                    order=order,
+                    task=task_id
+                )
+                link.save()
+            except:
+                print(f"Failed to save link {url} to task {task_id}")
+
+    # delete on position for task
+    def delete_link(self, order, task_id):
+        try:
+            with self.db.atomic():
+                link = OpenedLink.get(
+                    (OpenedLink.task == task_id) & 
+                    (OpenedLink.order == order)
+                )
+                link.delete_instance()
+
+                # shift with order higher than deleted
+                query = OpenedLink.update(order=OpenedLink.order - 1).where(
+                    (OpenedLink.task == task_id) & 
+                    (OpenedLink.order > order)
+                )
+                shift_count = query.execute()
+        except OpenedLink.DoesNotExist:
+            print(f"Trying to delete not existing link: {task_id = } and {order = }")
+
+    # get all tabs for task
+    def get_links(self, task_id):
+        try:
+            return list( OpenedLink.select().where(OpenedLink.task == task_id) )
+        except OpenedLink.DoesNotExist:
+            print(f"There is no links in db for {task_id = }")
+            return []

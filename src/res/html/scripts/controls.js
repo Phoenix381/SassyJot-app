@@ -235,6 +235,16 @@ function newTab() {
     checkOverflow();
 }
 
+// closing all tabs on frontend
+function closeAllTabs() {
+    for (let i = 0; i < tabList.length; i++)
+        tabList[i].remove();
+    tabList = [];
+
+    // recalculating width
+    checkOverflow();
+}
+
 // ============================================================================
 // address input
 // ============================================================================

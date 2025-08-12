@@ -13,6 +13,9 @@ class JSCaller(QObject):
     def closeCurrentTab(self):
         self.controls.page().runJavaScript("closeCurrentTab()")
 
+    def closeAllTabs(self):
+        self.controls.page().runJavaScript("closeAllTabs()")
+
     def selectTab(self, index):
         self.controls.page().runJavaScript(f"selectTab({index})")
 

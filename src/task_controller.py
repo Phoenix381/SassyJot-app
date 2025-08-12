@@ -22,7 +22,10 @@ class TaskController(QObject):
         task = self.app.db.get_task(task_id)
         self.current = task
         self.app.db.set_setting('current', task.id)
-        # TODO reopen tabs
+
+        # reopen tabs
+        self.close_tabs()
+        self.open_tabs()
 
     # get currently selected
     @Slot(result=str)
@@ -82,3 +85,39 @@ class TaskController(QObject):
     @Slot(int, result=str)
     def get_task(self, id):
         return json.dumps(model_to_dict(self.app.db.get_task(id)))
+
+    # save tab to current task
+    def save_tab(self, url, order):
+        self.app.db.save_link(url, order, self.current.id)
+
+    # delete tab
+    def delete_tab(self, order):
+        self.app.db.delete_link(order, self.current.id)
+
+    # close task tabs
+    def close_tabs(self):
+        self.app.window_controller.js.closeAllTabs()
+
+        total = self.app.tab_widget.count()
+        for i in range(total):
+            # removing tab
+            web_view = self.app.tab_widget.widget(0)
+            self.app.tab_widget.removeTab(0)
+            if web_view:
+                web_view.deleteLater()
+
+        # self.app.tab_widget.clear()
+
+    # open task tabs
+    def open_tabs(self):
+        task = self.current
+        links = self.app.db.get_links(task.id)
+        if links:
+            for link in links:
+                self.app.tab_controller.createBrowserTab(link.url)
+        else:
+            self.app.tab_controller.createBrowserTab()
+
+        # TODO load selected position
+        # self.app.tab_widget.setCurrentIndex(0)
+        # self.app.window_controller.js.selectTab(0)

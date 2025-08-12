@@ -26,7 +26,10 @@ class TabController(QObject):
         self.profile.setPersistentCookiesPolicy(QWebEngineProfile.AllowPersistentCookies)
 
     # create tab
-    def createBrowserTab(self, url=""):
+    def createBrowserTab(self, url="qrc:/html/dashboard.html"):
+        if url == "":
+            url = "qrc:/html/dashboard.html"
+
         self.createTab(url)
         self.app.window_controller.js.createTab()
 
@@ -54,8 +57,11 @@ class TabController(QObject):
 
     # create backend only tab
     @Slot(str)
-    def createTab(self, url=""):
+    def createTab(self, url="qrc:/html/dashboard.html"):
         """Creating tab inside tab widget"""
+        if url == "":
+            url = "qrc:/html/dashboard.html"
+
         # Create new web view with profile
         new_tab = QWebEngineView(self.profile)
         
@@ -78,14 +84,14 @@ class TabController(QObject):
         new_tab.urlChanged.connect( lambda url, view=new_tab: self._handle_url_change(view, url) )
 
         # Load URL
-        if url:
-            new_tab.load(QUrl(url))
-        else:
-            new_tab.load(QUrl("qrc:/html/dashboard.html"))
+        new_tab.load(QUrl(url))
 
         # set up dev view for current tab
         current = self._current_web_view()
         current.page().setDevToolsPage(self.app.dev_view.page())
+
+        # save tab to task
+        self.app.task_controller.save_tab(url, index)
 
     def _handle_title_change(self, view, title):
         """Handle tab title change"""
@@ -115,6 +121,9 @@ class TabController(QObject):
 
             # update fav status
             self.check_fav(url.toString())
+
+        # save tab to task
+        self.app.task_controller.save_tab(url.toString(), index)
 
     # TODO inactive state
     @Slot()
@@ -167,9 +176,18 @@ class TabController(QObject):
         count = self.app.tab_widget.count()
         if count <= 1:
             return
-            
-        next_index = index if index == count - 1 else index + 1
+
+        # removing tab
+        web_view = self.app.tab_widget.widget(index)
         self.app.tab_widget.removeTab(index)
+        if web_view:
+            web_view.deleteLater()
+
+        # removing from db
+        self.app.task_controller.delete_tab(index)
+
+        # select next tab
+        next_index = index if index == count - 1 else index + 1
         self.selectTab(next_index)
 
     def _current_web_view(self):

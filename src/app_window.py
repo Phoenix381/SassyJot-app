@@ -10,6 +10,8 @@ from PySide6.QtGui import QShortcut
 from PySide6.QtCore import QUrl
 from PySide6.QtCore import Qt
 
+from PySide6.QtCore import QtMsgType, qInstallMessageHandler
+
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWebChannel import QWebChannel
 
@@ -105,13 +107,15 @@ class AppWindow(QMainWindow):
         self.controls.setMouseTracking(True)
         self.controls.focusProxy().installEventFilter(self)
 
+        # filtering log messages
+        qInstallMessageHandler(self.log_message_filter)
+
         # register hotkeys
         self.register_hotkeys()
 
     def init_after_load(self):
         """A function that is called after the app has loaded."""
-        self.tab_controller.createTab()
-        self.window_controller.js.createTab()
+        self.task_controller.open_tabs()
 
     def resizeEvent(self, event):
         """Handling the resize event."""
@@ -183,6 +187,13 @@ class AppWindow(QMainWindow):
         
         if current := self.tab_widget.currentWidget():
             QApplication.sendEvent(current.focusProxy(), new_event)
+
+    # log filter
+    def log_message_filter(self, mode, context, message):
+        # Only show critical and fatal messages
+        # if mode in (QtMsgType.QtCriticalMsg, QtMsgType.QtFatalMsg):
+        #     print(f"Qt {mode.name}: {message}")
+        pass
 
     # hotkeys
     def register_hotkeys(self):
