@@ -37,6 +37,8 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
                 });
             }
         });
+
+        initSticky();
     });
 
     // setting callbacks here
@@ -59,6 +61,8 @@ const selectButton = document.getElementById("select-button");
 const renameButton = document.getElementById("rename-button");
 const renameOkButton = document.getElementById("rename-ok-button");
 const renameCancelButton = document.getElementById("rename-cancel-button");
+
+const stickyArea = document.getElementById("sticky");
 
 // ============================================================================
 // rename actions
@@ -105,3 +109,39 @@ function modalActions() {
     });
 }
 
+// ============================================================================
+// sticky
+// ============================================================================
+
+function initSticky() {
+    taskController.get_sticky(task.id).then(text => {
+        console.log(text);
+        stickyArea.value = text;
+    });
+
+    // debounce function
+    function debounce(func, delay) {
+        let timeoutId;
+        return function(...args) {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                func.apply(this, args);
+            }, delay);
+        };
+    }
+
+    // updating sticky
+    const handleInput = debounce(function(value) {
+        taskController.update_sticky(value, task.id);
+    }, 2000);
+
+    // processing input
+    stickyArea.addEventListener('input', function() {
+        handleInput(this.value);
+    });
+
+    // losing focus
+    stickyArea.addEventListener('blur', function() {
+        taskController.update_sticky(this.value, task.id);
+    });
+}

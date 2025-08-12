@@ -72,25 +72,22 @@ body {
     gap: 0.5em;
 }
 
-.column-title {
-    display: flex;
-    justify-content: space-between;
-
-}
-
-.column-controls {
-    display: flex;
-    gap: 0.5em;
-}
-
-.column-controls > button {
-    width: 30px;
-}
-
-
 .control-buttons {
     display: flex;
     gap: 0.5em;
+}
+
+.task-column {
+    position: relative;
+}
+
+#addTaskButton {
+    position: absolute;
+    top: 0.5em;
+    right: 0.5em;
+
+    width: 2em;
+    height: 2em;
 }
 
 #sticky {

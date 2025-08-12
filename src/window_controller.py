@@ -79,5 +79,6 @@ class WindowController(QObject):
         self.controls.page().runJavaScript("openFavModal()")
 
     def focusAddressBar(self):
+        # TODO trigger esc on current page
         self.app.controls.setFocus()
         self.app.controls.page().runJavaScript("focusAddressBar()")

@@ -13,7 +13,7 @@ class Setting(BaseModel):
     key = CharField(unique=True, primary_key=True)
     value = CharField()
 
-class Visited(BaseModel):
+class History(BaseModel):
     url = CharField()
     title = CharField()
     timestamp = DateTimeField()
@@ -41,6 +41,7 @@ class KanbanColumn(BaseModel):
     visible = BooleanField(default=True)
     task = ForeignKeyField(Task, backref='columns', to_field="id")
 
+# tab attached to task
 class OpenedLink(BaseModel):
     url = CharField()
     order = IntegerField()
@@ -48,7 +49,11 @@ class OpenedLink(BaseModel):
 
     class Meta:
         primary_key = CompositeKey('task', 'order')
-    
+
+# both for dashboard and task
+class StickyNote(BaseModel):
+    text = TextField()
+    task = ForeignKeyField(Task, backref='notes', to_field="id")
 
 # CONTROLLER
 class DBController:
@@ -57,7 +62,7 @@ class DBController:
 
         # init db and tables
         db.connect()
-        db.create_tables([Setting, Visited, Fav, Task, OpenedLink])
+        db.create_tables([Setting, History, Fav, Task, OpenedLink, StickyNote])
 
         # check if first run
         try:
@@ -224,7 +229,7 @@ class DBController:
         except Fav.DoesNotExist:
             return 0
 
-    # VISITED
+    # HISTORY
 
     # OPENED LINK
     # save one link to position
@@ -273,3 +278,30 @@ class DBController:
         except OpenedLink.DoesNotExist:
             print(f"There is no links in db for {task_id = }")
             return []
+
+    # STICKY NOTE
+    # initial load
+    def get_note(self, task_id):
+        try:
+            note = StickyNote.get(StickyNote.task == task_id)
+            return note.text
+        except StickyNote.DoesNotExist:
+            try:
+                note = StickyNote.create(
+                    text="",
+                    task=task_id
+                )
+                note.save()
+                return ""
+            except:
+                print(f"There is no note in db for {task_id = }")
+                return ""
+
+    # save changes
+    def update_note(self, text, task_id):
+        try:
+            note = StickyNote.get(StickyNote.task == task_id)
+            note.text = text
+            note.save()
+        except StickyNote.DoesNotExist:
+            print(f"Failed to save note {text} to task {task_id}")

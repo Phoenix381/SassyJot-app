@@ -121,3 +121,13 @@ class TaskController(QObject):
         # TODO load selected position
         # self.app.tab_widget.setCurrentIndex(0)
         # self.app.window_controller.js.selectTab(0)
+
+    # get current task sticky
+    @Slot(int, result=str)
+    def get_sticky(self, task_id):
+        return self.app.db.get_note(task_id)
+
+    # update current task sticky
+    @Slot(str, int)
+    def update_sticky(self, text, task_id):
+        self.app.db.update_note(text, task_id)

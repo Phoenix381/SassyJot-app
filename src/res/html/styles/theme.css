@@ -59,6 +59,16 @@ html {
   padding: 5px;
 }
 
+.surface-background {
+  background-color: var(--background);
+  color: var(--text-secondary);
+  
+  border-radius: 5px;
+  padding: 5px;
+
+  scrollbar-color: var(--choice) var(--background);
+}
+
 .background {
   background-color: var(--background);
   color: var(--text-secondary);
@@ -161,6 +171,19 @@ input[type="text"].surface:focus {
   outline: none;
 }
 
+textarea {
+  background-color: var(--selectable);
+  color: var(--text-secondary);
+
+  resize: none;
+}
+
+textarea:focus {
+  color: var(--text);
+
+  border: 2px solid var(--accent);
+  outline: 0px solid var(--accent);
+}
 
 select {
   background-color: transparent;

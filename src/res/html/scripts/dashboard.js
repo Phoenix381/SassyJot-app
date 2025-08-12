@@ -28,6 +28,7 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
     // setting callbacks here
     modalActions();
     loadTasks();
+    initSticky();
 });
 
 // ============================================================================
@@ -39,11 +40,13 @@ const addTaskButton = document.getElementById("add-task-button");
 const addTaskModalElement = document.getElementById("addTaskModal");
 const addTaskModal = new bootstrap.Modal(addTaskModalElement);
 const taskColorInput = document.getElementById("task-color");
-const taskNameInput = document.getElementById("task-name");
+const taskNameInput = document.getElementById("task-name-input");
 
 const tasksContainer = document.getElementById("tasks");
 
-const taskName = document.getElementById("taskName");
+const taskName = document.getElementById("task-name");
+
+const stickyArea = document.getElementById("sticky");
 
 // ============================================================================
 // modal actions
@@ -105,5 +108,42 @@ function loadTasks() {
         let data = JSON.parse(tasks);
 
         addTasks(tasksContainer, data, 0);
+    });
+}
+
+// ============================================================================
+// sticky
+// ============================================================================
+
+function initSticky() {
+    taskController.get_sticky(0).then(text => {
+        console.log(text);
+        stickyArea.value = text;
+    });
+
+    // debounce function
+    function debounce(func, delay) {
+        let timeoutId;
+        return function(...args) {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                func.apply(this, args);
+            }, delay);
+        };
+    }
+
+    // updating sticky
+    const handleInput = debounce(function(value) {
+        taskController.update_sticky(value, 0);
+    }, 2000);
+
+    // processing input
+    stickyArea.addEventListener('input', function() {
+        handleInput(this.value);
+    });
+
+    // losing focus
+    stickyArea.addEventListener('blur', function() {
+        taskController.update_sticky(this.value, 0);
     });
 }
