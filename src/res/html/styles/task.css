@@ -119,6 +119,75 @@ body {
 }
 
 /* ================================================== */
+/* kanban */
+/* ================================================== */
+
+#kanban-container {
+    display: flex;
+    gap: 1em;
+
+    padding: 1em;
+}
+
+.kanban-column {
+    background-color: var(--background);
+
+    border: 1px solid var(--border);
+    border-radius: 5px;
+
+    width: 250px;
+    min-height: 400px;
+}
+
+.kanban-column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--selectable);
+    border-radius: 5px 5px 0 0;
+    cursor: move;
+}
+
+.column-menu {
+/*    padding: 0 5px;*/
+    margin-right: 10px;
+}
+
+.kanban-column-name {
+    font-weight: bold;
+    padding: 10px;
+
+    user-select: none;
+
+    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.kanban-task {
+    background-color: white;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 3px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    cursor: move;
+}
+
+.kanban-task:hover {
+    background-color: #f4f5f7;
+}
+
+.kanban-column-ghost {
+    opacity: 0.5;
+    background: var(--selectable);
+}
+.kanban-task-ghost {
+    opacity: 0.5;
+    background: #c8ebfb;
+}
+
+/* ================================================== */
 /* restyling elements */
 /* ================================================== */
 

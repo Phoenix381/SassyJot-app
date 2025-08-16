@@ -4,8 +4,10 @@ from PySide6.QtWidgets import QVBoxLayout, QSizePolicy
 from PySide6.QtWidgets import QApplication
 
 from PySide6.QtCore import QEvent
-from PySide6.QtGui import QMouseEvent
+from PySide6.QtGui import QMouseEvent, QDragEnterEvent
 from PySide6.QtGui import QShortcut
+
+from PySide6.QtCore import QTimer
 
 from PySide6.QtCore import QUrl
 from PySide6.QtCore import Qt
@@ -103,7 +105,7 @@ class AppWindow(QMainWindow):
         controls_channel.registerObject("tab_controller", self.tab_controller)
         self.controls.page().setWebChannel(controls_channel)
 
-        # Enable event filter
+        # Enable event filter and cursor tracking
         self.controls.setMouseTracking(True)
         self.controls.focusProxy().installEventFilter(self)
 
@@ -151,28 +153,45 @@ class AppWindow(QMainWindow):
 
     def eventFilter(self, obj, event):
         # """Pass event through transparent part of controls."""
-        if obj == self.controls.focusProxy():
-            etype = event.type()
+        if obj != self.controls.focusProxy():
+            return False
 
-            if etype == QEvent.MouseMove:
-                mouse_event = event
-                if mouse_event.position().y() > 84:
-                    new_pos = mouse_event.position()
-                    new_pos.setY(new_pos.y() - 84)
-                    self.forward_mouse_event(mouse_event, new_pos)
-                    
-            elif etype in (QEvent.MouseButtonPress, QEvent.MouseButtonRelease):
-                mouse_event = event
-                if mouse_event.position().y() > 84:
-                    new_pos = mouse_event.position()
-                    new_pos.setY(new_pos.y() - 84)
-                    self.forward_mouse_event(mouse_event, new_pos)
-                    if current := self.tab_widget.currentWidget():
-                        current.setFocus()
-                        
-            elif etype == QEvent.ContextMenu:
+        etype = event.type()
+
+        mouse_events = [
+            QEvent.MouseMove,   
+            QEvent.MouseButtonDblClick,
+            QEvent.MouseButtonPress,
+            QEvent.MouseButtonRelease,
+        ]
+
+        if etype in mouse_events and event.position().y() <= 84:
+            return False
+
+        current = self.tab_widget.currentWidget()
+        if not current:
+            return False
+
+        # handle mouse events
+        if etype in mouse_events:
+            new_pos = event.position()
+            new_pos.setY(new_pos.y() - 84)
+            self.forward_mouse_event(event, new_pos)
+            if etype != QEvent.MouseMove:
+                current.setFocus()
                 return True
-                
+
+        # handle drag events
+        if etype == QEvent.DragEnter:
+            # turn off controls trancparency for 1 second
+            self.controls.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+            QTimer.singleShot(1000, lambda: self.controls.setAttribute(Qt.WA_TransparentForMouseEvents, False))
+            return True
+
+        # handle context menu
+        elif etype == QEvent.ContextMenu:
+            return True
+
         return False
 
     def forward_mouse_event(self, original_event, new_pos):
@@ -184,7 +203,7 @@ class AppWindow(QMainWindow):
             original_event.buttons(),
             original_event.modifiers()
         )
-        
+
         if current := self.tab_widget.currentWidget():
             QApplication.sendEvent(current.focusProxy(), new_event)
 

@@ -28,6 +28,7 @@ class Task(BaseModel):
     name = CharField()
     color = CharField(default="#000000")
     parent = ForeignKeyField('self', backref='children', to_field="id", null=True)
+    column = DeferredForeignKey('KanbanColumn', backref='tasks', to_field="id", null=True, default=None)
     # TODO types
 
     def get_all_dict(self):
@@ -38,8 +39,8 @@ class Task(BaseModel):
 class KanbanColumn(BaseModel):
     name = CharField()
     order = IntegerField()
-    visible = BooleanField(default=True)
     task = ForeignKeyField(Task, backref='columns', to_field="id")
+    # visible = BooleanField(default=True)
 
 # tab attached to task
 class OpenedLink(BaseModel):
@@ -62,7 +63,7 @@ class DBController:
 
         # init db and tables
         db.connect()
-        db.create_tables([Setting, History, Fav, Task, OpenedLink, StickyNote])
+        db.create_tables([Setting, History, Fav, Task, KanbanColumn, OpenedLink, StickyNote])
 
         # check if first run
         try:
@@ -131,6 +132,20 @@ class DBController:
             )
             setting.save()
 
+            column = KanbanColumn.create(
+                name="Default column",   
+                order=0,
+                task=task.id
+            )
+            column.save()
+
+            column2 = KanbanColumn.create(
+                name="Default column2",   
+                order=1,
+                task=task.id
+            )
+            column2.save()
+
     # SETTING
     def get_setting(self, key):
         try:
@@ -184,26 +199,15 @@ class DBController:
             print(f"There is no columns in db for {task_id = }")
             return []
 
-    def switch_places_column(self, task_id, source, target):
+    # update column
+    def update_column(self, name, order, column_id):
         try:
-            column1 = KanbanColumn.get(task == task_id and order == source)
-            column2 = KanbanColumn.get(task == task_id and order == target)
-
-            column1.order = target
-            column2.order = source
-
-            column1.save()
-            column2.save()
-        except KanbanColumn.DoesNotExist:
-            print(f"There is no column with {task_id = } and {order = } in db")
-
-    def toggle_visibility_column(self, task_id, order, visible):
-        try:
-            column = KanbanColumn.get(task == task_id and order == order)
-            column.visible = visible
+            column = KanbanColumn.get(KanbanColumn.id == column_id)
+            column.name = name
+            column.order = order
             column.save()
         except KanbanColumn.DoesNotExist:
-            print(f"There is no column with {task_id = } and {order = } in db")
+            print(f"Trying to update not existing column: {column_id = }")
 
     # FAVORITE
     def create_fav(self, url, title):

@@ -50,16 +50,6 @@ class TaskController(QObject):
         task.name = name
         task.save()
 
-    @Slot(int, str)
-    def create_column(self, task_id, name):
-        # create_column(self, name, order, task):
-        order = len(self.app.db.get_columns(task_id))
-        self.app.db.create_column(order, name, task_id)
-
-    @Slot(int, result=str)
-    def get_columns(self, task_id):
-        return json.dumps([model_to_dict(c) for c in self.app.db.get_columns(task_id)])
-
     # get full tree
     @Slot(result=str)
     def get_task_tree(self):
@@ -131,3 +121,20 @@ class TaskController(QObject):
     @Slot(str, int)
     def update_sticky(self, text, task_id):
         self.app.db.update_note(text, task_id)
+
+    # get kanban columns for task
+    @Slot(int, result=str)
+    def get_kanban_columns(self, task_id):
+        columns = self.app.db.get_columns(task_id)
+        return json.dumps([model_to_dict(c) for c in columns])
+    
+    # make column
+    @Slot(str, int, int)
+    def create_kanban_column(self, name, order, task_id):
+        self.app.db.create_column(name, order, task_id)
+
+    # update all columns for task
+    @Slot(str)
+    def update_kanban_columns(self, columns):
+        columns = json.loads(columns)
+        # TODO update columns

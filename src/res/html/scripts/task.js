@@ -38,7 +38,9 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
             }
         });
 
+        // init after getting task id
         initSticky();
+        initKanban();
     });
 
     // setting callbacks here
@@ -50,13 +52,15 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
 // page elements
 // ============================================================================
 
+// kanban
 const addColumnButton = document.getElementById("add-column-button");
 const columnNameInput = document.getElementById("column-name");
 const addColumnModalElement = document.getElementById("addColumnModal");
 const addColumnModal = new bootstrap.Modal(addColumnModalElement);
+const kanbanContainer = document.getElementById("kanban-container");
 
+// dashboard rename
 const taskName = document.getElementById("task-name");
-
 const selectButton = document.getElementById("select-button");
 const renameButton = document.getElementById("rename-button");
 const renameOkButton = document.getElementById("rename-ok-button");
@@ -99,10 +103,11 @@ function renameActions() {
 // ============================================================================
 
 function modalActions() {
+    // add column to kanban
     addColumnButton.addEventListener("click", () => {
-        taskController.create_column(task.id, columnNameInput.value).then(() => {
-            // reload
-
+        let order = columns.length;
+        taskController.create_kanban_column(columnNameInput.value, order, task.id).then(() => {
+            makeColumn(columnNameInput.value);
         });
 
         addColumnModal.hide();
@@ -115,7 +120,6 @@ function modalActions() {
 
 function initSticky() {
     taskController.get_sticky(task.id).then(text => {
-        console.log(text);
         stickyArea.value = text;
     });
 
@@ -143,5 +147,79 @@ function initSticky() {
     // losing focus
     stickyArea.addEventListener('blur', function() {
         taskController.update_sticky(this.value, task.id);
+    });
+}
+
+// ============================================================================
+// kanban
+// ============================================================================
+
+// data
+var columns = [];
+
+// predetermined blocks
+// column
+function makeColumn(name, id) {
+    let column = document.createElement("div");
+    column.classList.add("kanban-column");
+    column.setAttribute("data-column-id", id);
+
+    column_header = document.createElement("div");
+    column_header.classList.add("kanban-column-header");
+
+    column_name = document.createElement("div");
+    column_name.classList.add("kanban-column-name");
+    column_name.innerHTML = name;
+    column_header.appendChild(column_name);
+
+    column_handle = document.createElement("i");
+    column_handle.classList.add("column-menu");
+    column_handle.classList.add("material-symbols");
+    column_handle.innerHTML = "menu";
+    column_header.appendChild(column_handle);
+
+    task_container = document.createElement("div");
+    task_container.classList.add("kanban-task-container");
+
+    column.appendChild(column_header);
+    column.appendChild(task_container);
+
+    columns.push(column);
+    kanbanContainer.appendChild(column);
+
+    new Sortable(task_container, {
+        group: 'shared-items',
+        animation: 150,
+        draggable: '.kanban-task',
+        ghostClass: 'kanban-task-ghost',
+        handle: '.kanban-task'
+    });
+}
+
+// task inside column
+function makeTask(name) {
+    let task = document.createElement("div");   
+    task.classList.add("task");
+    task.innerHTML = name;
+}
+
+// init funuction
+function initKanban() {
+    kanbanContainer.innerHTML = "";
+
+    taskController.get_kanban_columns(task.id).then(columns => {
+        columns = JSON.parse(columns);
+        columns.forEach(column => {
+            makeColumn(column.name, column.id);
+            // TODO fill with tasks
+        });
+
+        new Sortable(kanbanContainer, {
+            animation: 150,
+            handle: '.kanban-column-header',
+            ghostClass: 'kanban-column-ghost',
+            filter: '.kanban-task',
+            preventOnFilter: false  
+        });
     });
 }

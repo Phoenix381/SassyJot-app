@@ -230,7 +230,7 @@ function newTab() {
 
     tabContainer.appendChild(newTab);
     newTab.click();
-    addressBar.focus();
+    focusAddressBar();
 
     checkOverflow();
 }
