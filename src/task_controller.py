@@ -129,9 +129,10 @@ class TaskController(QObject):
         return json.dumps([model_to_dict(c) for c in columns])
     
     # make column
-    @Slot(str, int, int)
+    @Slot(str, int, int, result=int)
     def create_kanban_column(self, name, order, task_id):
-        self.app.db.create_column(name, order, task_id)
+        column = self.app.db.create_column(name, order, task_id)
+        return column.id
 
     # update all columns for task
     @Slot(str)

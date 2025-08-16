@@ -148,11 +148,6 @@ body {
     cursor: move;
 }
 
-.column-menu {
-/*    padding: 0 5px;*/
-    margin-right: 10px;
-}
-
 .kanban-column-name {
     font-weight: bold;
     padding: 10px;
@@ -163,6 +158,34 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.dropdown {
+    margin-right: 6px;
+}
+
+.dropdown-toggle {
+    background-color: var(--selectable);
+}
+
+.dropdown-toggle::after {
+    display: none;
+}
+
+.dropdown-menu {
+    padding: 4px 0 4px 0;
+    min-width: max-content;
+    background-color: var(--selectable);
+}
+
+.dropdown-item {
+    color: var(--text-secondary);
+    background-color: var(--selectable);
+}
+
+.dropdown-item:hover {
+    color: var(--text-secondary);
+    background-color: var(--choice);
 }
 
 .kanban-task {
@@ -222,4 +245,9 @@ input[type="text"] {
 
 .modal-content {
     background-color: transparent;
+}
+
+#task-color {
+    height: 38px;
+    border-radius: 5px;
 }

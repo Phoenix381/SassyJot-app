@@ -11,7 +11,7 @@
     <link href="styles/task.css" rel="stylesheet">
 </head>
 <body class="background">
-    <script src="deps/bootstrap.js"></script>
+    <script src="deps/bootstrap.bundle.min.js"></script>
     <script src="deps/qwebchannel.js"></script>
 
     <div class="app">
@@ -183,6 +183,7 @@
     <!-- add kanban column modal -->
     <!-- ================================================== -->
 
+    <!-- add kanban column -->
     <div class="modal fade" id="addColumnModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content d-flex align-items-center justify-content-center">
@@ -193,6 +194,27 @@
                     </div>
 
                     <button class="btn btn-sm bordered surface" id="add-column-button">
+                        Create
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- add tasks to column -->
+    <div class="modal fade" id="addTaskModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content d-flex align-items-center justify-content-center">
+                <div class="d-flex gap-2 justify-center">
+
+                    <input type="color" id="task-color" value="#b8bb26">
+
+                    <div class="d-flex flex-column gap-1">
+                        <input class="text-input text-bordered surface" type="text" id="column-task-name" placeholder="Name">
+                    </div>
+
+                    <button class="btn btn-sm bordered surface" id="add-task-button">
                         Create
                     </button>
 

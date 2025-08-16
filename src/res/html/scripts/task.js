@@ -59,6 +59,12 @@ const addColumnModalElement = document.getElementById("addColumnModal");
 const addColumnModal = new bootstrap.Modal(addColumnModalElement);
 const kanbanContainer = document.getElementById("kanban-container");
 
+// adding task
+const taskModal = new bootstrap.Modal(document.getElementById("addTaskModal"));
+const taskColor = document.getElementById("task-color");
+const columnTaskName = document.getElementById("column-task-name");
+const addTaskButton = document.getElementById("add-task-button");
+
 // dashboard rename
 const taskName = document.getElementById("task-name");
 const selectButton = document.getElementById("select-button");
@@ -106,8 +112,8 @@ function modalActions() {
     // add column to kanban
     addColumnButton.addEventListener("click", () => {
         let order = columns.length;
-        taskController.create_kanban_column(columnNameInput.value, order, task.id).then(() => {
-            makeColumn(columnNameInput.value);
+        taskController.create_kanban_column(columnNameInput.value, order, task.id).then((id) => {
+            makeColumn(columnNameInput.value, id);
         });
 
         addColumnModal.hide();
@@ -156,6 +162,7 @@ function initSticky() {
 
 // data
 var columns = [];
+var selected_column;
 
 // predetermined blocks
 // column
@@ -172,12 +179,36 @@ function makeColumn(name, id) {
     column_name.innerHTML = name;
     column_header.appendChild(column_name);
 
-    column_handle = document.createElement("i");
-    column_handle.classList.add("column-menu");
-    column_handle.classList.add("material-symbols");
-    column_handle.innerHTML = "menu";
-    column_header.appendChild(column_handle);
+    // column actions
+    column_menu = document.createElement("div");
+    column_menu.classList.add("dropdown");
+    menu_button = document.createElement("button");
+    menu_button.classList.add("dropdown-toggle");
+    menu_button.setAttribute("data-bs-toggle", "dropdown");
+    button_icon = document.createElement("i");
+    button_icon.classList.add("column-menu");
+    button_icon.classList.add("material-symbols");
+    button_icon.innerHTML = "menu";
+    menu_items = document.createElement("div");
+    menu_items.classList.add("dropdown-menu");
+    add_task = document.createElement("button");
+    add_task.classList.add("dropdown-item");
+    add_task.innerHTML = "Add task";
 
+    menu_button.appendChild(button_icon);
+    column_menu.appendChild(menu_button);
+    column_menu.appendChild(menu_items);
+    menu_items.appendChild(add_task);
+    column_header.appendChild(column_menu);
+
+    // opening add task modal
+    add_task.addEventListener("click", () => {
+        selected_column = id;
+        columnTaskName.value = "";
+        taskModal.show();
+    });
+
+    // task containier
     task_container = document.createElement("div");
     task_container.classList.add("kanban-task-container");
 
