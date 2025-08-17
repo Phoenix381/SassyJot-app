@@ -29,6 +29,7 @@ class Task(BaseModel):
     color = CharField(default="#000000")
     parent = ForeignKeyField('self', backref='children', to_field="id", null=True)
     column = DeferredForeignKey('KanbanColumn', backref='tasks', to_field="id", null=True, default=None)
+    order = IntegerField(default=0)
     # TODO types
 
     def get_all_dict(self):
@@ -159,11 +160,13 @@ class DBController:
         # setting.save()
 
     # TASK
-    def create_task(self, name, color, parent_id):
+    def create_task(self, name, color, parent_id, column_id = None, order = 0):
         task = Task.create(
             name=name,
             color=color,
-            parent=parent_id
+            parent=parent_id,
+            column=column_id,
+            order=order
         )
         task.save()
         return task
@@ -181,6 +184,13 @@ class DBController:
         except Task.DoesNotExist:
             print("There is no tasks in db")
             return None
+
+    def get_column_tasks(self, column_id):
+        try:
+            return list( Task.select().where(Task.column == column_id) )
+        except Task.DoesNotExist:
+            print(f"There is no tasks in db for {column_id = }")
+            return []
 
     # KANBAN COLUMN
     def create_column(self, name, order, task_id):

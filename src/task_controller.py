@@ -34,13 +34,19 @@ class TaskController(QObject):
         current = self.app.db.get_task(current)
         return json.dumps(model_to_dict(current))
 
-    # create
+    # create task at dashboard
     @Slot(str, str, int, result=int)
     def create_task(self, name, color, parent_id):
         if parent_id == 0:
             parent_id = None
         task = self.app.db.create_task(name, color, parent_id)
         self.select_task(task)
+        return task.id
+
+    # create task at column
+    @Slot(str, str, int, int, int, result=int)
+    def create_column_task(self, name, color, parent_id, column_id, order):
+        task = self.app.db.create_task(name, color, parent_id, column_id, order)
         return task.id
 
     # rename task
@@ -75,6 +81,12 @@ class TaskController(QObject):
     @Slot(int, result=str)
     def get_task(self, id):
         return json.dumps(model_to_dict(self.app.db.get_task(id)))
+
+    # get tasks for column
+    @Slot(int, result=str)
+    def get_column_tasks(self, column_id):
+        tasks = self.app.db.get_column_tasks(column_id)
+        return json.dumps([model_to_dict(t) for t in tasks])
 
     # save tab to current task
     def save_tab(self, url, order):

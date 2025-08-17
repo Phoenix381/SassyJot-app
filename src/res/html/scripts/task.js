@@ -112,11 +112,27 @@ function modalActions() {
     // add column to kanban
     addColumnButton.addEventListener("click", () => {
         let order = columns.length;
-        taskController.create_kanban_column(columnNameInput.value, order, task.id).then((id) => {
+        let columnName = columnNameInput.value;
+        taskController.create_kanban_column(columnName, order, task.id).then((id) => {
             makeColumn(columnNameInput.value, id);
         });
 
         addColumnModal.hide();
+    });
+
+    // add task to column
+    addTaskButton.addEventListener("click", () => {
+        // locate column by data-column-id
+        let column = columns.find(c => c.getAttribute("data-column-id") == selected_column);
+        let order = column.children[1].children.length;
+        let name = columnTaskName.value;
+        let color = taskColor.value;
+        
+        taskController.create_column_task(name, color, task.id, selected_column, order).then((id) => {
+            makeTask(columnTaskName.value, selected_column, id);
+        });
+
+        taskModal.hide();
     });
 }
 
@@ -228,10 +244,15 @@ function makeColumn(name, id) {
 }
 
 // task inside column
-function makeTask(name) {
+function makeTask(name, column_id, id) {
     let task = document.createElement("div");   
-    task.classList.add("task");
+    task.classList.add("kanban-task");
     task.innerHTML = name;
+    task.setAttribute("data-task-id", id);
+
+    // locate column by data-column-id
+    let column = columns.find(c => c.getAttribute("data-column-id") == column_id);
+    column.children[1].appendChild(task);
 }
 
 // init funuction
@@ -242,7 +263,13 @@ function initKanban() {
         columns = JSON.parse(columns);
         columns.forEach(column => {
             makeColumn(column.name, column.id);
-            // TODO fill with tasks
+            
+            taskController.get_column_tasks(column.id).then(tasks => {
+                tasks = JSON.parse(tasks); 
+                tasks.forEach(task => {
+                    makeTask(task.name, column.id, task.id);
+                });
+            });
         });
 
         new Sortable(kanbanContainer, {
