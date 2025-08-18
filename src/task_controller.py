@@ -146,8 +146,12 @@ class TaskController(QObject):
         column = self.app.db.create_column(name, order, task_id)
         return column.id
 
-    # update all columns for task
-    @Slot(str)
-    def update_kanban_columns(self, columns):
-        columns = json.loads(columns)
-        # TODO update columns
+    # move column to another position
+    @Slot(int, int)
+    def move_kanban_column(self, column_id, new_order):
+        self.app.db.move_column(column_id, new_order)
+
+    # move task in or between columns
+    @Slot(int, int, int)
+    def move_task(self, task_id, new_column_id, new_order):
+        self.app.db.move_task(task_id, new_column_id, new_order)

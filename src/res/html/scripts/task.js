@@ -127,7 +127,7 @@ function modalActions() {
         let order = column.children[1].children.length;
         let name = columnTaskName.value;
         let color = taskColor.value;
-        
+
         taskController.create_column_task(name, color, task.id, selected_column, order).then((id) => {
             makeTask(columnTaskName.value, selected_column, id);
         });
@@ -227,6 +227,7 @@ function makeColumn(name, id) {
     // task containier
     task_container = document.createElement("div");
     task_container.classList.add("kanban-task-container");
+    task_container.setAttribute("data-column-id", id);
 
     column.appendChild(column_header);
     column.appendChild(task_container);
@@ -239,7 +240,19 @@ function makeColumn(name, id) {
         animation: 150,
         draggable: '.kanban-task',
         ghostClass: 'kanban-task-ghost',
-        handle: '.kanban-task'
+        handle: '.kanban-task',
+        onEnd: function(e) {
+            let from = e.from.getAttribute("data-column-id");
+            let to = e.to.getAttribute("data-column-id");
+            let oldIndex = e.oldIndex;
+            let newIndex = e.newIndex;
+            let task_id = e.item.getAttribute("data-task-id");
+            if(from != to || oldIndex != newIndex) {
+                taskController.move_task(task_id, to, newIndex);
+                // console.log("Moved task from", from, "to", to, "oldIndex", oldIndex, "newIndex", newIndex);
+            }
+            console.log(e);
+        }
     });
 }
 
@@ -259,9 +272,9 @@ function makeTask(name, column_id, id) {
 function initKanban() {
     kanbanContainer.innerHTML = "";
 
-    taskController.get_kanban_columns(task.id).then(columns => {
-        columns = JSON.parse(columns);
-        columns.forEach(column => {
+    taskController.get_kanban_columns(task.id).then(saved_columns => {
+        saved_columns = JSON.parse(saved_columns);
+        saved_columns.forEach(column => {
             makeColumn(column.name, column.id);
             
             taskController.get_column_tasks(column.id).then(tasks => {
@@ -277,7 +290,16 @@ function initKanban() {
             handle: '.kanban-column-header',
             ghostClass: 'kanban-column-ghost',
             filter: '.kanban-task',
-            preventOnFilter: false  
+            preventOnFilter: false,
+            onEnd: function(e) {
+                let oldIndex = e.oldIndex;
+                let newIndex = e.newIndex;
+                let column_index = e.item.getAttribute("data-column-id");
+                if(oldIndex != newIndex) {
+                    taskController.move_kanban_column(column_index, newIndex);
+                    // console.log("Moved column", column_index, "from", oldIndex, "to", newIndex);
+                }
+            }
         });
     });
 }

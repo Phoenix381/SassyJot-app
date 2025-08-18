@@ -34,7 +34,7 @@ class Task(BaseModel):
 
     def get_all_dict(self):
         data = model_to_dict(self)
-        data['children'] = [child.get_all_dict() for child in self.children]
+        data['children'] = [child.get_all_dict() for child in sorted(self.children, key=lambda x: x.order)]
         return data
 
 class KanbanColumn(BaseModel):
@@ -73,79 +73,13 @@ class DBController:
             # making first project
             print("DB is empty, initializing...")
 
-            task = Task.create(
-                name="Default task",
-                parent=None,
-            )
-
-            # TODO remove test structure or move to separate tests
-            task2 = Task.create(
-                name="Default task 2",
-                parent=task,
-            )
-
-            task6 = Task.create(
-                name="Default task 6",
-                parent=task,
-            )
-
-            task7 = Task.create(
-                name="Project 2",
-                parent=None,
-            )
-
-            task3 = Task.create(
-                name="Default task 3",
-                parent=task2,
-            )
-
-            task4 = Task.create(
-                name="Default task 4",
-                parent=task2,
-            )
-
-            task5 = Task.create(
-                name="Default task 5",
-                parent=task4,
-            )
-
-            task8 = Task.create(
-                name="Default task 8",
-                parent=task7,
-            )
-
-            fav = Fav.create(
-                url="https://www.google.com",
-                title="Google",
-            )
-            fav.save()
-
-            link = OpenedLink.create(
-                url="https://www.google.com",
-                order=0,
-                task=task
-            )
-            link.save()
+            task = self.create_task("Default task", "#000000", None)
 
             setting = Setting.create(
                 key="current",
                 value=task.id
             )
             setting.save()
-
-            column = KanbanColumn.create(
-                name="Default column",   
-                order=0,
-                task=task.id
-            )
-            column.save()
-
-            column2 = KanbanColumn.create(
-                name="Default column2",   
-                order=1,
-                task=task.id
-            )
-            column2.save()
 
     # SETTING
     def get_setting(self, key):
@@ -169,6 +103,11 @@ class DBController:
             order=order
         )
         task.save()
+
+        # TODO create default columns
+        self.create_column("Todo", 0, task.id)
+        self.create_column("In progress", 1, task.id)
+        self.create_column("Done", 2, task.id)
         return task
 
     def get_task(self, task_id):
@@ -187,10 +126,38 @@ class DBController:
 
     def get_column_tasks(self, column_id):
         try:
-            return list( Task.select().where(Task.column == column_id) )
+            return list( Task.select().where(Task.column == column_id).order_by(Task.order) )
         except Task.DoesNotExist:
             print(f"There is no tasks in db for {column_id = }")
             return []
+
+    # move task in or between columns
+    def move_task(self, task_id, new_column_id, new_order):
+        try:
+            with self.db.atomic():
+                task = Task.get(Task.id == task_id)
+                order = task.order
+                column_id = task.column_id
+
+                # shift order to remove from list
+                query = Task.update(order=Task.order - 1).where(
+                    (Task.column == column_id) &
+                    (Task.order > order)
+                )
+                query.execute()
+
+                # shift order to add to list
+                query = Task.update(order=Task.order + 1).where(
+                    (Task.column == new_column_id) &
+                    (Task.order >= new_order)
+                )
+                query.execute()
+
+                task.column = new_column_id
+                task.order = new_order
+                task.save()
+        except Task.DoesNotExist:
+            print(f"Error moving task: {task_id = }")
 
     # KANBAN COLUMN
     def create_column(self, name, order, task_id):
@@ -204,7 +171,7 @@ class DBController:
 
     def get_columns(self, task_id):
         try:
-            return list( KanbanColumn.select().where(KanbanColumn.task == task_id) )
+            return list( KanbanColumn.select().where(KanbanColumn.task == task_id).order_by(KanbanColumn.order) )
         except KanbanColumn.DoesNotExist:
             print(f"There is no columns in db for {task_id = }")
             return []
@@ -218,6 +185,31 @@ class DBController:
             column.save()
         except KanbanColumn.DoesNotExist:
             print(f"Trying to update not existing column: {column_id = }")
+
+    # move column to new position
+    def move_column(self, column_id, new_order):
+        try:
+            with self.db.atomic():
+                column = KanbanColumn.get(KanbanColumn.id == column_id)
+
+                # shift order to remove from list
+                query = KanbanColumn.update(order=KanbanColumn.order - 1).where(
+                    (KanbanColumn.task == column.task_id) & 
+                    (KanbanColumn.order > column.order)
+                )
+                query.execute()
+
+                # shift order to add to list
+                query = KanbanColumn.update(order=KanbanColumn.order + 1).where(
+                    (KanbanColumn.task == column.task_id) &
+                    (KanbanColumn.order >= new_order)
+                )
+                query.execute()
+
+                column.order = new_order
+                column.save()
+        except KanbanColumn.DoesNotExist:
+            print(f"Error moving column: {column_id = }")
 
     # FAVORITE
     def create_fav(self, url, title):
