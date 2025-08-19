@@ -8,16 +8,22 @@ html, body {
 }
 
 body {
-    height: calc(100vh - 2em);
+    height: 100vh;
     overflow: hidden;
 }
 
 .app {
-    margin: 1em;
+    display: flex;
+}
+
+.tab-content {
+    margin: 1em 0.5em 1em 0.5em;
     display: flex;
     flex-direction: column;
     height: 100%;
     gap: 1.5em;
+    height: calc(100vh - 2em);
+    width: 100%;
 }
 
 .content {
@@ -118,6 +124,39 @@ body {
 
 .selected-task {
     text-decoration: underline;
+}
+
+.tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    justify-content: center;
+    align-items: center;
+
+    background-color: var(--surface-dark);
+}
+
+.tabs > i {
+    /*height: 3em;
+    width: 3em;*/
+/*    font-size: 16px;*/
+
+}
+
+.tabs > a {
+    padding: 12px 12px 12px 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--text-secondary);
+}
+
+.active {
+    background-color: var(--choice);
+    border-radius: 50%;
+    color: var(--accent) !important;
 }
 
 /* ================================================== */
