@@ -10,10 +10,27 @@
     <link href="styles/theme.css" rel="stylesheet">
     <link href="styles/dashboard.css" rel="stylesheet">
     <link href="styles/calendar.css" rel="stylesheet">
+
+    <link href="monokai-sublime.css" rel="stylesheet">
 </head>
 <body class="background">
     <script src="deps/bootstrap.bundle.min.js"></script>
     <script src="deps/qwebchannel.js"></script>
+
+    <script>
+        MathJax = {
+            tex: {    
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            },
+            svg: {
+                scale: 1.2
+            }
+        }
+    </script>
+    <script src="deps/markdown-it.js"></script>
+    <script src="deps/highlight.min.js"></script>
+    <script src="deps/tex-svg.min.js"></script>
 
     <div class="app">
         <div class="tabs px-3">
@@ -76,9 +93,9 @@
 
             <div class="column">
 
-                <textarea 
-                    id="sticky" class="surface-background bordered" 
-                >sticky</textarea>
+                <div id="sticky" class="surface-background bordered">
+                    sticky
+                </div>
 
             </div>
 
@@ -118,6 +135,7 @@
         </div>
     </div>
 
+    <script src="scripts/editor.js"></script>
     <script src="scripts/dashboard.js"></script>
     <script src="scripts/calendar.js"></script>
 </body>

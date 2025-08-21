@@ -9,10 +9,27 @@
 
     <link href="styles/theme.css" rel="stylesheet">
     <link href="styles/task.css" rel="stylesheet">
+
+    <link href="monokai-sublime.css" rel="stylesheet">
 </head>
 <body class="background">
     <script src="deps/bootstrap.bundle.min.js"></script>
     <script src="deps/qwebchannel.js"></script>
+
+    <script>
+        MathJax = {
+            tex: {    
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            },
+            svg: {
+                scale: 1.2
+            }
+        }
+    </script>
+    <script src="deps/markdown-it.js"></script>
+    <script src="deps/highlight.min.js"></script>
+    <script src="deps/tex-svg.min.js"></script>
 
     <div class="app">
         <!-- tabs -->
@@ -106,9 +123,9 @@
 
                 <!-- dashboard columns -->
                 <div class="dashboard d-flex mx-2 my-3">
-                    <textarea 
-                        id="sticky" class="surface-background bordered" 
-                    >sticky</textarea>
+                    <div id="sticky" class="surface-background bordered">
+                        sticky
+                    </div>
 
                     <div class="dashboard-right">
                         <div class="dashboard-block bordered">
@@ -224,6 +241,7 @@
     </div>
 
     <script src="deps/sortable.min.js"></script>
+    <script src="scripts/editor.js"></script>
     <script src="scripts/task.js"></script>
 </body>
 </html>

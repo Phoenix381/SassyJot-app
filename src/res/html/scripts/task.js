@@ -142,33 +142,7 @@ function modalActions() {
 
 function initSticky() {
     taskController.get_sticky(task.id).then(text => {
-        stickyArea.value = text;
-    });
-
-    // debounce function
-    function debounce(func, delay) {
-        let timeoutId;
-        return function(...args) {
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => {
-                func.apply(this, args);
-            }, delay);
-        };
-    }
-
-    // updating sticky
-    const handleInput = debounce(function(value) {
-        taskController.update_sticky(value, task.id);
-    }, 2000);
-
-    // processing input
-    stickyArea.addEventListener('input', function() {
-        handleInput(this.value);
-    });
-
-    // losing focus
-    stickyArea.addEventListener('blur', function() {
-        taskController.update_sticky(this.value, task.id);
+        makeEditor(stickyArea, text, taskController.update_sticky, task.id);
     });
 }
 

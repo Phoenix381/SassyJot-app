@@ -4,7 +4,7 @@ from PySide6.QtWidgets import QVBoxLayout, QSizePolicy
 from PySide6.QtWidgets import QApplication
 
 from PySide6.QtCore import QEvent
-from PySide6.QtGui import QMouseEvent, QDragEnterEvent
+from PySide6.QtGui import QMouseEvent, QDragEnterEvent, QWheelEvent
 from PySide6.QtGui import QShortcut
 
 from PySide6.QtCore import QTimer
@@ -180,6 +180,25 @@ class AppWindow(QMainWindow):
             if etype != QEvent.MouseMove:
                 current.setFocus()
                 return True
+
+        # handle wheel scrolling
+        if etype == QEvent.Wheel:            
+            new_pos = event.position()
+            new_pos.setY(new_pos.y() - 84)
+
+            new_event = QWheelEvent(
+                new_pos,
+                event.globalPosition(),
+                event.pixelDelta(),
+                event.angleDelta(),
+                event.buttons(),
+                event.modifiers(),
+                event.phase(),
+                event.inverted()
+            )
+            if current:
+                QApplication.sendEvent(current.focusProxy(), new_event)
+            return True
 
         # handle drag events
         if etype == QEvent.DragEnter:
