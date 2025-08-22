@@ -59,7 +59,8 @@ class StickyNote(BaseModel):
     task = ForeignKeyField(Task, backref='notes', to_field="id")
 
 class Note(BaseModel):
-    text = TextField()
+    name = CharField(max_length=128)
+    text = TextField(default="")
     status = IntegerField()
     # TODO type
 
@@ -81,7 +82,12 @@ class DBController:
 
         # init db and tables
         db.connect()
-        db.create_tables([Setting, History, Fav, Task, KanbanColumn, OpenedLink, StickyNote])
+        db.create_tables([
+            Setting, History, Fav, 
+            Task, KanbanColumn, 
+            OpenedLink, StickyNote,
+            Note, # Tag, NoteTag
+        ])
 
         # check if first run
         try:
@@ -330,16 +336,23 @@ class DBController:
             print(f"Failed to save note {text} to task {task_id}")
 
     # NOTE
-    def create_note(self, text, status):
+    def create_note(self, name, status):
         try:
             note = Note.create(
-                text=text,
+                name=name,
                 status=status
             )
             note.save()
             return note
         except:
-            print(f"Failed to save note to task")
+            print(f"Failed to save note {name}")
+            return None
+
+    def get_notes(self):
+        try:
+            return list( Note.select() )
+        except Note.DoesNotExist:
+            print("There is no notes in db")
             return None
 
     def update_note_text(self, text, note_id):

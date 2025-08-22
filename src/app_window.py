@@ -21,6 +21,7 @@ from src.db_controller import DBController
 from src.tab_controller import TabController
 from src.window_controller import WindowController
 from src.task_controller import TaskController
+from src.note_controller import NoteController
 
 class AppWindow(QMainWindow):
     def __init__(self):
@@ -92,6 +93,7 @@ class AppWindow(QMainWindow):
         self.tab_controller = TabController(self)
         self.window_controller = WindowController(self)
         self.task_controller = TaskController(self)
+        self.note_controller = NoteController(self)
 
         # waiting for app to load
         self.controls.loadFinished.connect(self.init_after_load)

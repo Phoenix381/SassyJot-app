@@ -129,6 +129,10 @@ body {
     position: relative;
 }
 
+#graph-container {
+    height: 100%;
+}
+
 #card-list {
     flex: 1;
 }
@@ -142,7 +146,6 @@ body {
     height: 2em;
 }
 
-
 #header-editor {
     flex: 1;
     max-height: 5em;
@@ -150,4 +153,17 @@ body {
 
 #body-editor {
     flex: 1;
+}
+
+.controls-visibility {
+    display: none;
+}
+
+/* ================================================== */
+/* graph */
+/* ================================================== */
+
+.selected {
+    stroke: var(--focused);
+    stroke-width: 2;
 }

@@ -13,6 +13,7 @@
 <body class="background">
     <script src="deps/bootstrap.bundle.min.js"></script>
     <script src="deps/qwebchannel.js"></script>
+    <script src="deps/d3.min.js"></script>
 
     <div class="app">
         <div class="tabs px-3">
@@ -43,12 +44,13 @@
         <div class="tab-content my-3 mx-2">
 
             <div class="graph_side surface-background bordered">
-                <div id="graph"></div>
+                <div id="graph-container"></div>
             </div>
 
+            <!-- right side -->
             <div class="note_side">
-                <!-- top right buttons -->
                 <div class="note-controls surface-background bordered">
+                    <!-- left controls -->
                     <div class="controls-left">
                     
                     <button class="surface-background" id="newNoteButton"
@@ -58,7 +60,7 @@
                         New note
                     </button>
 
-                    <button class="surface-background" id="editCardsButton"
+                    <button class="surface-background controls-visibility" id="editCardsButton"
                         data-bs-toggle="modal" data-bs-target="#editCardsModal"
                     >
                         <i class="material-symbols">Quiz</i>
@@ -66,7 +68,9 @@
                     </button>
 
                     </div>
-                    <div class="controls-right">
+
+                    <!-- right controls -->
+                    <div class="controls-right controls-visibility">
 
                     <input class="text-input text-bordered surface" 
                         type="text" 
@@ -102,14 +106,14 @@
                 <div class="modal-content d-flex align-items-center justify-content-center">
                     <div class="d-flex gap-2 justify-center">
                         
-                        <select id="selected-status" class="surface">
+                        <select id="new-selected-status" class="surface">
                             <option value="1">Uncompleted</option>
                             <option value="2">Priority</option>
                             <option value="3">Completed</option>
                         </select>
 
                         <div class="d-flex flex-column gap-1">
-                            <input class="text-input text-bordered surface" type="text" id="task-name-input" placeholder="Name">
+                            <input class="text-input text-bordered surface" type="text" id="note-name-input" placeholder="Name" maxlength="128">
                         </div>
 
                         <button class="btn btn-sm bordered surface" id="add-note-button">
@@ -129,12 +133,10 @@
                         <div class="card-editor surface">
 
                         <div class="left-card-block">
-                            <button class="background rounded" id="addTaskButton"
-                                data-bs-toggle="modal" data-bs-target="#addTaskModal"
-                            >
+                            <button class="background rounded" id="addCardButton">
                                 <i class="material-symbols">add</i>
                             </button>
-                
+
                             <div id="card-list" class="surface bordered"></div>
                         </div>
 
@@ -150,7 +152,6 @@
         </div>
 
     </div>
-
 
     <script src="scripts/notes.js"></script>
 </body>

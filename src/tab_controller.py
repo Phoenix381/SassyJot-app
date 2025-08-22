@@ -66,9 +66,10 @@ class TabController(QObject):
         new_tab = QWebEngineView(self.profile)
         
         # Setup web channel
-        task_channel = QWebChannel(new_tab)
-        task_channel.registerObject("task_controller", self.app.task_controller)
-        new_tab.page().setWebChannel(task_channel)
+        web_channel = QWebChannel(new_tab)
+        web_channel.registerObject("task_controller", self.app.task_controller)
+        web_channel.registerObject("note_controller", self.app.note_controller)
+        new_tab.page().setWebChannel(web_channel)
         
         # Add to tab widget
         index = self.app.tab_widget.addTab(new_tab, "New tab")
