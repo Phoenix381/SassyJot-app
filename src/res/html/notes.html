@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>notes</title>
+
+    <link href="deps/bootstrap.css" rel="stylesheet">
+
+    <link href="styles/theme.css" rel="stylesheet">
+    <link href="styles/notes.css" rel="stylesheet">
+</head>
+<body class="background">
+    <script src="deps/bootstrap.bundle.min.js"></script>
+    <script src="deps/qwebchannel.js"></script>
+
+    <div class="app">
+        <div class="tabs px-3">
+            <a href="dashboard.html">
+                <i class="material-symbols">dashboard</i>
+            </a>
+
+            <!-- active -->
+            <a href="notes.html" class="active">
+                <i class="material-symbols">graph_3</i>
+            </a>
+
+            <a href="cards.html">
+                <i class="material-symbols">quiz</i>
+            </a>
+            <a href="files.html">
+                <i class="material-symbols">folder_open</i>
+            </a>
+            <a href="ai.html">
+                <i class="material-symbols">robot</i>
+            </a>
+            <a href="settings.html">
+                <i class="material-symbols">settings</i>
+            </a>
+        </div>
+
+        <!-- tab content -->
+        <div class="tab-content my-3 mx-2">
+
+            <div class="graph_side surface-background bordered">
+                <div id="graph"></div>
+            </div>
+
+            <div class="note_side">
+                <!-- top right buttons -->
+                <div class="note-controls surface-background bordered">
+                    <div class="controls-left">
+                    
+                    <button class="surface-background" id="newNoteButton"
+                        data-bs-toggle="modal" data-bs-target="#newNoteModal"
+                    >
+                        <i class="material-symbols">add</i>
+                        New note
+                    </button>
+
+                    <button class="surface-background" id="editCardsButton"
+                        data-bs-toggle="modal" data-bs-target="#editCardsModal"
+                    >
+                        <i class="material-symbols">Quiz</i>
+                        Edit cards
+                    </button>
+
+                    </div>
+                    <div class="controls-right">
+
+                    <input class="text-input text-bordered surface" 
+                        type="text" 
+                        id="note-name" placeholder="Not selected"
+                        disabled
+                    >
+
+                    <button class="surface-background" id="rename-button">
+                        <i class="material-symbols">edit</i>
+                    </button>
+                        
+                    <select id="selected-status">
+                        <option value="1">Uncompleted</option>
+                        <option value="2">Priority</option>
+                        <option value="3">Completed</option>
+                    </select>
+
+
+                    </div>
+                    
+                </div>
+
+                <div id="note-text" class="note surface-background bordered">
+                    Not selected
+                </div>
+            </div>
+
+        </div>
+
+        <!-- new note modal -->
+        <div class="modal fade" id="newNoteModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered modal-sm">
+                <div class="modal-content d-flex align-items-center justify-content-center">
+                    <div class="d-flex gap-2 justify-center">
+                        
+                        <select id="selected-status" class="surface">
+                            <option value="1">Uncompleted</option>
+                            <option value="2">Priority</option>
+                            <option value="3">Completed</option>
+                        </select>
+
+                        <div class="d-flex flex-column gap-1">
+                            <input class="text-input text-bordered surface" type="text" id="task-name-input" placeholder="Name">
+                        </div>
+
+                        <button class="btn btn-sm bordered surface" id="add-note-button">
+                            Create
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- card editor modal -->
+        <div class="modal fade" id="editCardsModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content d-flex align-items-center justify-content-center surface bordered">
+
+                        <div class="card-editor surface">
+
+                        <div class="left-card-block">
+                            <button class="background rounded" id="addTaskButton"
+                                data-bs-toggle="modal" data-bs-target="#addTaskModal"
+                            >
+                                <i class="material-symbols">add</i>
+                            </button>
+                
+                            <div id="card-list" class="surface bordered"></div>
+                        </div>
+
+                        <div class="right-card-block">
+                            <div id="header-editor" class="surface bordered"></div>
+                            <div id="body-editor" class="surface bordered"></div>
+                        </div>
+
+                        </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <script src="scripts/notes.js"></script>
+</body>
+</html>

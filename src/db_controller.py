@@ -31,6 +31,7 @@ class Task(BaseModel):
     column = DeferredForeignKey('KanbanColumn', backref='tasks', to_field="id", null=True, default=None)
     order = IntegerField(default=0)
     # TODO types
+    # TODO type cpecific data
 
     def get_all_dict(self):
         data = model_to_dict(self)
@@ -56,6 +57,22 @@ class OpenedLink(BaseModel):
 class StickyNote(BaseModel):
     text = TextField()
     task = ForeignKeyField(Task, backref='notes', to_field="id")
+
+class Note(BaseModel):
+    text = TextField()
+    status = IntegerField()
+    # TODO type
+
+class Tag(BaseModel):
+    name = CharField()
+    # TODO color
+
+# linking tags to other tables
+class NoteTag(BaseModel):
+    note = ForeignKeyField(Note, backref='tags', to_field="id")
+    tag = ForeignKeyField(Tag, backref='notes', to_field="id")
+
+# TODO TaskTag and FileTag
 
 # CONTROLLER
 class DBController:
@@ -311,3 +328,58 @@ class DBController:
             note.save()
         except StickyNote.DoesNotExist:
             print(f"Failed to save note {text} to task {task_id}")
+
+    # NOTE
+    def create_note(self, text, status):
+        try:
+            note = Note.create(
+                text=text,
+                status=status
+            )
+            note.save()
+            return note
+        except:
+            print(f"Failed to save note to task")
+            return None
+
+    def update_note_text(self, text, note_id):
+        try:
+            note = Note.get(Note.id == note_id)
+            note.text = text
+            note.save()
+            return note
+        except StickyNote.DoesNotExist:
+            print(f"Failed to update note id {note_id}")
+            return None
+
+    def update_note_status(self, status, note_id):
+        try:
+            note = Note.get(Note.id == note_id)
+            note.status = status
+            note.save()
+            return note
+        except StickyNote.DoesNotExist:
+            print(f"Failed to update note id {note_id}")
+            return None
+
+    # TAG
+    def create_tag(self, name):
+        try:
+            tag = Tag.create(
+                name=name
+            )
+            tag.save()
+            return tag
+        except:
+            print(f"Failed to save tag {name}")
+            return None
+
+    def update_tag(self, name, tag_id):
+        try:
+            tag = Tag.get(Tag.id == tag_id)
+            tag.name = name
+            tag.save()
+            return tag
+        except Tag.DoesNotExist:
+            print(f"Failed to update tag id {tag_id}")
+            return None

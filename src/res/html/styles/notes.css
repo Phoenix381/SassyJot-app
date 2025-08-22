@@ -1,0 +1,153 @@
+
+/* ================================================== */
+/* page layout */
+/* ================================================== */
+
+html, body {
+    background-color: var(--background);
+}
+
+body {
+    height: 100vh;
+}
+
+.app {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}
+
+.tab-content {
+    width: 100%;
+
+    
+    display: flex;
+    gap: 1em;
+}
+
+.tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    justify-content: center;
+    align-items: center;
+
+    background-color: var(--surface-dark);
+}
+
+.tabs > a {
+    padding: 12px 12px 12px 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--text-secondary);
+}
+
+.active {
+    background-color: var(--choice);
+    border-radius: 50%;
+    color: var(--accent) !important;
+}
+
+.graph_side {
+    flex: 1;
+}
+
+.note_side {
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.note-controls {
+    display: flex;
+    justify-content: space-between;
+}
+
+.controls-left{
+    display: flex;
+    gap: 0.5em;
+}
+
+.controls-right {
+    display: flex;
+    gap: 0.5em;
+}
+
+#note-text {
+    flex: 1;
+}
+
+/* ================================================== */
+/* modals */
+/* ================================================== */
+
+#newNoteModal .modal-content {
+    background: transparent;
+}
+
+#editCardsModal .modal-dialog {
+    max-width: 90%;
+    width: 90%;
+    margin: 0 auto;
+}
+
+#editCardsModal .modal-content {
+    height: 80vh;
+    min-height: 80vh;
+/*    overflow-y: auto;*/
+
+    display: flex;
+    gap: 1em;
+    justify-content: center;
+}
+
+#editCardsModal .card-editor {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+}
+
+.left-card-block,
+.right-card-block {
+    flex: 1;
+    width: 50%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.left-card-block {
+    position: relative;
+}
+
+#card-list {
+    flex: 1;
+}
+
+#addTaskButton {
+    position: absolute;
+    top: 0.5em;
+    right: 0.5em;
+
+    width: 2em;
+    height: 2em;
+}
+
+
+#header-editor {
+    flex: 1;
+    max-height: 5em;
+}
+
+#body-editor {
+    flex: 1;
+}
