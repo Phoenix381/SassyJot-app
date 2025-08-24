@@ -375,6 +375,16 @@ class DBController:
             print(f"Failed to update note id {note_id}")
             return None
 
+    def update_note_name(self, name, note_id):
+        try:
+            note = Note.get(Note.id == note_id)
+            note.name = name
+            note.save()
+            return note
+        except StickyNote.DoesNotExist:
+            print(f"Failed to update note id {note_id}")
+            return None
+
     # TAG
     def create_tag(self, name):
         try:

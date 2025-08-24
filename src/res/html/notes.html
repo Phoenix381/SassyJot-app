@@ -9,11 +9,28 @@
 
     <link href="styles/theme.css" rel="stylesheet">
     <link href="styles/notes.css" rel="stylesheet">
+
+    <link href="monokai-sublime.css" rel="stylesheet">
 </head>
 <body class="background">
     <script src="deps/bootstrap.bundle.min.js"></script>
     <script src="deps/qwebchannel.js"></script>
     <script src="deps/d3.min.js"></script>
+
+    <script>
+        MathJax = {
+            tex: {    
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            },
+            svg: {
+                scale: 1.2
+            }
+        }
+    </script>
+    <script src="deps/markdown-it.js"></script>
+    <script src="deps/highlight.min.js"></script>
+    <script src="deps/tex-svg.min.js"></script>
 
     <div class="app">
         <div class="tabs px-3">
@@ -80,6 +97,14 @@
 
                     <button class="surface-background" id="rename-button">
                         <i class="material-symbols">edit</i>
+                    </button>
+
+                    <button class="background" id="rename-ok-button" hidden>
+                        <i class="material-symbols">check</i>
+                    </button>
+
+                    <button class="background" id="rename-cancel-button" hidden>
+                        <i class="material-symbols">cancel</i>
                     </button>
                         
                     <select id="selected-status">
@@ -153,6 +178,7 @@
 
     </div>
 
+    <script src="scripts/editor.js"></script>
     <script src="scripts/notes.js"></script>
 </body>
 </html>

@@ -10,7 +10,10 @@ var nodes_initial = [];
 var links_initial = [];
 
 // currently selected node
-var selected_node = null;
+var selected_note_id = null;
+
+// editors
+var noteEditor = null;
 
 // async channel creation
 var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
@@ -19,20 +22,18 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
 
     noteController = channel.objects.note_controller;
 
-    // setting callbacks here
     noteController.get_notes().then(result => {
         nodes_initial = JSON.parse(result);
-        console.log(nodes_initial);
 
         noteController.get_links().then(result => {
             links_initial = JSON.parse(result);
-            console.log(links_initial);
 
             drawGraph();
         });
     });
 
-    noteControls();
+    // setting callbacks here
+    initNoteControls();
 });
 
 // ============================================================================
@@ -40,12 +41,23 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
 // ============================================================================
 
 const graph = document.getElementById("graph-container");
+const controlledElements = document.getElementsByClassName("controls-visibility");
 
 // add note
 const newNoteModal = new bootstrap.Modal(document.getElementById("newNoteModal"));
 const newSelectedStatus = document.getElementById("new-selected-status");
-const noteName = document.getElementById("note-name-input");
+const noteNameInput = document.getElementById("note-name-input");
 const addNoteButton = document.getElementById("add-note-button");
+
+const renameButton = document.getElementById("rename-button");
+const renameOkButton = document.getElementById("rename-ok-button");
+const renameCancelButton = document.getElementById("rename-cancel-button");
+
+const noteText = document.getElementById("note-text");
+const noteName = document.getElementById("note-name");
+const selectedStatus = document.getElementById("selected-status");
+
+// edit cards
 
 // ============================================================================
 // note controls
@@ -55,10 +67,10 @@ function addNote(name, status) {
     // TODO redraw graph
 }
 
-function noteControls() {
+function initNoteControls() {
     addNoteButton.addEventListener("click", () => {
         let status = newSelectedStatus.value; 
-        let name = noteName.value;
+        let name = noteNameInput.value;
 
         noteController.create_note(name, status).then(result => {
             let note = JSON.parse(result);
@@ -67,6 +79,54 @@ function noteControls() {
             newNoteModal.hide();
         });
     });
+
+    renameButton.addEventListener("click", () => {
+        renameButton.setAttribute("hidden", true);
+        renameOkButton.removeAttribute("hidden");
+        renameCancelButton.removeAttribute("hidden");
+        noteName.removeAttribute("disabled");
+        noteName.focus();
+    });
+
+    renameOkButton.addEventListener("click", () => {
+        noteController.update_note_name(noteName.value, selected_note_id).then(() => {
+            renameOkButton.setAttribute("hidden", true);  
+            renameCancelButton.setAttribute("hidden", true);
+            noteName.setAttribute("disabled", true);
+            renameButton.removeAttribute("hidden");
+        });
+    });
+
+    renameCancelButton.addEventListener("click", () => {
+        renameOkButton.setAttribute("hidden", true); 
+        renameCancelButton.setAttribute("hidden", true);
+        noteName.value = task.name;
+        noteName.setAttribute("disabled", true);
+        renameButton.removeAttribute("hidden");
+    });
+
+    selectedStatus.addEventListener("change", (e) => {
+        noteController.update_note_status(e.target.value, selected_note_id).then(() => {
+            // TODO recolor on graph
+        });
+    });
+}
+
+function selectNote(id, name, text, status) {
+    for (const element of controlledElements) {
+        element.style.display = 'flex'; 
+    }
+
+    selected_note_id = id;
+    noteName.value = name;
+    selectedStatus.value = status;
+
+    if(!noteEditor) {
+        noteEditor = makeEditor(noteText, text, noteController.update_note_text, id);
+    }
+
+    noteEditor.setSource(text);
+    noteEditor.setId(id);
 }
 
 // ============================================================================
@@ -137,7 +197,7 @@ function drawGraph() {
     node.append("circle")
         .attr("r", 6)
         // TODO coloring
-        .attr("fill", d => color(d.id));
+        .attr("fill", d => color(d.status));
 
     // Add id labels for each node.
     node.append("text")
@@ -188,16 +248,13 @@ function drawGraph() {
     node.on("click", click);
 
     function click(event, d) {
-        // selected element data will be in d
-
         // deselect all
         d3.selectAll(".selected").classed("selected", false);
         
         // add class to node circle
         d3.select(this).select("circle").classed("selected", true);
         
-        selected_node = d.id;
-        console.log("Selected node:", selected_node);
+        selectNote(d.id, d.name, d.text, d.status);
     }
 
     // When this cell is re-run, stop the previous simulation. (This doesn’t

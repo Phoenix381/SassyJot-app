@@ -96,11 +96,11 @@ function renameActions() {
     });
 
     renameCancelButton.addEventListener("click", () => {
-       renameOkButton.setAttribute("hidden", true); 
-       renameCancelButton.setAttribute("hidden", true);
-       taskName.value = task.name;
-       taskName.setAttribute("disabled", true);
-       renameButton.removeAttribute("hidden");
+        renameOkButton.setAttribute("hidden", true); 
+        renameCancelButton.setAttribute("hidden", true);
+        taskName.value = task.name;
+        taskName.setAttribute("disabled", true);
+        renameButton.removeAttribute("hidden");
     });
 }
 

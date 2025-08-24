@@ -1,5 +1,5 @@
 
-function makeEditor(container, initialText, saveCallback, task_id) {
+function makeEditor(container, initialText, saveCallback, updating_id) {
   if (!container) return;
 
   container.classList.add('editor');
@@ -94,7 +94,7 @@ function makeEditor(container, initialText, saveCallback, task_id) {
   }
 
   const debouncedSave = debounce((val) => {
-    saveCallback && saveCallback(val, task_id);
+    saveCallback && saveCallback(val, updating_id);
   }, 500);
 
   // finishing editing
@@ -155,10 +155,11 @@ function makeEditor(container, initialText, saveCallback, task_id) {
   safeRender(source);
 
   // TODO: api to interact with editor
-  // return {
-  //   getSource: () => source,
-  //   setSource: (s) => { source = String(s || ''); safeRender(source); },
-  //   edit: () => { showEditor(); },
-  //   render: () => safeRender(source)
-  // };
+  return {
+    getSource: () => source,
+    setSource: (s) => { source = String(s || ''); safeRender(source); },
+    edit: () => { showEditor(); },
+    render: () => safeRender(source),
+    setId: (id) => updating_id = id
+  };
 }
