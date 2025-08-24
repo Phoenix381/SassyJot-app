@@ -147,7 +147,7 @@ function drawGraph() {
     // TODO color selection
     // Specify the color scale.
     const color = d3.scaleOrdinal(d3.schemeCategory10);
-    const textColor = window.getComputedStyle(document.body).getPropertyValue('--text-secondary') || "#d5c4a1";
+    const textColor = window.getComputedStyle(document.body).getPropertyValue('--text-secondary');
 
     // Copying for mutation
     const nodes = nodes_initial.map(d => ({...d}));
@@ -193,11 +193,17 @@ function drawGraph() {
         .data(nodes)
         .join("g");
 
+    // Node palette
+    let palette = {
+        1 : "#D79921",
+        2 : "#CC241D",
+        3 : "#98971A",
+    }
+
     // Add a circle for each node.
     node.append("circle")
-        .attr("r", 6)
-        // TODO coloring
-        .attr("fill", d => color(d.status));
+        .attr("r", 8)
+        .attr("fill", d => palette[d.status]);
 
     // Add id labels for each node.
     node.append("text")
@@ -253,6 +259,7 @@ function drawGraph() {
         
         // add class to node circle
         d3.select(this).select("circle").classed("selected", true);
+        d3.select(this).select("text").classed("selected", true);
         
         selectNote(d.id, d.name, d.text, d.status);
     }

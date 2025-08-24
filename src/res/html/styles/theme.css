@@ -1,5 +1,6 @@
 
 :root {
+  --focused-contrast: #ebdbb2;
   --focused: #7c6f64;
   --choice: #665c53;
   --selectable: #504945;
