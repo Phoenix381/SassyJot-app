@@ -97,8 +97,8 @@ body {
 }
 
 #editCardsModal .modal-content {
-    height: 80vh;
-    min-height: 80vh;
+    height: 90vh;
+    min-height: 90vh;
 /*    overflow-y: auto;*/
 
     display: flex;
@@ -137,7 +137,7 @@ body {
     flex: 1;
 }
 
-#addTaskButton {
+#addCardButton {
     position: absolute;
     top: 0.5em;
     right: 0.5em;
@@ -157,6 +157,65 @@ body {
 
 .controls-visibility {
     display: none;
+}
+
+#closeEditorButton{
+    position: absolute;
+    top: 1em;
+    right: 1em;
+
+    width: 2em;
+    height: 2em;
+}
+
+#newCardModal .modal-dialog {
+    max-width: 70%;
+    width: 70%;
+    margin: 0 auto;
+}
+
+#newCardModal .modal-content {
+    height: 90vh;
+    min-height: 90vh;
+
+    width: 100%;
+    min-width: 100%;
+
+    display: flex;
+    gap: 1em;
+    justify-content: center;
+}
+
+#newCardModal .card-editor {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.new-card-header {
+    display: flex;
+    gap: 1em;
+
+    height: 5em;
+}
+
+#new-card-header {
+    flex: 1;
+}
+
+#new-card-body {
+    flex: 1;
+}
+
+#newCardButton {
+    width: 5em;
+}
+
+.darken-modal  div :not(.modal-dialog) {
+    background-color: var(--surface-dark);
+    border-color: var(--surface);
 }
 
 /* ================================================== */

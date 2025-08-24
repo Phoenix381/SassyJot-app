@@ -10,7 +10,7 @@
     <link href="styles/theme.css" rel="stylesheet">
     <link href="styles/notes.css" rel="stylesheet">
 
-    <link href="monokai-sublime.css" rel="stylesheet">
+    <link href="styles/monokai-sublime.css" rel="stylesheet">
 </head>
 <body class="background">
     <script src="deps/bootstrap.bundle.min.js"></script>
@@ -151,14 +151,17 @@
         </div>
 
         <!-- card editor modal -->
-        <div class="modal fade" id="editCardsModal" tabindex="-1">
+        <div class="modal fade" id="editCardsModal" tabindex="-1" data-bs-backdrop="static">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content d-flex align-items-center justify-content-center surface bordered">
 
                         <div class="card-editor surface">
 
                         <div class="left-card-block">
-                            <button class="background rounded" id="addCardButton">
+                            <button 
+                                class="background rounded" id="addCardButton"
+                                data-bs-toggle="modal" data-bs-target="#newCardModal"
+                            >
                                 <i class="material-symbols">add</i>
                             </button>
 
@@ -169,6 +172,34 @@
                             <div id="header-editor" class="surface bordered"></div>
                             <div id="body-editor" class="surface bordered"></div>
                         </div>
+
+                        <button 
+                            class="background rounded" id="closeEditorButton"
+                        >
+                            <i class="material-symbols">close</i>
+                        </button>
+
+                        </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- new card modal -->
+        <div class="modal fade" id="newCardModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content d-flex align-items-center justify-content-center surface bordered">
+
+                        <div class="card-editor surface">
+                            <div class="new-card-header">
+                                <div id="new-card-header" class="surface bordered"></div>
+                                <button 
+                                    class="surface bordered" id="newCardButton"
+                                >
+                                    <i class="material-symbols">add</i>
+                                </button>
+                            </div>
+                            <div id="new-card-body" class="surface bordered"></div>
 
                         </div>
 

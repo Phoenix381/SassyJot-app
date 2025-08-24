@@ -34,6 +34,7 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
 
     // setting callbacks here
     initNoteControls();
+    initCardControls();
 });
 
 // ============================================================================
@@ -43,8 +44,14 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
 const graph = document.getElementById("graph-container");
 const controlledElements = document.getElementsByClassName("controls-visibility");
 
-// add note
+// modals
 const newNoteModal = new bootstrap.Modal(document.getElementById("newNoteModal"));
+const editCardsModal = new bootstrap.Modal(document.getElementById("editCardsModal"));
+const editCardsModalElement = document.getElementById("editCardsModal");
+const newCardModal = new bootstrap.Modal(document.getElementById("newCardModal"));
+const newCardModalElement = document.getElementById("newCardModal");
+
+// note controls
 const newSelectedStatus = document.getElementById("new-selected-status");
 const noteNameInput = document.getElementById("note-name-input");
 const addNoteButton = document.getElementById("add-note-button");
@@ -57,13 +64,15 @@ const noteText = document.getElementById("note-text");
 const noteName = document.getElementById("note-name");
 const selectedStatus = document.getElementById("selected-status");
 
-// edit cards
+// card controls
+const closeEditorButton = document.getElementById("closeEditorButton");
+
 
 // ============================================================================
 // note controls
 // ============================================================================
 
-function addNote(name, status) {
+function addNote(note) {
     // TODO redraw graph
 }
 
@@ -74,7 +83,7 @@ function initNoteControls() {
 
         noteController.create_note(name, status).then(result => {
             let note = JSON.parse(result);
-            addNote(note.name, note.status);
+            addNote(note);
 
             newNoteModal.hide();
         });
@@ -130,6 +139,24 @@ function selectNote(id, name, text, status) {
 }
 
 // ============================================================================
+// note controls
+// ============================================================================
+
+function initCardControls() {
+    closeEditorButton.addEventListener("click", () => {
+        editCardsModal.hide();
+    });
+
+    newCardModalElement.addEventListener("show.bs.modal", () => {
+        editCardsModalElement.classList.add("darken-modal");
+    });
+
+    newCardModalElement.addEventListener("hide.bs.modal", () => {
+        editCardsModalElement.classList.remove("darken-modal");
+    });
+}
+
+// ============================================================================
 // graph
 // ============================================================================
 
@@ -144,7 +171,6 @@ function drawGraph() {
     // reset canvas
     graph.innerHTML = "";
 
-    // TODO color selection
     // Specify the color scale.
     const color = d3.scaleOrdinal(d3.schemeCategory10);
     const textColor = window.getComputedStyle(document.body).getPropertyValue('--text-secondary');
