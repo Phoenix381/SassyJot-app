@@ -50,7 +50,7 @@ function makeEditor(container, initialText, saveCallback, updating_id) {
     container.classList.remove('active-editor');
 
     const html = sanitizeHtml(md.render(text || ''));
-    container.innerHTML = html || '<div class="text-muted">(empty)</div>';
+    container.innerHTML = html || '<div>(empty)</div>';
 
     container.querySelectorAll('pre code').forEach(cb => {
       if ('highlighted' in cb.dataset) delete cb.dataset.highlighted;

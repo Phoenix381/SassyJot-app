@@ -73,6 +73,11 @@ class NoteTag(BaseModel):
     note = ForeignKeyField(Note, backref='tags', to_field="id")
     tag = ForeignKeyField(Tag, backref='notes', to_field="id")
 
+class Card(BaseModel):
+    header = TextField()
+    body = TextField()
+    note = ForeignKeyField('self', backref='cards', to_field="id", null=True, default=None)
+
 # TODO TaskTag and FileTag
 
 # CONTROLLER
@@ -86,7 +91,8 @@ class DBController:
             Setting, History, Fav, 
             Task, KanbanColumn, 
             OpenedLink, StickyNote,
-            Note, # Tag, NoteTag
+            Note, # Tag, NoteTag,
+            Card, # CardTag,
         ])
 
         # check if first run
@@ -405,4 +411,62 @@ class DBController:
             return tag
         except Tag.DoesNotExist:
             print(f"Failed to update tag id {tag_id}")
+            return None
+
+    # CARD
+    # get all cards
+    def get_all_cards(self):
+        try:
+            return list( Card.select() )
+        except Card.DoesNotExist:
+            print("There is no cards in db")
+            return None
+
+    # get cards for note
+    def get_cards(self, note_id):
+        try:
+            return list( Card.select().where(Card.note == note_id) )
+        except Card.DoesNotExist:
+            print("There is no cards in db")
+            return None
+
+    # TODO get filtered by tags
+
+    # create card
+    def create_card(self, header, body, note_id):
+        if note_id == 0:
+            note_id = None
+
+        try:
+            card = Card.create(
+                header=header,
+                body=body,
+                note=note_id
+            )
+            card.save()
+            return card
+        except:
+            print(f"Failed to save card {name}")
+            return None
+
+    # update card header
+    def update_card_header(self, header, card_id):
+        try:
+            card = Card.get(Card.id == card_id)
+            card.header = header
+            card.save()
+            return card
+        except Card.DoesNotExist:
+            print(f"Failed to update card id {card_id}")
+            return None
+
+    # update card body
+    def update_card_body(self, body, card_id):
+        try:
+            card = Card.get(Card.id == card_id)
+            card.body = body
+            card.save()
+            return card
+        except Card.DoesNotExist:
+            print(f"Failed to update card id {card_id}")
             return None

@@ -4,6 +4,7 @@
 // ============================================================================
 
 var noteController;
+var cardController;
 
 // data arrays
 var nodes_initial = [];
@@ -11,9 +12,15 @@ var links_initial = [];
 
 // currently selected node
 var selected_note_id = null;
+var selected_card_id = null;
 
 // editors
 var noteEditor = null;
+
+var cardHeadEditor = null;
+var cardBodyEditor = null;
+var newCardHeadEditor = null;
+var newCardBodyEditor = null;
 
 // async channel creation
 var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
@@ -21,6 +28,7 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
     console.log("Available objects:", channel.objects);
 
     noteController = channel.objects.note_controller;
+    cardController = channel.objects.card_controller;
 
     noteController.get_notes().then(result => {
         nodes_initial = JSON.parse(result);
@@ -66,6 +74,11 @@ const selectedStatus = document.getElementById("selected-status");
 
 // card controls
 const closeEditorButton = document.getElementById("closeEditorButton");
+const newCardHeader = document.getElementById("new-card-header");
+const newCardBody = document.getElementById("new-card-body");
+const newCardButton = document.getElementById("newCardButton");
+
+const cardList = document.getElementById("card-list");
 
 
 // ============================================================================
@@ -139,10 +152,13 @@ function selectNote(id, name, text, status) {
 }
 
 // ============================================================================
-// note controls
+// card controls
 // ============================================================================
 
 function initCardControls() {
+    newCardHeadEditor = makeEditor(newCardHeader, "", null, null);
+    newCardBodyEditor = makeEditor(newCardBody, "", null, null);
+
     closeEditorButton.addEventListener("click", () => {
         editCardsModal.hide();
     });
@@ -154,6 +170,45 @@ function initCardControls() {
     newCardModalElement.addEventListener("hide.bs.modal", () => {
         editCardsModalElement.classList.remove("darken-modal");
     });
+
+    editCardsModalElement.addEventListener("show.bs.modal", () => {
+        cardController.get_cards(selected_note_id).then(result => {
+            let cards = JSON.parse(result);
+
+            cardList.innerHTML = "";
+
+            cards.forEach(card => {
+                addCard(card.id, card.header);
+            });
+        });
+    });
+
+    newCardButton.addEventListener("click", () => {
+        let header = newCardHeadEditor.getSource();
+        let body = newCardBodyEditor.getSource();
+
+        cardController.create_card(header, body, selected_note_id).then(result => {
+            // TODO add to list etc
+        });
+
+        newCardModal.hide();
+    });
+}
+
+function addCard(id, head) {
+    let cardElement = document.createElement("div");
+    cardElement.classList.add("card-element");
+    cardElement.setAttribute("id", id);
+    cardElement.innerHTML = head;
+
+    cardList.appendChild(cardElement);
+    cardElement.addEventListener("click", () => {
+        selectCard(id);
+    });
+}
+
+function selectCard(id) {
+    console.log(id);
 }
 
 // ============================================================================
