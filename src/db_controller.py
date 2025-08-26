@@ -76,7 +76,7 @@ class NoteTag(BaseModel):
 class Card(BaseModel):
     header = TextField()
     body = TextField()
-    note = ForeignKeyField('self', backref='cards', to_field="id", null=True, default=None)
+    note = ForeignKeyField(Note, backref='cards', to_field="id", null=True, default=None)
 
 # TODO TaskTag and FileTag
 
@@ -414,6 +414,14 @@ class DBController:
             return None
 
     # CARD
+    # get card by id
+    def get_card(self, card_id):
+        try:
+            return Card.get(Card.id == card_id)
+        except Card.DoesNotExist:
+            print("There is no card in db")
+            return None
+
     # get all cards
     def get_all_cards(self):
         try:

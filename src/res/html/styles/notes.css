@@ -146,12 +146,12 @@ body {
     height: 2em;
 }
 
-#header-editor {
+#card-header {
     flex: 1;
     max-height: 5em;
 }
 
-#body-editor {
+#card-body {
     flex: 1;
 }
 

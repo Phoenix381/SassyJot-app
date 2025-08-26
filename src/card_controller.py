@@ -16,6 +16,12 @@ class CardController(QObject):
 
     # TODO filter by tags
 
+    # get card by id
+    @Slot(int, result=str)
+    def get_card(self, card_id):
+        card = self.app.db.get_card(card_id)
+        return json.dumps(model_to_dict(card))
+
     # get all cards
     @Slot(result=str)
     def get_all_cards(self):

@@ -78,6 +78,9 @@ const newCardHeader = document.getElementById("new-card-header");
 const newCardBody = document.getElementById("new-card-body");
 const newCardButton = document.getElementById("newCardButton");
 
+const headerEditor = document.getElementById("card-header");
+const bodyEditor = document.getElementById("card-body");
+
 const cardList = document.getElementById("card-list");
 
 
@@ -145,10 +148,10 @@ function selectNote(id, name, text, status) {
 
     if(!noteEditor) {
         noteEditor = makeEditor(noteText, text, noteController.update_note_text, id);
+    } else {
+        noteEditor.setSource(text);
+        noteEditor.setId(id);
     }
-
-    noteEditor.setSource(text);
-    noteEditor.setId(id);
 }
 
 // ============================================================================
@@ -208,7 +211,27 @@ function addCard(id, head) {
 }
 
 function selectCard(id) {
-    console.log(id);
+    selected_card_id = id;
+    
+    cardController.get_card(selected_card_id).then(result => {
+        let card = JSON.parse(result);
+
+        // card header
+        if(!cardHeadEditor) {
+            cardHeadEditor = makeEditor(headerEditor, card.header, cardController.update_card_header, selected_card_id);
+        } else {
+            cardHeadEditor.setSource(card.header);
+            cardHeadEditor.setId(selected_card_id);
+        }
+
+        // card body
+        if(!cardBodyEditor) {
+            cardBodyEditor = makeEditor(bodyEditor, card.body, cardController.update_card_body, selected_card_id);
+        } else {
+            cardBodyEditor.setSource(card.body);   
+            cardBodyEditor.setId(selected_card_id);
+        }
+    });
 }
 
 // ============================================================================
