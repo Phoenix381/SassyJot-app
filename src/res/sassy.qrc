@@ -5,6 +5,7 @@
     <file alias="/html/scripts/">./html/scripts</file>
     <file alias="/html/styles/">./html/styles</file>
     <file alias="/html/deps/">./html/deps</file>
+    <file alias="/html/etc/">./html/etc</file>
 </qresource>
 </RCC>
 

@@ -64,6 +64,8 @@ body {
 
     border-bottom: 1px solid var(--border);
     border-radius: 0;
+
+    padding-right: 0px;
 }
 
 .bottom-row > div > button {
@@ -105,8 +107,27 @@ body {
     border-radius: 15px;
 }
 
-.status-controls {
+#status-controls {
+    display: flex;
+    padding: 4px;
+    gap: 0.25em;
 
+    border-radius: 5px 0 0 5px;
+    background-color: color-mix(in srgb, var(--surface) 95%, black);
+
+    padding: 5px 16px 5px 10px;
+}
+
+#status-controls i {
+    font-size: 22px !important;
+}
+
+#status-controls  button {
+    background-color: color-mix(in srgb, var(--surface) 95%, black);
+}
+
+#status-controls  button:hover {
+    background-color: var(--choice);
 }
 
 .faved {
@@ -119,11 +140,11 @@ body {
 }
 
 /* ================================================== */
-/* fav modal */
+/* modal positioning */
 /* ================================================== */
 
 /* positioning */
-#favModal.modal {
+.modal {
     position: absolute;
     top: 0;
     left: 0;
@@ -135,7 +156,7 @@ body {
 }
 
 /* sizing */
-#favModal .modal-dialog {
+.modal-dialog {
     width: 100% !important;
     max-width: 100% !important;
     height: 84px !important;
@@ -144,20 +165,23 @@ body {
 }
 
 /* rectanglifying */
-#favModal .modal-content {
+.modal-content {
     height: 100%;
     border-radius: 0 !important;
     border: none !important;
 
     background-color: var(--background) !important;
+    color: var(--text) !important;
 }
 
-#favModal.modal .modal-backdrop {
+.modal .modal-backdrop {
     display: none !important;
 }
 
+/* ================================================== */
+/* fav modal */
+/* ================================================== */
 
-/* actual modal elements */
 .text-bordered {
     border: 1px solid var(--border-color);
 }
@@ -215,6 +239,75 @@ body {
 
 #fav-save-button:hover {
     background-color: #897d73;
+}
+
+/* ================================================== */
+/* pomodoro modal */
+/* ================================================== */
+
+#pomodoro-dialog {
+    width: 100%;
+    height: 100%;
+
+    padding: 0;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.pomodoro-top {
+    flex: 1;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2em;
+}
+
+.pomodoro-left {
+    display: flex;
+    flex-direction: column;
+
+    width: 260px;
+
+    color: var(--text-secondary);
+}
+
+.pomodoro-right {
+    display: flex;
+    flex-direction: column;
+
+    width: 260px;
+}
+
+#pomodoro-time {
+    font-size: 32px;
+
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 2px 16px 2px 16px;
+}
+
+.pomodoro-progress {
+    background-color: var(--selectable);
+}
+
+#pomodoro-bar {
+    flex: 1;
+    height: 16px;
+
+    width: 100%;
+
+    background: linear-gradient(135deg, #6ebb26 0%, #b8bb26 100%);
+}
+
+#pomodoro-controls i {
+    font-size: 32px !important;
+}
+
+#pomodoro-controls button {
+    width: 48px;
+    height: 48px;
 }
 
 /* ================================================== */

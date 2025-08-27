@@ -87,19 +87,26 @@
       </div>
 
       <!-- top row right side actions block -->
-      <!-- TODO add border, add other actions -->
-      <div class="status-controls me-1">
+      <!-- TODO add other actions -->
+      <div id="status-controls" class="px-3">
         <button 
           class="rounded borderless surface" id="favButton"
           data-bs-toggle="modal" data-bs-target="#favModal"
         >
           <i class="material-symbols">star</i>
         </button>
+
+        <button 
+          class="rounded borderless surface" id="pomodoroButton"
+          data-bs-toggle="modal" data-bs-target="#pomodoroModal"
+        >
+          <i class="material-symbols">alarm</i>
+        </button>
       </div>
     </div>
 
     <!-- ==================================================== -->
-    <!-- fav dialog -->
+    <!-- fav modal -->
     <!-- ==================================================== -->
 
     <div class="modal fade" id="favModal" tabindex="-1" data-bs-backdrop="false">
@@ -129,6 +136,61 @@
       </div>
     </div>
 
+    </div>
+
+    <!-- ==================================================== -->
+    <!-- pomodoro popover -->
+    <!-- ==================================================== -->
+
+    <div class="modal fade" id="pomodoroModal" tabindex="-1" data-bs-backdrop="false">
+      <div class="modal-dialog">
+        <div class="modal-content d-flex align-items-center justify-content-center">
+          <div id="pomodoro-dialog" class="pt-1 justify-center">
+
+            <div class="pomodoro-top">
+              <div class="pomodoro-left">
+                <div class="d-flex gap-2">
+                  <span>Focus: </span>
+                  <input type="range" min="10" max="60" value="20" class="slider" id="pomodoro-range">
+                  <div id="pomodoro-focus">20 min</div>
+                </div>
+
+                <div class="d-flex">
+                  <span>Today: </span>
+                  <div id="pomodoro-today">
+                    pomodoro-today
+                  </div>
+                </div>
+              </div>
+
+              <div id="pomodoro-time">
+                20:00
+              </div>
+
+              <div id="pomodoro-controls" class="d-flex">
+                <button class="rounded borderless background" id="playButton">
+                  <i class="material-symbols">play_arrow</i>
+                </button>
+
+                <button class="rounded borderless background" id="stopButton">
+                  <i class="material-symbols">stop</i>
+                </button>
+              </div>
+
+              <div class="pomodoro-right">
+                <select id="pomodoro-task-select">
+                  <!-- tasks here -->
+                </select>
+              </div>
+            </div>
+
+            <div class="pomodoro-progress">
+              <div id="pomodoro-bar" class="py-1"></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ==================================================== -->

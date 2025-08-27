@@ -5,6 +5,7 @@
 
 var windowController;
 var tabController;
+var taskController;
 
 // async channel creation
 var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
@@ -13,12 +14,14 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
 
     windowController = channel.objects.window_controller;
     tabController = channel.objects.tab_controller;
+    taskController = channel.objects.task_controller;
 
     // setting callbacks here
     windowControls();
     tabControls();
     adressBarCallback();
     favControls();
+    pomodoroControls();
 });
 
 // ============================================================================
@@ -44,8 +47,19 @@ const favButton = document.getElementById('favButton');
 const favRemoveButton = document.getElementById('fav-remove-button');
 const favSaveButton = document.getElementById('fav-save-button');
 
+// pomodoro
+const pomodoroModalElement = document.getElementById('pomodoroModal');
+const pomodoroRange = document.getElementById('pomodoro-range');
+const pomodoroFocus = document.getElementById('pomodoro-focus');
+const pomodoroTime = document.getElementById('pomodoro-time');
+const playButton = document.getElementById('playButton');
+const stopButton = document.getElementById('stopButton');
+const pomodoroTaskSelect = document.getElementById('pomodoro-task-select');
+const pomodoroBar = document.getElementById('pomodoro-bar');
+
 // modals
 const favModal = new bootstrap.Modal(document.getElementById('favModal'));
+const pomodoroModal = new bootstrap.Modal(document.getElementById('pomodoroModal'));
 
 // ============================================================================
 // window and page controls
@@ -294,12 +308,125 @@ function favControls() {
     });
 
     favSaveButton.addEventListener('click', function() {
-        
+        // TODO update fav data
     });
 }
 
 function openFavModal() {
+    let status = favButton.classList.contains('faved');
+
+    if(!status)
+        tabController.get_current_title()
+            .then(function(title) {
+                tabController.create_fav(title);
+                favTitle.value = title; 
+                setFavStatus(1);
+            });
+
     favModal.show();
+}
+
+// ============================================================================
+// pomodoro controls
+// ============================================================================
+
+var selectedTime;
+var currentTime;
+var isRunning = false;
+var isPaused = false;
+var pomodoroTask = null;
+
+function sec2time(t) {
+    let m = Math.floor(t/60);
+    let s = (t-m*60);
+
+    return (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+}
+
+function tick() {
+    if (currentTime > 0) {
+        currentTime--;
+        pomodoroTime.innerHTML = sec2time(currentTime);
+
+        let width = (currentTime / selectedTime) * 100;
+        pomodoroBar.style.width = width + '%';
+    } else {
+        clearInterval(timerInterval);
+        isRunning = false;
+        
+        // play sound
+        const audio = new Audio('etc/ding.mp3');
+        audio.play().catch(() => {});
+        
+        // timer done
+        pomodoroTaskSelect.removeAttribute('disabled');
+        pomodoroBar.style.width = '100%';
+        playButton.children[0].innerHTML = 'play_arrow';
+    }
+}
+
+function pomodoroControls() {
+    pomodoroModalElement.addEventListener('show.bs.modal', function() {
+        pomodoroTaskSelect.innerHTML = '';
+
+        taskController.get_task_tree().then(tasks => {
+            let taskList = JSON.parse(tasks);
+
+            taskList.forEach(task => {
+                let option = document.createElement('option');
+                option.value = task.id;
+                option.innerHTML = task.name;
+                pomodoroTaskSelect.appendChild(option);
+            });
+        });
+
+        taskController.get_current_task().then(t => {
+            task = JSON.parse(t);
+            pomodoroTask = task.id;
+        });
+    });
+
+    pomodoroRange.addEventListener('input', function(val) {
+        pomodoroFocus.innerHTML = pomodoroRange.value + ' min';
+
+        if(!isRunning)
+            pomodoroTime.innerHTML = sec2time(pomodoroRange.value * 60);
+    });
+
+    // play button
+    playButton.addEventListener('click', function() {
+        pomodoroTaskSelect.setAttribute('disabled', true);
+
+        if (!isRunning && !isPaused) {
+            currentTime = pomodoroRange.value * 60;
+            selectedTime = pomodoroRange.value * 60;
+            isRunning = true;
+            playButton.children[0].innerHTML = 'pause';
+
+            timerInterval = setInterval(tick, 1000);
+        } else if (isRunning && !isPaused) {
+            isRunning = false;
+            isPaused = true;
+            playButton.children[0].innerHTML = 'play_arrow';
+
+            clearInterval(timerInterval);
+        } else if (!isRunning && isPaused) {
+            isRunning = true;
+            isPaused = false;
+            playButton.children[0].innerHTML = 'pause';
+
+            timerInterval = setInterval(tick, 1000);
+        }
+    });
+
+    // stop button
+    stopButton.addEventListener('click', function() {
+        clearInterval(timerInterval); 
+        isRunning = false;
+        isPaused = false;
+        pomodoroTime.innerHTML = sec2time(pomodoroRange.value * 60);
+        pomodoroBar.style.width = '100%';
+    });
 }
 
 // ============================================================================
@@ -308,7 +435,11 @@ function openFavModal() {
 
 function focusAddressBar() {
     if(favModal._element.classList.contains('show'))
-        favModal.hide()
+        favModal.hide();
+
+    if(pomodoroModal._element.classList.contains('show'))
+        pomodoroModal.hide();
     
+    // TODO fix focus
     addressBar.focus();
 }

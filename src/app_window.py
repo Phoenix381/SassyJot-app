@@ -107,6 +107,7 @@ class AppWindow(QMainWindow):
         controls_channel = QWebChannel(self.controls)
         controls_channel.registerObject("window_controller", self.window_controller)
         controls_channel.registerObject("tab_controller", self.tab_controller)
+        controls_channel.registerObject("task_controller", self.task_controller)
         self.controls.page().setWebChannel(controls_channel)
 
         # Enable event filter and cursor tracking
