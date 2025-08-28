@@ -45,8 +45,79 @@
         <!-- tab content -->
         <div class="tab-content">
 
+            <div class="tags-container surface-background bordered">
+                <table class="tag-table">
+                    <thead id="tag-table-head">
+                        <tr>
+                            <th width="90%">Name</th>
+                            <th>Links</th>
+                            <th width="3%"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tag-rows">
 
+                        <!-- rows added here -->
+
+                        <tr>
+                            <td class="last-row" colspan="3">
+                                <div class="last-row-container">
+                                    <button 
+                                        class="background" id="addTagButton"
+                                        data-bs-toggle="modal" data-bs-target="#newTagModal"
+                                    >
+                                        <i class="material-symbols">add</i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
         </div>
+
+        <!-- new tag modal -->
+        <div class="modal fade" id="newTagModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered modal-sm">
+                <div class="modal-content d-flex align-items-center justify-content-center">
+                    <div class="d-flex gap-2 justify-center">
+                        
+                    <input type="color" id="new-tag-color" value="#b8bb26">
+
+                    <div class="d-flex flex-column gap-1">
+                        <input class="text-input text-bordered surface" type="text" id="new-tag-name-input" placeholder="Name">
+                    </div>
+
+                    <button class="btn btn-sm bordered surface" id="add-tag-button">
+                        Create
+                    </button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- edit tag modal -->
+        <div class="modal fade" id="editTagModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered modal-sm">
+                <div class="modal-content d-flex align-items-center justify-content-center">
+                    <div class="d-flex gap-2 justify-center">
+                        
+                    <input type="color" id="tag-color" value="#b8bb26">
+
+                    <div class="d-flex flex-column gap-1">
+                        <input class="text-input text-bordered surface" type="text" id="tag-name-input" placeholder="Name">
+                    </div>
+
+                    <button class="btn btn-sm bordered surface" id="save-tag-button">
+                        Save
+                    </button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
 

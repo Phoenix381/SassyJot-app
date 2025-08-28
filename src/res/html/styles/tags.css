@@ -18,7 +18,11 @@ body {
 }
 
 .tab-content {
+    display: flex;
+    flex-direction: column;
+
     width: 100%;
+    padding: 1em 0.5em 1em 0.5em;
 }
 
 .tabs {
@@ -45,4 +49,77 @@ body {
     background-color: var(--choice);
     border-radius: 50%;
     color: var(--accent) !important;
+}
+
+.tags-container {
+    flex: 1;
+}
+
+/* ================================================== */
+/* tag table */
+/* ================================================== */
+
+.tag-table {
+    width: 100%;
+}
+
+.tag-table th {
+    border-bottom: 1px solid var(--border);
+}
+
+.tag-table th,
+.tag-table td {
+    padding: 2px 5px 2px 5px;
+}
+
+.tag-table th:not(:first-child),
+.tag-table td:not(:first-child) {
+    border-left: 1px solid var(--border);
+    text-align: center;
+}
+
+.last-row-container {
+    display: flex;
+    justify-content: center;
+}
+
+.last-row {
+    padding: 4px 0 4px 0;
+
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+#addTagButton {
+    width: 5em;
+    height: 2em;
+}
+
+.circle {
+    border-radius: 50%;
+    width: 1em;
+    height: 1em;
+}
+
+.tag-name {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+}
+
+/* ================================================== */
+/* modal */
+/* ================================================== */
+
+.modal-content {
+    background-color: transparent;
+}
+
+.modal-content input {
+    border-radius: 10px !important;
+}
+
+#new-tag-color, #tag-color {
+    height: 38px;
+    border-radius: 5px;
 }

@@ -23,6 +23,7 @@ from src.window_controller import WindowController
 from src.task_controller import TaskController
 from src.note_controller import NoteController
 from src.card_controller import CardController
+from src.tag_controller import TagController
 
 class AppWindow(QMainWindow):
     def __init__(self):
@@ -96,6 +97,7 @@ class AppWindow(QMainWindow):
         self.task_controller = TaskController(self)
         self.note_controller = NoteController(self)
         self.card_controller = CardController(self)
+        self.tag_controller = TagController(self)
 
         # waiting for app to load
         self.controls.loadFinished.connect(self.init_after_load)

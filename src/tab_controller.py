@@ -70,6 +70,7 @@ class TabController(QObject):
         web_channel.registerObject("task_controller", self.app.task_controller)
         web_channel.registerObject("note_controller", self.app.note_controller)
         web_channel.registerObject("card_controller", self.app.card_controller)
+        web_channel.registerObject("tag_controller", self.app.tag_controller)
         new_tab.page().setWebChannel(web_channel)
         
         # Add to tab widget

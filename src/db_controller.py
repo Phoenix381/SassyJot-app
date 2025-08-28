@@ -26,7 +26,7 @@ class Fav(BaseModel):
 
 class Task(BaseModel):
     name = CharField()
-    color = CharField(default="#000000")
+    color = CharField(default="#b8bb26")
     parent = ForeignKeyField('self', backref='children', to_field="id", null=True)
     column = DeferredForeignKey('KanbanColumn', backref='tasks', to_field="id", null=True, default=None)
     order = IntegerField(default=0)
@@ -66,7 +66,7 @@ class Note(BaseModel):
 
 class Tag(BaseModel):
     name = CharField()
-    # TODO color
+    color = CharField(default="#b8bb26")
 
 # linking tags to other tables
 class NoteTag(BaseModel):
@@ -91,8 +91,8 @@ class DBController:
             Setting, History, Fav, 
             Task, KanbanColumn, 
             OpenedLink, StickyNote,
-            Note, # Tag, NoteTag,
-            Card, # CardTag,
+            Note, Card,
+            Tag, # NoteTag, CardTag,
         ])
 
         # check if first run
@@ -392,10 +392,11 @@ class DBController:
             return None
 
     # TAG
-    def create_tag(self, name):
+    def create_tag(self, name, color):
         try:
             tag = Tag.create(
-                name=name
+                name=name,
+                color=color
             )
             tag.save()
             return tag
@@ -403,10 +404,28 @@ class DBController:
             print(f"Failed to save tag {name}")
             return None
 
-    def update_tag(self, name, tag_id):
+    # get all tags
+    def get_tags(self):
+        try:
+            return list( Tag.select() )
+        except Tag.DoesNotExist:
+            print("There is no tags in db")
+            return None
+
+    # get tag by id
+    def get_tag(self, tag_id):
+        try:
+            return Tag.get(Tag.id == tag_id)
+        except Tag.DoesNotExist:
+            print("There is no tag in db")
+            return None
+
+    # update tag by id
+    def update_tag(self, name, color, tag_id):
         try:
             tag = Tag.get(Tag.id == tag_id)
             tag.name = name
+            tag.color = color
             tag.save()
             return tag
         except Tag.DoesNotExist:
