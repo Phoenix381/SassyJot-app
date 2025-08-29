@@ -4,6 +4,7 @@
 // ============================================================================
 
 var taskController;
+var tagController;
 
 var task_id;
 var task;
@@ -14,6 +15,7 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
     console.log("Available objects:", channel.objects);
 
     taskController = channel.objects.task_controller;
+    tagController = channel.objects.tag_controller;
 
     // selected task
     const urlParams = new URLSearchParams(window.location.search);
@@ -29,6 +31,7 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
     modalActions();
     loadTasks();
     initSticky();
+    initTagInput();
 });
 
 // ============================================================================
@@ -48,6 +51,11 @@ const taskName = document.getElementById("task-name");
 
 const stickyArea = document.getElementById("sticky");
 
+// tag input
+const tagsContainer = document.getElementById("tags-container");
+const tagInput = document.getElementById("tag-input");
+const tagSuggestions = document.getElementById("tag-suggestions");
+
 // ============================================================================
 // modal actions
 // ============================================================================
@@ -66,8 +74,6 @@ function modalActions() {
             loadTasks();
             addTaskModal.hide();
         });
-
-
     });
 }
 
@@ -118,5 +124,99 @@ function loadTasks() {
 function initSticky() {
     taskController.get_sticky(0).then(text => {
         makeEditor(stickyArea, text, taskController.update_sticky, 0);
+    });
+}
+
+// ============================================================================
+// tag input
+// ============================================================================
+
+var tagList = [];
+var selectedTags = [];
+
+function initTagInput() {
+    tagController.get_tags().then(result => {
+        tagList = JSON.parse(result);
+    });
+
+    tagInput.addEventListener("input", () => {
+        const val = tagInput.value.toLowerCase().trim();
+        tagSuggestions.innerHTML = "";
+
+        if (val === "") {
+            tagSuggestions.style.display = "none";
+            return;
+        }
+
+        // searching for tag in list
+        const filteredTags = tagList.filter(tag => 
+            tag.name.toLowerCase().includes(val) &&
+            !selectedTags.some(t => t.id == tag.id)
+        );
+
+        if (filteredTags.length === 0) {
+            tagSuggestions.style.display = "none";
+            return;
+        }
+
+        // adding to results
+        filteredTags.forEach(tag => {
+            let row = document.createElement("div");
+            row.className = "search-result";
+            row.innerHTML = `
+                <span class="tag-preview" style="background: ${tag.color}"></span>
+                ${tag.name}
+            `;
+
+            row.addEventListener("click", () => {
+                addTag(tag);
+                tagInput.value = "";
+                tagSuggestions.style.display = "none";
+            });
+
+            tagSuggestions.appendChild(row);
+        });
+
+        // if found
+        tagSuggestions.style.display = "block";
+    });
+}
+
+function addTag(tag) {
+    if (selectedTags.some(t => t.id == tag.id)) {   
+        return;
+    }
+
+    selectedTags.push(tag);
+    renderTags();
+}
+
+function removeTag(id) {
+    selectedTags = selectedTags.filter(t => t.id != id);   
+    renderTags();
+}
+
+function renderTags() {
+    tagsContainer.innerHTML = "";
+
+    // adding selected tags to container
+    selectedTags.forEach(tag => {
+        const tagElement = document.createElement("div");
+        tagElement.className = "tag";
+        tagElement.style.backgroundColor = tag.color;
+        tagElement.innerHTML = `
+            ${tag.name}
+            <span class="tag-remove" data-id="${tag.id}">×</span>
+        `;
+
+        tagsContainer.appendChild(tagElement);
+    });
+
+    // remove tag events
+    tagsContainer.querySelectorAll(".tag-remove").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const id = btn.getAttribute("data-id"); 
+            removeTag(id);
+        });
     });
 }

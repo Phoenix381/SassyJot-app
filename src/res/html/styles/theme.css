@@ -132,6 +132,12 @@ button:focus {
 /* elements */
 /* ================================================== */
 
+input[type="color"] {
+  background-color: transparent;
+  border: 2px solid var(--border);
+  padding: 0;
+}
+
 input[type="text"] {
   background-color: var(--selectable);
   color: var(--text-secondary);

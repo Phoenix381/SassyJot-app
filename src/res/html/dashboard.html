@@ -129,10 +129,19 @@
             <div class="modal-content d-flex align-items-center justify-content-center">
                 <div class="d-flex gap-2 justify-center">
                     
-                    <input type="color" id="task-color" value="#b8bb26">
+                    <div class="d-flex flex-column">
+                        
+                        <input type="color" id="task-color" value="#b8bb26">
+                    </div>
 
                     <div class="d-flex flex-column gap-1">
                         <input class="text-input text-bordered surface" type="text" id="task-name-input" placeholder="Name">
+
+                        <div class="tag-input-container surface">
+                            <div id="tags-container"></div>
+                            <input type="text" id="tag-input" placeholder="Search tag...">
+                            <div id="tag-suggestions"></div>
+                        </div>
                     </div>
 
                     <button class="btn btn-sm bordered surface" id="add-task-button">
