@@ -11,7 +11,6 @@ class TagController(QObject):
     # create tag
     @Slot(str, str, result=str)
     def create_tag(self, name, color):
-        print(name, color)
         tag = self.app.db.create_tag(name, color)
         return json.dumps(model_to_dict(tag))
 

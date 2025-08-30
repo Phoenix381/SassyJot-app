@@ -62,14 +62,13 @@ const tagSuggestions = document.getElementById("tag-suggestions");
 
 function modalActions() {
     addTaskButton.addEventListener("click", () => {
-        taskController.create_task(taskNameInput.value, taskColorInput.value, 0).then(id => {
-            taskName.innerHTML = taskNameInput.value;
-            task_id = id;
+        let tags = JSON.stringify(selectedTags);
 
-            task = taskController.get_task(id).then(t => {
-                task = JSON.parse(t);
-                taskName.innerHTML = task.name;
-            });
+        taskController.create_task(taskNameInput.value, taskColorInput.value, tags, 0).then(result => {
+            let task = JSON.parse(result);
+
+            taskName.innerHTML = taskNameInput.value;
+            task_id = task.id;
 
             loadTasks();
             addTaskModal.hide();

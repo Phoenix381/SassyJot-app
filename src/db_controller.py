@@ -64,21 +64,33 @@ class Note(BaseModel):
     status = IntegerField()
     # TODO type
 
-class Tag(BaseModel):
-    name = CharField()
-    color = CharField(default="#b8bb26")
-
-# linking tags to other tables
-class NoteTag(BaseModel):
-    note = ForeignKeyField(Note, backref='tags', to_field="id")
-    tag = ForeignKeyField(Tag, backref='notes', to_field="id")
-
 class Card(BaseModel):
     header = TextField()
     body = TextField()
     note = ForeignKeyField(Note, backref='cards', to_field="id", null=True, default=None)
 
-# TODO TaskTag and FileTag
+# tags here
+class Tag(BaseModel):
+    name = CharField()
+    color = CharField(default="#b8bb26")
+
+# task
+class TaskTag(BaseModel):
+    task = ForeignKeyField(Task, backref='tags', to_field="id")
+    tag = ForeignKeyField(Tag, backref='tasks', to_field="id")
+
+    class Meta:
+        primary_key = CompositeKey('task', 'tag')
+
+# note
+class NoteTag(BaseModel):
+    note = ForeignKeyField(Note, backref='tags', to_field="id")
+    tag = ForeignKeyField(Tag, backref='notes', to_field="id")
+
+    class Meta:
+        primary_key = CompositeKey('note', 'tag')
+
+# TODO tags sfor files annd maybe cards
 
 # CONTROLLER
 class DBController:
@@ -92,7 +104,7 @@ class DBController:
             Task, KanbanColumn, 
             OpenedLink, StickyNote,
             Note, Card,
-            Tag, # NoteTag, CardTag,
+            Tag, TaskTag, NoteTag,
         ])
 
         # check if first run
@@ -108,9 +120,11 @@ class DBController:
                 key="current",
                 value=task.id
             )
-            setting.save()
 
+    # ====================================================================
     # SETTING
+    # ====================================================================
+
     def get_setting(self, key):
         try:
             return Setting.get(Setting.key == key).value
@@ -122,7 +136,10 @@ class DBController:
         setting = Setting.replace(key=key, value=value).execute()
         # setting.save()
 
+    # ====================================================================
     # TASK
+    # ====================================================================
+
     def create_task(self, name, color, parent_id, column_id = None, order = 0):
         task = Task.create(
             name=name,
@@ -131,7 +148,6 @@ class DBController:
             column=column_id,
             order=order
         )
-        task.save()
 
         # TODO create default columns
         self.create_column("Todo", 0, task.id)
@@ -188,14 +204,17 @@ class DBController:
         except Task.DoesNotExist:
             print(f"Error moving task: {task_id = }")
 
+    # ====================================================================
     # KANBAN COLUMN
+    # ====================================================================
+
     def create_column(self, name, order, task_id):
         column = KanbanColumn.create(
             name=name,
             order=order,
             task=task_id
         )
-        column.save()
+
         return column
 
     def get_columns(self, task_id):
@@ -240,13 +259,15 @@ class DBController:
         except KanbanColumn.DoesNotExist:
             print(f"Error moving column: {column_id = }")
 
+    # ====================================================================
     # FAVORITE
+    # ====================================================================
+
     def create_fav(self, url, title):
         fav = Fav.create(
             url=url,
             title=title
         )
-        fav.save()
 
     def delete_fav(self, url):
         try:
@@ -264,9 +285,16 @@ class DBController:
         except Fav.DoesNotExist:
             return 0
 
+    # ====================================================================
     # HISTORY
+    # ====================================================================
 
+    # TODO
+
+    # ====================================================================
     # OPENED LINK
+    # ====================================================================
+
     # save one link to position
     def save_link(self, url, order, task_id):
         try:
@@ -314,7 +342,10 @@ class DBController:
             print(f"There is no links in db for {task_id = }")
             return []
 
+    # ====================================================================
     # STICKY NOTE
+    # ====================================================================
+
     # initial load
     def get_note(self, task_id):
         try:
@@ -326,7 +357,7 @@ class DBController:
                     text="",
                     task=task_id
                 )
-                note.save()
+
                 return ""
             except:
                 print(f"There is no note in db for {task_id = }")
@@ -341,14 +372,17 @@ class DBController:
         except StickyNote.DoesNotExist:
             print(f"Failed to save note {text} to task {task_id}")
 
+    # ====================================================================
     # NOTE
+    # ====================================================================
+
     def create_note(self, name, status):
         try:
             note = Note.create(
                 name=name,
                 status=status
             )
-            note.save()
+
             return note
         except:
             print(f"Failed to save note {name}")
@@ -361,6 +395,7 @@ class DBController:
             print("There is no notes in db")
             return None
 
+    # can`t merge because of editor callback
     def update_note_text(self, text, note_id):
         try:
             note = Note.get(Note.id == note_id)
@@ -391,48 +426,10 @@ class DBController:
             print(f"Failed to update note id {note_id}")
             return None
 
-    # TAG
-    def create_tag(self, name, color):
-        try:
-            tag = Tag.create(
-                name=name,
-                color=color
-            )
-            tag.save()
-            return tag
-        except:
-            print(f"Failed to save tag {name}")
-            return None
-
-    # get all tags
-    def get_tags(self):
-        try:
-            return list( Tag.select() )
-        except Tag.DoesNotExist:
-            print("There is no tags in db")
-            return None
-
-    # get tag by id
-    def get_tag(self, tag_id):
-        try:
-            return Tag.get(Tag.id == tag_id)
-        except Tag.DoesNotExist:
-            print("There is no tag in db")
-            return None
-
-    # update tag by id
-    def update_tag(self, name, color, tag_id):
-        try:
-            tag = Tag.get(Tag.id == tag_id)
-            tag.name = name
-            tag.color = color
-            tag.save()
-            return tag
-        except Tag.DoesNotExist:
-            print(f"Failed to update tag id {tag_id}")
-            return None
-
+    # ====================================================================
     # CARD
+    # ====================================================================
+
     # get card by id
     def get_card(self, card_id):
         try:
@@ -476,6 +473,7 @@ class DBController:
             print(f"Failed to save card {name}")
             return None
 
+    # can`t merge because of editor callback
     # update card header
     def update_card_header(self, header, card_id):
         try:
@@ -497,3 +495,68 @@ class DBController:
         except Card.DoesNotExist:
             print(f"Failed to update card id {card_id}")
             return None
+
+    # ====================================================================
+    # TAG
+    # ====================================================================
+
+    # create tag
+    def create_tag(self, name, color):
+        try:
+            tag = Tag.create(
+                name=name,
+                color=color
+            )
+
+            return tag
+        except:
+            print(f"Failed to save tag {name}")
+            return None
+
+    # get all tags
+    def get_tags(self):
+        try:
+            return list( Tag.select() )
+        except Tag.DoesNotExist:
+            print("There is no tags in db")
+            return None
+
+    # get tag by id
+    def get_tag(self, tag_id):
+        try:
+            return Tag.get(Tag.id == tag_id)
+        except Tag.DoesNotExist:
+            print("There is no tag in db")
+            return None
+
+    # update tag by id
+    def update_tag(self, name, color, tag_id):
+        try:
+            tag = Tag.get(Tag.id == tag_id)
+            tag.name = name
+            tag.color = color
+            tag.save()
+            return tag
+        except Tag.DoesNotExist:
+            print(f"Failed to update tag id {tag_id}")
+            return None
+
+    # ====================================================================
+    # TASK TAG
+    # ====================================================================
+
+    def create_task_tag(self, task_id, tag_id):
+        try:
+            task_tag = TaskTag.create(
+                task=task_id,
+                tag=tag_id
+            )
+
+            return task_tag
+        except:
+            print(f"Failed to save task tag: {task_id=} and {tag_id=}")
+            return None
+
+    # ====================================================================
+    # NOTE TAG
+    # ====================================================================

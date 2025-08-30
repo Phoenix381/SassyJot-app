@@ -35,15 +35,25 @@ class TaskController(QObject):
         return json.dumps(model_to_dict(current))
 
     # create task at dashboard
-    @Slot(str, str, int, result=int)
-    def create_task(self, name, color, parent_id):
+    @Slot(str, str, str, int, result=int)
+    def create_task(self, name, color, tags, parent_id):
+        if name == '' or color == '':
+            print('Error creating task')
+            return None
+
         if parent_id == 0:
             parent_id = None
         task = self.app.db.create_task(name, color, parent_id)
         self.select_task(task)
-        return task.id
+
+        tags = json.loads(tags)
+        for tag in tags:
+            self.app.db.create_task_tag(task.id, tag['id'])
+
+        return task
 
     # create task at column
+    # TODO maybe merge create func
     @Slot(str, str, int, int, int, result=int)
     def create_column_task(self, name, color, parent_id, column_id, order):
         task = self.app.db.create_task(name, color, parent_id, column_id, order)
