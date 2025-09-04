@@ -285,25 +285,12 @@ code.hljs {
   border-radius: 10px;
 }
 
-.editor-textarea {
-  width: 100%;
-  height: 100%;
-  minHeight: 140px;
-  boxSizing: border-box;
-
-  border: none;
-  outline: none;
-  resize: vertical;
-
-  background: transparent;
-}
-
-.editor-textarea:focus {
-  outline: none;
-  border: none;
-  color: var(--text);
-}
-
-.editor.active-editor {
+.editor:focus-visible {
   border: 2px solid var(--accent);
+  outline: none;
+}
+
+.active-editor,
+.active-editor * {
+  color: var(--text) !important;
 }

@@ -6,14 +6,8 @@ function makeEditor(container, initialText, saveCallback, updating_id) {
 
   let source = initialText || '';
   let mode = 'render';
-  let editingPartial = false;
-  let selectedFragment = '';
-  let partialIndex = -1;
-  let saveTimer = null;
 
-  const ta = document.createElement('textarea');
-  ta.classList.add('editor-textarea');
-
+  // init md renderer
   const md = markdownit({
     html: false,
     linkify: true,
@@ -41,12 +35,11 @@ function makeEditor(container, initialText, saveCallback, updating_id) {
                .replace(/\son\w+\s*=\s*'[^']*'/gi, '');
   }
 
+  // render text
   async function safeRender(text) {
     mode = 'render';
-    editingPartial = false;
-    selectedFragment = '';
-    partialIndex = -1;
 
+    container.setAttribute('contenteditable', 'false');
     container.classList.remove('active-editor');
 
     const html = sanitizeHtml(md.render(text || ''));
@@ -61,27 +54,14 @@ function makeEditor(container, initialText, saveCallback, updating_id) {
     if (MathJax?.typesetPromise) await MathJax.typesetPromise([container]);
   }
 
-  function selectionInsideContainer() {
-    const sel = window.getSelection();
-    if (!sel || sel.isCollapsed) return false;
-    return container.contains(sel.anchorNode) && container.contains(sel.focusNode);
-  }
-
+  // show editor
   function showEditor() {
     mode = 'source';
-    container.innerHTML = '';
+    container.setAttribute('contenteditable', 'true');
     container.classList.add('active-editor');
-    container.appendChild(ta);
-    ta.value = source;
+    container.innerText = source;
 
-    if (editingPartial && selectedFragment) {
-      let idx = partialIndex >= 0 ? partialIndex : ta.value.indexOf(selectedFragment);
-      if (idx >= 0) {
-        ta.selectionStart = idx;
-        ta.selectionEnd = idx + selectedFragment.length;
-      }
-    }
-    setTimeout(() => ta.focus(), 0);
+    setTimeout(() => container.focus(), 0);
   }
 
   // debounce logic
@@ -99,7 +79,8 @@ function makeEditor(container, initialText, saveCallback, updating_id) {
 
   // finishing editing
   function commitEdits() {
-    source = ta.value;
+    source = container.innerText;
+
     if (saveCallback)
       debouncedSave(source);
 
@@ -111,28 +92,26 @@ function makeEditor(container, initialText, saveCallback, updating_id) {
   }
 
   // saving during edit
-  ta.addEventListener('input', () => {
-    source = ta.value;
+  container.addEventListener('input', () => {
+    if (mode !== 'source') return;
+
+    source = container.innerText;
     debouncedSave(source);
   });
 
   // editor mode hotkeys
-  ta.addEventListener('keydown', (e) => {
+  container.addEventListener('keydown', (e) => {
+    if (mode !== 'source') return;
+
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); commitEdits(); }
     else if (e.key === 'Escape') { e.preventDefault(); cancelEdits(); }
-    else if (e.key === 'Tab') {
-      e.preventDefault();
-      const s = ta.selectionStart, epos = ta.selectionEnd;
-      ta.value = ta.value.slice(0, s) + '\t' + ta.value.slice(epos);
-      ta.selectionStart = ta.selectionEnd = s + 1;
-    }
   });
 
   // losing focus in editor mode
-  ta.addEventListener('blur', () => { 
+  container.addEventListener('blur', () => { 
     setTimeout(() => {
       // still doesnt have focus - qt overelay guard
-      if (mode === 'source' && document.activeElement !== ta) {  
+      if (mode === 'source' && document.activeElement !== container) {  
         commitEdits();
       }
     }, 50);
@@ -141,13 +120,7 @@ function makeEditor(container, initialText, saveCallback, updating_id) {
   // double click on editor
   container.addEventListener('dblclick', () => {
     if (mode !== 'render') return;
-    const sel = window.getSelection();
-    const text = (sel && !sel.isCollapsed && selectionInsideContainer()) ? sel.toString() : '';
-    if (text) {
-      editingPartial = true;
-      selectedFragment = text;
-      partialIndex = source.indexOf(selectedFragment);
-    }
+
     showEditor();
   });
 
