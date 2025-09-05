@@ -270,7 +270,7 @@ a:hover {
   flex-direction: column;
   overflow: auto;
 
-/*  padding: 0 !important;*/
+  white-space:pre;
 }
 
 pre {
@@ -293,4 +293,12 @@ code.hljs {
 .active-editor,
 .active-editor * {
   color: var(--text) !important;
+}
+
+.editor img {
+  max-width: 100%;
+  max-height: 100%;
+
+  height: max-content;
+  width: max-content;
 }

@@ -61,7 +61,12 @@ function makeEditor(container, initialText, saveCallback, updating_id) {
     container.classList.add('active-editor');
     container.innerText = source;
 
-    setTimeout(() => container.focus(), 0);
+    setTimeout(() => {
+      container.focus();
+      sel = window.getSelection();
+      range = sel.getRangeAt(0);
+      range.collapse(false);
+    }, 0);
   }
 
   // debounce logic
@@ -75,7 +80,35 @@ function makeEditor(container, initialText, saveCallback, updating_id) {
 
   const debouncedSave = debounce((val) => {
     saveCallback && saveCallback(val, updating_id);
+    console.log(getTextWithImageLinks(container));
   }, 500);
+
+  // extracting text
+  function getTextWithImageLinks(element) {
+    let result = '';
+    
+    function processNode(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+            result += node.textContent;
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+            if (node.tagName === 'IMG') {
+                // Add image as link format
+                result += ` [Image: ${node.alt || node.src}] `;
+            } else {
+                // Process all child nodes
+                Array.from(node.childNodes).forEach(processNode);
+                
+                // Add line breaks for block elements
+                if (['DIV', 'P', 'BR', 'LI'].includes(node.tagName)) {
+                    result += '\n';
+                }
+            }
+        }
+    }
+    
+    Array.from(element.childNodes).forEach(processNode);
+    return result.trim();
+  }
 
   // finishing editing
   function commitEdits() {
@@ -103,8 +136,17 @@ function makeEditor(container, initialText, saveCallback, updating_id) {
   container.addEventListener('keydown', (e) => {
     if (mode !== 'source') return;
 
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); commitEdits(); }
-    else if (e.key === 'Escape') { e.preventDefault(); cancelEdits(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { 
+      e.preventDefault(); 
+      commitEdits(); 
+    } else if (e.key === 'Escape') { 
+      e.preventDefault(); 
+      cancelEdits(); 
+    } else if (e.key === 'Tab') {
+      e.preventDefault();
+      // deprecated or something
+      document.execCommand('insertText', false, '    ');
+    }
   });
 
   // losing focus in editor mode
@@ -122,6 +164,28 @@ function makeEditor(container, initialText, saveCallback, updating_id) {
     if (mode !== 'render') return;
 
     showEditor();
+  });
+
+  // image pasting
+  container.addEventListener('paste', (e) => {
+    // Get pasted items
+    const items = event.clipboardData?.items;
+    if (!items) return;
+
+    // Find image in pasted items
+    let imageItem = null;
+    for (let i = 0; i < items.length; i++) {
+        if (items[i].type.startsWith('image/')) {
+            imageItem = items[i];
+            break;
+        }
+    }
+
+    if (!imageItem) return;
+
+    // now process image
+    event.preventDefault();
+    console.log(imageItem);
   });
 
   // initial render
