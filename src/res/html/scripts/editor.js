@@ -80,6 +80,7 @@ function makeEditor(container, initialText, saveCallback, updating_id) {
 
   const debouncedSave = debounce((val) => {
     saveCallback && saveCallback(val, updating_id);
+    // TODO logging
     console.log(getTextWithImageLinks(container));
   }, 500);
 
@@ -185,7 +186,45 @@ function makeEditor(container, initialText, saveCallback, updating_id) {
 
     // now process image
     event.preventDefault();
-    console.log(imageItem);
+
+    // Get the image file
+    const file = imageItem.getAsFile();
+    if (!file) return;
+
+    // convert to 75% q webp
+    var result = null;
+    processImage(file).then(res => {
+      result = res;
+      // we got converted file here
+      // TODO pass to backend, we have blob and base64 separated
+      // backend should return link id for image
+      // TODO logging
+      console.log(result);
+
+      // make img element
+      const img = document.createElement('img');
+      img.src = result.base64;
+
+      // insert at cursor
+      const selection = window.getSelection();
+      if(selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+        range.insertNode(img);
+
+        // move cursor after element
+        const newRange = document.createRange();
+        newRange.setStartAfter(img);
+        newRange.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(newRange);
+      } else {
+        container.appendChild(img);
+      }
+    }).catch(err => {
+      console.error(err);
+      return;
+    });
   });
 
   // initial render
@@ -199,4 +238,67 @@ function makeEditor(container, initialText, saveCallback, updating_id) {
     render: () => safeRender(source),
     setId: (id) => updating_id = id
   };
+}
+
+// ==========================
+// actually process image
+// ==========================
+function processImage(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      img.src = e.target.result;
+      
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Maintain aspect ratio but limit size
+        const maxDimension = 1200;
+        let width = img.width;
+        let height = img.height;
+        
+        if (width > maxDimension || height > maxDimension) {
+          const ratio = Math.min(maxDimension / width, maxDimension / height);
+          width = Math.floor(width * ratio);
+          height = Math.floor(height * ratio);
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        // Draw image to canvas
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        // Convert to WebP with 75% quality
+        canvas.toBlob(
+          (blob) => {
+            // Convert blob to base64
+            const reader = new FileReader();
+            reader.onload = () => {
+              const base64 = reader.result;
+              resolve({
+                base64,
+                blob,
+                width,
+                height,
+                format: 'webp'
+              });
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          },
+          'image/webp',
+          0.75 // 75% quality
+        );
+      };
+      
+      img.onerror = reject;
+    };
+    
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
