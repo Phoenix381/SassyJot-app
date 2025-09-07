@@ -4,6 +4,7 @@
 // ============================================================================
 
 var taskController;
+var fileController;
 
 var task;
 var selected;
@@ -14,6 +15,7 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
     console.log("Available objects:", channel.objects);
 
     taskController = channel.objects.task_controller;
+    fileController = channel.objects.file_controller;
 
     // selected task
     const urlParams = new URLSearchParams(window.location.search);
@@ -142,7 +144,7 @@ function modalActions() {
 
 function initSticky() {
     taskController.get_sticky(task.id).then(text => {
-        makeEditor(stickyArea, text, taskController.update_sticky, task.id);
+        makeEditor(stickyArea, text, taskController.update_sticky, task.id, fileController);
     });
 }
 

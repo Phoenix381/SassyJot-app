@@ -1,5 +1,12 @@
 
-function makeEditor(container, initialText, saveCallback, updating_id) {
+// params: 
+// editor container
+// initial text
+// save callback
+// element id for callback
+// file controller for images
+// TODO controller for links
+function makeEditor(container, initialText, saveCallback, updating_id, file_controller) {
   if (!container) return;
 
   container.classList.add('editor');
@@ -176,10 +183,10 @@ function makeEditor(container, initialText, saveCallback, updating_id) {
     // Find image in pasted items
     let imageItem = null;
     for (let i = 0; i < items.length; i++) {
-        if (items[i].type.startsWith('image/')) {
-            imageItem = items[i];
-            break;
-        }
+      if (items[i].type.startsWith('image/')) {
+        imageItem = items[i];
+        break;
+      }
     }
 
     if (!imageItem) return;
@@ -195,32 +202,37 @@ function makeEditor(container, initialText, saveCallback, updating_id) {
     var result = null;
     processImage(file).then(res => {
       result = res;
-      // we got converted file here
-      // TODO pass to backend, we have blob and base64 separated
-      // backend should return link id for image
-      // TODO logging
-      console.log(result);
+      // we got converted file here, saving on backend
+      file_controller.save_image(result.base64).then(saved_img => {
+        let image = JSON.parse(saved_img);
+        if (image.error) {
+          console.error(image.error);
+          return;
+        }
 
-      // make img element
-      const img = document.createElement('img');
-      img.src = result.base64;
+        // make img element
+        const img = document.createElement('img');
+        img.src = image.base64;
+        img.alt = image.id;
 
-      // insert at cursor
-      const selection = window.getSelection();
-      if(selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
-        range.deleteContents();
-        range.insertNode(img);
+        // insert at cursor
+        const selection = window.getSelection();
+        if(selection.rangeCount > 0) {
+          const range = selection.getRangeAt(0);
+          range.deleteContents();
+          range.insertNode(img);
 
-        // move cursor after element
-        const newRange = document.createRange();
-        newRange.setStartAfter(img);
-        newRange.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(newRange);
-      } else {
-        container.appendChild(img);
-      }
+          // move cursor after element
+          const newRange = document.createRange();
+          newRange.setStartAfter(img);
+          newRange.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(newRange);
+        } else {
+          container.appendChild(img);
+        }
+      });
+
     }).catch(err => {
       console.error(err);
       return;

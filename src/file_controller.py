@@ -3,6 +3,7 @@ from peewee import *
 from PySide6.QtCore import QObject, Slot
 from playhouse.shortcuts import model_to_dict
 import json
+import base64
 
 db = SqliteDatabase("files.db")
 
@@ -32,17 +33,26 @@ class FileController(QObject):
     # IMAGE
     # ====================================================================
 
-    # TODO pass callbacks to editor
-
     # saving base64 image
-    @Slot(str)
+    @Slot(str, result=str)
     def save_image(self, data):
+        if data.startswith('data:image/webp;base64,'):
+            converted_data = data.replace('data:image/webp;base64,', '')
+        else:
+            return json.dumps({'error': 'Invalid base64 data'})
+
         # convert base64 to blob
-        pass
+        try:
+            converted_data = base64.b64decode(converted_data)
+        except Exception as e:
+            raise ValueError(f"Invalid base64 data: {e}")
+            return json.dumps({'error': 'Invalid base64 data'})
 
         # save image
-        image = Image(data=data)
+        image = Image(data=converted_data)
         image.save()
+
+        return json.dumps({'id': image.id, 'base64': data})
 
     # get base64 image by id
     @Slot(int, result=str)
@@ -50,6 +60,12 @@ class FileController(QObject):
         image = Image.get(id=id)
 
         # convert blob to base64
-        pass
+        try:
+            data = base64.b64encode(image.blob_data).decode('utf-8')
+            mime_type = f"image/{image_format.lower()}"
+            data_url = f"data:{mime_type};base64,{data}"
+        except Exception as e:
+            raise ValueError(f"Invalid base64 data: {e}")
+            return json.dumps({'error': 'Invalid base64 data'})
 
-        return json.dumps(model_to_dict(image))
+        return json.dumps({'id': id, 'base64': data_url})

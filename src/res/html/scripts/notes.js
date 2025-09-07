@@ -5,6 +5,7 @@
 
 var noteController;
 var cardController;
+var fileController;
 
 // data arrays
 var nodes_initial = [];
@@ -29,6 +30,7 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
 
     noteController = channel.objects.note_controller;
     cardController = channel.objects.card_controller;
+    fileController = channel.objects.file_controller;
 
     noteController.get_notes().then(result => {
         nodes_initial = JSON.parse(result);
@@ -147,7 +149,7 @@ function selectNote(id, name, text, status) {
     selectedStatus.value = status;
 
     if(!noteEditor) {
-        noteEditor = makeEditor(noteText, text, noteController.update_note_text, id);
+        noteEditor = makeEditor(noteText, text, noteController.update_note_text, id, fileController);
     } else {
         noteEditor.setSource(text);
         noteEditor.setId(id);
@@ -159,8 +161,8 @@ function selectNote(id, name, text, status) {
 // ============================================================================
 
 function initCardControls() {
-    newCardHeadEditor = makeEditor(newCardHeader, "", null, null);
-    newCardBodyEditor = makeEditor(newCardBody, "", null, null);
+    newCardHeadEditor = makeEditor(newCardHeader, "", null, null, fileController);
+    newCardBodyEditor = makeEditor(newCardBody, "", null, null, fileController);
 
     closeEditorButton.addEventListener("click", () => {
         editCardsModal.hide();
@@ -218,7 +220,7 @@ function selectCard(id) {
 
         // card header
         if(!cardHeadEditor) {
-            cardHeadEditor = makeEditor(headerEditor, card.header, cardController.update_card_header, selected_card_id);
+            cardHeadEditor = makeEditor(headerEditor, card.header, cardController.update_card_header, selected_card_id, fileController);
         } else {
             cardHeadEditor.setSource(card.header);
             cardHeadEditor.setId(selected_card_id);
@@ -226,7 +228,7 @@ function selectCard(id) {
 
         // card body
         if(!cardBodyEditor) {
-            cardBodyEditor = makeEditor(bodyEditor, card.body, cardController.update_card_body, selected_card_id);
+            cardBodyEditor = makeEditor(bodyEditor, card.body, cardController.update_card_body, selected_card_id, fileController);
         } else {
             cardBodyEditor.setSource(card.body);   
             cardBodyEditor.setId(selected_card_id);
