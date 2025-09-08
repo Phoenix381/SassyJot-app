@@ -302,3 +302,7 @@ code.hljs {
   height: max-content;
   width: max-content;
 }
+
+.editor p {
+  margin: 0;
+}

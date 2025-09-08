@@ -12,6 +12,7 @@ function makeEditor(container, initialText, saveCallback, updating_id, file_cont
   container.classList.add('editor');
 
   let source = initialText || '';
+  container.innerHTML = source;
   let mode = 'render';
 
   // init md renderer
@@ -36,72 +37,93 @@ function makeEditor(container, initialText, saveCallback, updating_id, file_cont
 
   function sanitizeHtml(html) {
     if (window.DOMPurify) return DOMPurify.sanitize(html);
+
     return html.replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
                .replace(/<style[\s\S]*?>[\s\S]*?<\/style>/gi, '')
                .replace(/\son\w+\s*=\s*"[^"]*"/gi, '')
                .replace(/\son\w+\s*=\s*'[^']*'/gi, '');
   }
 
-  // render text
-  async function safeRender(text) {
-    mode = 'render';
+  // ======================================================================
+  // CONVERSIONS
+  // ======================================================================
 
-    container.setAttribute('contenteditable', 'false');
-    container.classList.remove('active-editor');
+  // TODO keep whitespaces
 
-    const html = sanitizeHtml(md.render(text || ''));
-    container.innerHTML = html || '<div>(empty)</div>';
+  // async img loading
+  async function initialImgLoad() {
+    const matches = [...source.matchAll(/\[\[([0-9]*)\]\]/g)];
+    const replacements = await Promise.all(
+      matches.map(async (match) => {
+        const img_id = match[1];
+        try {
+          const data = await file_controller.load_image(img_id);
+          return { match: match[0], replacement: data };
+        } catch (error) {
+          console.error(`Error loading image ${img_id}:`, error);
+          return { match: match[0], replacement: match[0] }; // Return original if error
+        }
+      })
+    );
 
-    container.querySelectorAll('pre code').forEach(cb => {
-      if ('highlighted' in cb.dataset) delete cb.dataset.highlighted;
-      cb.textContent = cb.textContent;
-      hljs.highlightElement(cb);
+    let converted = source;
+    replacements.forEach(({ match, replacement }) => {
+      converted = converted.replace(match, replacement);
     });
 
-    if (MathJax?.typesetPromise) await MathJax.typesetPromise([container]);
+    return converted;
   }
 
-  // show editor
-  function showEditor() {
-    mode = 'source';
-    container.setAttribute('contenteditable', 'true');
-    container.classList.add('active-editor');
-    container.innerText = source;
+  // loaded text to md
+  async function initContent() {
+    const converted = await initialImgLoad();
 
-    setTimeout(() => {
-      container.focus();
-      sel = window.getSelection();
-      range = sel.getRangeAt(0);
-      range.collapse(false);
-    }, 0);
+    container.innerHTML = converted;
   }
 
-  // debounce logic
-  function debounce(func, delay) {
-    let timeoutId;
-    return function (...args) {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => func.apply(this, args), delay);
-    };
+  // editor to markdown
+  async function convertToMarkdown() {
+    const images = container.querySelectorAll('img');
+
+    images.forEach(img => {
+      let alt = img.alt;
+      let src = img.src;
+
+      let md_img = ` ![${alt}](${src}) `;
+
+      // replace image
+      const parent = img.parentElement;
+      if (parent) parent.replaceChild(document.createTextNode(md_img), img);
+    });
   }
 
-  const debouncedSave = debounce((val) => {
-    saveCallback && saveCallback(val, updating_id);
-    // TODO logging
-    console.log(getTextWithImageLinks(container));
-  }, 500);
+  // markdown to editor
+  async function convertToHTML() {
+    // convert images
+    let converted = container.innerHTML.replace( /!\[([^\]]*)\]\(([^)\s]+)\)/g, 
+      (match, alt, src) => {
+        return `<img src="${src}" alt="${alt}" />`;
+      }
+    );
 
-  // extracting text
-  function getTextWithImageLinks(element) {
+    container.innerHTML = converted;
+  }
+
+  // editor to source for saving
+  function convertToText() {
+    if (mode !== 'source') return source;
     let result = '';
     
     function processNode(node) {
         if (node.nodeType === Node.TEXT_NODE) {
             result += node.textContent;
+            console.log('text node');
+            console.log(node.textContent);
+            console.log(node);
         } else if (node.nodeType === Node.ELEMENT_NODE) {
             if (node.tagName === 'IMG') {
                 // Add image as link format
-                result += ` [Image: ${node.alt || node.src}] `;
+                result += ` [[${node.alt}]] `;
             } else {
                 // Process all child nodes
                 Array.from(node.childNodes).forEach(processNode);
@@ -114,29 +136,96 @@ function makeEditor(container, initialText, saveCallback, updating_id, file_cont
         }
     }
     
-    Array.from(element.childNodes).forEach(processNode);
+    Array.from(container.childNodes).forEach(processNode);
     return result.trim();
   }
 
+  // ======================================================================
+  // CHANGING STATES
+  // ======================================================================
+
+  // render text
+  async function safeRender() {
+    mode = 'render';
+
+    container.setAttribute('contenteditable', 'false');
+    container.classList.remove('active-editor');
+    source = convertToText();
+
+    convertToMarkdown().then(() => {
+      const rendered = md.render(container.innerText || '');
+      const html = sanitizeHtml(rendered);
+      container.innerHTML = html || '<div>(empty)</div>';
+
+      container.querySelectorAll('pre code').forEach(cb => {
+        if ('highlighted' in cb.dataset) delete cb.dataset.highlighted;
+        cb.textContent = cb.textContent;
+        hljs.highlightElement(cb);
+      });
+
+      if (MathJax?.typesetPromise) MathJax.typesetPromise([container]);
+    });
+  }
+
+  // show editor
+  // TODO keep empty spaces
+  function showEditor() {
+    mode = 'source';
+    convertToHTML();
+
+    container.setAttribute('contenteditable', 'true');
+    container.classList.add('active-editor');
+
+    setTimeout(() => {
+      container.focus();
+      sel = window.getSelection();
+      range = sel.getRangeAt(0);
+      range.collapse(false);
+    }, 0);
+  }
+
+  // ======================================================================
+  // SAVING
+  // ======================================================================
+
+  // debounce logic
+  function debounce(func, delay) {
+    let timeoutId;
+    return function (...args) {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func.apply(this, args), delay);
+    };
+  }
+
+  const debouncedSave = debounce((val) => {
+    if(mode == 'source') val = convertToText();
+
+    saveCallback && saveCallback(val, updating_id);
+    // TODO logging
+    console.log('saving');
+    console.log(val);
+    console.log(convertToText());
+  }, 500);
+
   // finishing editing
   function commitEdits() {
-    source = container.innerText;
+    source = convertToText();
 
     if (saveCallback)
       debouncedSave(source);
 
-    safeRender(source);
+    safeRender();
   }
 
   function cancelEdits() {
-    safeRender(source);
+    safeRender();
   }
 
   // saving during edit
   container.addEventListener('input', () => {
     if (mode !== 'source') return;
 
-    source = container.innerText;
+    source = convertToText();
     debouncedSave(source);
   });
 
@@ -173,6 +262,10 @@ function makeEditor(container, initialText, saveCallback, updating_id, file_cont
 
     showEditor();
   });
+
+  // ======================================================================
+  // PASTING
+  // ======================================================================
 
   // image pasting
   container.addEventListener('paste', (e) => {
@@ -239,15 +332,24 @@ function makeEditor(container, initialText, saveCallback, updating_id, file_cont
     });
   });
 
-  // initial render
-  safeRender(source);
+  // ======================================================================
+  // INIT
+  // ======================================================================
 
-  // TODO: api to interact with editor
+  // initial render
+  initContent().then(() => {
+    safeRender();
+  });
+
+  // ======================================================================
+  // API
+  // ======================================================================
+
   return {
     getSource: () => source,
-    setSource: (s) => { source = String(s || ''); safeRender(source); },
+    setSource: (s) => { source = String(s || ''); safeRender(); },
     edit: () => { showEditor(); },
-    render: () => safeRender(source),
+    render: () => safeRender(),
     setId: (id) => updating_id = id
   };
 }

@@ -61,11 +61,12 @@ class FileController(QObject):
 
         # convert blob to base64
         try:
-            data = base64.b64encode(image.blob_data).decode('utf-8')
-            mime_type = f"image/{image_format.lower()}"
+            data = base64.b64encode(image.data).decode('utf-8')
+            mime_type = "image/webp"
             data_url = f"data:{mime_type};base64,{data}"
         except Exception as e:
             raise ValueError(f"Invalid base64 data: {e}")
             return json.dumps({'error': 'Invalid base64 data'})
 
-        return json.dumps({'id': id, 'base64': data_url})
+        # return json.dumps({'id': id, 'base64': data_url})
+        return f"<img src='{data_url}' alt='{id}' />"
