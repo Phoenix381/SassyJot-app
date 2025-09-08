@@ -3,9 +3,9 @@ SassyJot desktop app.
 
 ## Running
 Depends on qt6: WebEngineWidgets WebChannel Widgets.
-Using PySide2.
+Using PySide6.
 
-To rebuild resources:
+To rebuild resources (using arch linux):
 ```bash
-pyside6-rcc sassy.qrc -o sassy_rc.py
+/usr/lib/qt6/rcc sassy.qrc -g python -o sassy_rc.py
 ```
