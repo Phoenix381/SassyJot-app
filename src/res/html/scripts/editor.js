@@ -117,9 +117,6 @@ function makeEditor(container, initialText, saveCallback, updating_id, file_cont
     function processNode(node) {
         if (node.nodeType === Node.TEXT_NODE) {
             result += node.textContent;
-            console.log('text node');
-            console.log(node.textContent);
-            console.log(node);
         } else if (node.nodeType === Node.ELEMENT_NODE) {
             if (node.tagName === 'IMG') {
                 // Add image as link format
@@ -201,10 +198,6 @@ function makeEditor(container, initialText, saveCallback, updating_id, file_cont
     if(mode == 'source') val = convertToText();
 
     saveCallback && saveCallback(val, updating_id);
-    // TODO logging
-    console.log('saving');
-    console.log(val);
-    console.log(convertToText());
   }, 500);
 
   // finishing editing

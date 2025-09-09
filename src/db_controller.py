@@ -1,6 +1,7 @@
 
 from peewee import *
 from playhouse.shortcuts import model_to_dict
+from datetime import datetime
 
 db = SqliteDatabase("jot.db")
 
@@ -37,6 +38,11 @@ class Task(BaseModel):
         data = model_to_dict(self)
         data['children'] = [child.get_all_dict() for child in sorted(self.children, key=lambda x: x.order)]
         return data
+
+class Spent(BaseModel):
+    task = ForeignKeyField(Task, backref='spent', to_field="id")
+    date = DateTimeField(default=datetime.now())
+    amount = IntegerField()
 
 class KanbanColumn(BaseModel):
     name = CharField()
@@ -101,7 +107,7 @@ class DBController:
         db.connect()
         db.create_tables([
             Setting, History, Fav, 
-            Task, KanbanColumn, 
+            Task, KanbanColumn, Spent,
             OpenedLink, StickyNote,
             Note, Card,
             Tag, TaskTag, NoteTag,
@@ -114,7 +120,7 @@ class DBController:
             # making first project
             print("DB is empty, initializing...")
 
-            task = self.create_task("Default task", "#000000", None)
+            task = self.create_task("Default task", "#b8bb26", None)
 
             setting = Setting.create(
                 key="current",
@@ -203,6 +209,27 @@ class DBController:
                 task.save()
         except Task.DoesNotExist:
             print(f"Error moving task: {task_id = }")
+
+    # ====================================================================
+    # SPENT
+    # ====================================================================
+    
+    # add record for completed pomodoro
+    def spent_time(self, task_id, amount):
+        spent = Spent.create(
+            task=task_id,
+            amount=amount
+        )
+
+        return spent
+
+    # get all records for today
+    def get_spent_today(self):
+        try:
+            return list( Spent.select().where(Spent.date >= datetime.now().date()) )
+        except Spent.DoesNotExist:
+            print("There is no spent in db")
+            return []
 
     # ====================================================================
     # KANBAN COLUMN

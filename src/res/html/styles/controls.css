@@ -297,6 +297,7 @@ body {
     height: 16px;
 
     width: 100%;
+    transition: width 0.5s;
 
     background: linear-gradient(135deg, #6ebb26 0%, #b8bb26 100%);
 }
@@ -308,6 +309,24 @@ body {
 #pomodoro-controls button {
     width: 48px;
     height: 48px;
+}
+
+.circle {
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+
+    margin: 2px;
+}
+
+.circle:hover {
+    opacity: 0.6;
+}
+
+#pomodoro-today {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
 }
 
 /* ================================================== */

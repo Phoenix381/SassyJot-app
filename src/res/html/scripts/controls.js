@@ -56,6 +56,7 @@ const playButton = document.getElementById('playButton');
 const stopButton = document.getElementById('stopButton');
 const pomodoroTaskSelect = document.getElementById('pomodoro-task-select');
 const pomodoroBar = document.getElementById('pomodoro-bar');
+const pomodoroToday = document.getElementById('pomodoro-today');
 
 // modals
 const favModal = new bootstrap.Modal(document.getElementById('favModal'));
@@ -336,11 +337,23 @@ var isRunning = false;
 var isPaused = false;
 var pomodoroTask = null;
 
+var loaded_tasks;
+
 function sec2time(t) {
     let m = Math.floor(t/60);
     let s = (t-m*60);
 
     return (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+}
+
+function get_task_color(task_id) {
+    for(let task of loaded_tasks) {
+        if(task.id == task_id)
+            return task.color;
+    }
+
+    pomodoroToday.innerHTML += "fail";
+    return 'red';
 }
 
 function tick() {
@@ -362,6 +375,15 @@ function tick() {
         pomodoroTaskSelect.removeAttribute('disabled');
         pomodoroBar.style.width = '100%';
         playButton.children[0].innerHTML = 'play_arrow';
+        pomodoroTime.innerHTML = sec2time(pomodoroRange.value * 60);
+
+        // saving task
+        taskController.spent_time(pomodoroTask, selectedTime/60).then(() => {
+            let circle = document.createElement('div');
+            circle.classList.add('circle');
+            circle.style.backgroundColor = get_task_color(pomodoroTask);
+            pomodoroToday.appendChild(circle);
+        });
     }
 }
 
@@ -371,18 +393,38 @@ function pomodoroControls() {
 
         taskController.get_task_tree().then(tasks => {
             let taskList = JSON.parse(tasks);
+            loaded_tasks = taskList;
 
+            // filling seslect with tasks
             taskList.forEach(task => {
                 let option = document.createElement('option');
                 option.value = task.id;
                 option.innerHTML = task.name;
                 pomodoroTaskSelect.appendChild(option);
             });
-        });
+            
+            // set task to current
+            if(!isRunning && !isPaused) {
+                taskController.get_current_task().then(t => {
+                    task = JSON.parse(t);
+                    pomodoroTask = task.id;    
+                    pomodoroTaskSelect.value = task.id;
+                });
+            }
 
-        taskController.get_current_task().then(t => {
-            task = JSON.parse(t);
-            pomodoroTask = task.id;
+            // filling completed pomodoros
+            taskController.get_spent_today().then(res => {
+                let pomodoros = JSON.parse(res);
+
+                pomodoroToday.innerHTML = '';
+
+                pomodoros.forEach(pomodoro => {
+                    let circle = document.createElement('div');
+                    circle.classList.add('circle');
+                    circle.style.backgroundColor = get_task_color(pomodoro.task_id);
+                    pomodoroToday.appendChild(circle);
+                });
+            });
         });
     });
 
@@ -424,6 +466,8 @@ function pomodoroControls() {
         clearInterval(timerInterval); 
         isRunning = false;
         isPaused = false;
+        playButton.children[0].innerHTML = 'play_arrow';
+        pomodoroTaskSelect.removeAttribute('disabled');
         pomodoroTime.innerHTML = sec2time(pomodoroRange.value * 60);
         pomodoroBar.style.width = '100%';
     });

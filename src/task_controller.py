@@ -165,3 +165,14 @@ class TaskController(QObject):
     @Slot(int, int, int)
     def move_task(self, task_id, new_column_id, new_order):
         self.app.db.move_task(task_id, new_column_id, new_order)
+
+    # save time spent
+    @Slot(int, int)
+    def spent_time(self, task_id, time):
+        self.app.db.spent_time(task_id, time)
+
+    # get completed for current day
+    @Slot(result=str)
+    def get_spent_today(self):
+        pomodoros = self.app.db.get_spent_today()
+        return json.dumps([{'task_id': p.task_id, 'amount': p.amount} for p in pomodoros])

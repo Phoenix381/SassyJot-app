@@ -178,6 +178,10 @@ input[type="text"].surface:focus {
   outline: none;
 }
 
+input[type="range"] {
+  accent-color: var(--accent);
+}
+
 textarea {
   background-color: var(--selectable);
   color: var(--text-secondary);
@@ -193,7 +197,7 @@ textarea:focus {
 }
 
 select {
-  background-color: transparent;
+  background-color: var(--surface);
   color: var(--text-secondary);
 
   border: 2px solid var(--border);
