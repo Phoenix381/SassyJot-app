@@ -54,6 +54,7 @@ const taskName = document.getElementById("task-name");
 const stickyArea = document.getElementById("sticky");
 
 // tag input
+const tagInputContainer = document.getElementById("tag-input-container");
 const tagsContainer = document.getElementById("tags-container");
 const tagInput = document.getElementById("tag-input");
 const tagSuggestions = document.getElementById("tag-suggestions");
@@ -90,7 +91,12 @@ function addTasks(target, tasks, level) {
         task_container.classList.add("task-container");
         task_container.style = "padding-left: " + level * 20 + "px";
 
-        task_link = document.createElement("a");
+        let task_color = document.createElement("div");
+        task_color.classList.add("task-color");
+        task_color.style.backgroundColor = task.color;
+        task_container.appendChild(task_color);
+
+        let task_link = document.createElement("a");
         task_link.setAttribute("href", "task.html?id="+task.id);
         if (task.id == task_id) {
             task_link.classList.add("selected");
@@ -180,6 +186,14 @@ function initTagInput() {
 
         // if found
         tagSuggestions.style.display = "block";
+    });
+
+    tagInput.addEventListener("focus", () => {
+        tagInputContainer.style.border = "2px solid var(--accent)";
+    });
+
+    tagInput.addEventListener("blur", () => {
+        tagInputContainer.style.border = "2px solid var(--surface)";
     });
 }
 
