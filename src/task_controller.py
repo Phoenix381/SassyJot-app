@@ -66,6 +66,13 @@ class TaskController(QObject):
         task.name = name
         task.save()
 
+    # recolor task
+    @Slot(int, str)
+    def recolor_task(self, task_id, color):
+        task = self.app.db.get_task(task_id)
+        task.color = color
+        task.save()
+
     # get full tree
     @Slot(result=str)
     def get_task_tree(self):

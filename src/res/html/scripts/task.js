@@ -24,6 +24,7 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
     task = taskController.get_task(id).then(t => {
         task = JSON.parse(t);
         taskName.value = task.name;
+        currentTaskColor.value = task.color;
 
         selected = taskController.get_current_task().then(t => {
             selected = JSON.parse(t);
@@ -46,7 +47,7 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
     });
 
     // setting callbacks here
-    renameActions();
+    taskActions();
     modalActions();
 });
 
@@ -67,19 +68,20 @@ const taskColor = document.getElementById("task-color");
 const columnTaskName = document.getElementById("column-task-name");
 const addTaskButton = document.getElementById("add-task-button");
 
-// dashboard rename
+// edit task
 const taskName = document.getElementById("task-name");
 const selectButton = document.getElementById("select-button");
 const renameButton = document.getElementById("rename-button");
 const renameOkButton = document.getElementById("rename-ok-button");
 const renameCancelButton = document.getElementById("rename-cancel-button");
+const currentTaskColor = document.getElementById("current-task-color");
 
 const stickyArea = document.getElementById("sticky");
 
 // ============================================================================
 // rename actions
 // ============================================================================
-function renameActions() {
+function taskActions() {
     renameButton.addEventListener("click", () => {
         renameButton.setAttribute("hidden", true);
         renameOkButton.removeAttribute("hidden");
@@ -103,6 +105,10 @@ function renameActions() {
         taskName.value = task.name;
         taskName.setAttribute("disabled", true);
         renameButton.removeAttribute("hidden");
+    });
+
+    currentTaskColor.addEventListener("change", () => {
+        taskController.recolor_task(task.id, currentTaskColor.value);
     });
 }
 
