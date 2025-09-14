@@ -549,6 +549,7 @@ class DBController:
             return None
 
     # get tag by id
+    # TODO remove?
     def get_tag(self, tag_id):
         try:
             return Tag.get(Tag.id == tag_id)
@@ -583,6 +584,20 @@ class DBController:
         except:
             print(f"Failed to save task tag: {task_id=} and {tag_id=}")
             return None
+
+    def get_task_tags(self, task_id):
+        try:
+            return list( TaskTag.select().where(TaskTag.task == task_id) )
+        except TaskTag.DoesNotExist:
+            print(f"There is no tags for task {task_id}")
+            return None
+
+    def delete_task_tag(self, task_id, tag_id):
+        try:
+            task_tag = TaskTag.get((TaskTag.task == task_id) & (TaskTag.tag == tag_id))
+            task_tag.delete_instance()
+        except TaskTag.DoesNotExist:
+            print(f"Try to delete not existing task tag: {task_id = } and {tag_id = }")
 
     # ====================================================================
     # NOTE TAG

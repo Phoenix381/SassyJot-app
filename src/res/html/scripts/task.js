@@ -4,6 +4,7 @@
 // ============================================================================
 
 var taskController;
+var tagController;
 var fileController;
 
 var task;
@@ -15,6 +16,7 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
     console.log("Available objects:", channel.objects);
 
     taskController = channel.objects.task_controller;
+    tagController = channel.objects.tag_controller;
     fileController = channel.objects.file_controller;
 
     // selected task
@@ -44,6 +46,7 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
         // init after getting task id
         initSticky();
         initKanban();
+        initTagInput();
     });
 
     // setting callbacks here
@@ -72,9 +75,16 @@ const addTaskButton = document.getElementById("add-task-button");
 const taskName = document.getElementById("task-name");
 const selectButton = document.getElementById("select-button");
 const renameButton = document.getElementById("rename-button");
+const renameActions = document.getElementById("rename-actions");
 const renameOkButton = document.getElementById("rename-ok-button");
 const renameCancelButton = document.getElementById("rename-cancel-button");
 const currentTaskColor = document.getElementById("current-task-color");
+
+// tag input
+const tagInputContainer = document.getElementById("tag-input-container");
+const tagsContainer = document.getElementById("tags-container");
+const tagInput = document.getElementById("tag-input");
+const tagSuggestions = document.getElementById("tag-suggestions");
 
 const stickyArea = document.getElementById("sticky");
 
@@ -83,28 +93,30 @@ const stickyArea = document.getElementById("sticky");
 // ============================================================================
 function taskActions() {
     renameButton.addEventListener("click", () => {
-        renameButton.setAttribute("hidden", true);
-        renameOkButton.removeAttribute("hidden");
-        renameCancelButton.removeAttribute("hidden");
+        renameButton.style.display = "none";
+        renameActions.style.display = "flex";
+
         taskName.removeAttribute("disabled");
         taskName.focus();
     });
 
     renameOkButton.addEventListener("click", () => {
         taskController.rename_task(task.id, taskName.value).then(() => {
-            renameOkButton.setAttribute("hidden", true);  
-            renameCancelButton.setAttribute("hidden", true);
             taskName.setAttribute("disabled", true);
-            renameButton.removeAttribute("hidden");
+            task.name = taskName.value;
+
+            renameActions.style.display = "none";
+            renameButton.style.display = "flex";
         });
     });
 
     renameCancelButton.addEventListener("click", () => {
-        renameOkButton.setAttribute("hidden", true); 
-        renameCancelButton.setAttribute("hidden", true);
+        renameActions.style.display = "none";
+        renameButton.style.display = "flex";
+
         taskName.value = task.name;
         taskName.setAttribute("disabled", true);
-        renameButton.removeAttribute("hidden");
+
     });
 
     currentTaskColor.addEventListener("change", () => {
@@ -282,6 +294,123 @@ function initKanban() {
                     // console.log("Moved column", column_index, "from", oldIndex, "to", newIndex);
                 }
             }
+        });
+    });
+}
+
+// ============================================================================
+// tag input
+// ============================================================================
+
+var tagList = [];
+var selectedTags = [];
+
+function initTagInput() {
+    tagController.get_tags().then(result => {
+        tagList = JSON.parse(result);
+    });
+
+    // init selected
+    tagController.get_task_tags(task.id).then(result => {
+        taskTags = JSON.parse(result);
+
+        taskTags.forEach(tag => {
+            selectedTags.push(tag.tag);
+        });
+
+        renderTags();
+    });
+
+    // tag input
+    tagInput.addEventListener("input", () => {
+        const val = tagInput.value.toLowerCase().trim();
+        tagSuggestions.innerHTML = "";
+
+        if (val === "") {
+            tagSuggestions.style.display = "none";
+            return;
+        }
+
+        // searching for tag in list
+        const filteredTags = tagList.filter(tag => 
+            tag.name.toLowerCase().includes(val) &&
+            !selectedTags.some(t => t.id == tag.id)
+        );
+
+        if (filteredTags.length === 0) {
+            tagSuggestions.style.display = "none";
+            return;
+        }
+
+        // adding to results
+        filteredTags.forEach(tag => {
+            let row = document.createElement("div");
+            row.className = "search-result";
+            row.innerHTML = `
+                <span class="tag-preview" style="background: ${tag.color}"></span>
+                ${tag.name}
+            `;
+
+            // add tag logic
+            row.addEventListener("click", () => {
+                addTag(tag);
+                tagInput.value = "";
+                tagSuggestions.style.display = "none";
+            });
+
+            tagSuggestions.appendChild(row);
+        });
+
+        // if found
+        tagSuggestions.style.display = "block";
+    });
+
+    renderTags();
+}
+
+function addTag(tag) {
+    if (selectedTags.some(t => t.id == tag.id)) {   
+        return;
+    }
+
+    // saving to db
+    tagController.add_tag_to_task(task.id, tag.id);
+
+    // adding to list
+    selectedTags.push(tag);
+    renderTags();
+}
+
+function removeTag(id) {
+    // removing from db
+    tagController.remove_tag_from_task(task.id, id);
+
+    // removing from list
+    selectedTags = selectedTags.filter(t => t.id != id);   
+    renderTags();
+}
+
+function renderTags() {
+    tagsContainer.innerHTML = "";
+
+    // adding selected tags to container
+    selectedTags.forEach(tag => {
+        const tagElement = document.createElement("div");
+        tagElement.className = "tag";
+        tagElement.style.backgroundColor = tag.color;
+        tagElement.innerHTML = `
+            ${tag.name}
+            <span class="tag-remove" data-id="${tag.id}">×</span>
+        `;
+
+        tagsContainer.appendChild(tagElement);
+    });
+
+    // remove tag events
+    tagsContainer.querySelectorAll(".tag-remove").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const id = btn.getAttribute("data-id"); 
+            removeTag(id);
         });
     });
 }
