@@ -1,5 +1,5 @@
 
-from PySide6.QtCore import QObject
+from PySide6.QtCore import QObject, Slot, Signal
 from enum import Enum
 from typing import Optional, Dict, Any
 import json
@@ -9,6 +9,8 @@ class ModelStartupMode(Enum):
     API = "api"
 
 class AIController(QObject):
+    aiResponseReady = Signal(str)
+    
     class Model:
         def __init__(self,mode: ModelStartupMode,
                     model_url: Optional[str] = None,
@@ -19,7 +21,6 @@ class AIController(QObject):
             self.api_url = api_url
             self.api_key = api_key
             self._model = None
-
             self._load_model()
 
         def _load_model(self):
@@ -47,9 +48,13 @@ class AIController(QObject):
         def _predict_api(self,input: str) -> Dict[str, Any]:
             pass
         
-    def __init__(self, mode: ModelStartupMode):
-        super().__init__()
-        self.mode = mode
+    def __init__(self,parent=None):
+        super().__init__(parent)
+        self.mode = ModelStartupMode.LOCAL
         #TODO: self.model = ...
+    @Slot(str)
+    def test_predict(self,input: str):
+        self.aiResponseReady.emit("TEST PREDICT")
+        return input
     def input_processing(self):
         pass
