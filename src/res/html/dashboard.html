@@ -11,10 +11,12 @@
     <link href="styles/dashboard.css" rel="stylesheet">
     <link href="styles/calendar.css" rel="stylesheet">
 
-    <link href="monokai-sublime.css" rel="stylesheet">
+    <link href="deps/monokai-sublime.css" rel="stylesheet">
+    <link href="deps/air-datepicker.css" rel="stylesheet">
 </head>
 <body class="background">
     <script src="deps/bootstrap.bundle.min.js"></script>
+    <script src="deps/air-datepicker.min.js"></script>
     <script src="deps/qwebchannel.js"></script>
 
     <script>
@@ -129,23 +131,67 @@
             <div class="modal-content d-flex align-items-center justify-content-center">
                 <div class="d-flex gap-2 justify-center">
                     
-                    <div class="d-flex flex-column">  
-                        <input type="color" id="task-color" value="#b8bb26">
-                    </div>
+                    <div class="d-flex flex-column gap-2 add-modal-inputs">
+                        <div class="d-flex align-items-center gap-2">
+                            <!-- task name -->
+                            <input class="text-input text-bordered surface" type="text" id="task-name-input" placeholder="Name">
 
-                    <div class="d-flex flex-column gap-1 add-modal-inputs">
-                        <input class="text-input text-bordered surface" type="text" id="task-name-input" placeholder="Name">
+                            <!-- task color -->
+                            <input type="color" id="task-color" value="#b8bb26">
+                        </div>
 
+                        <!-- energy level -->
+                        <fieldset>
+                            <legend>Energy level</legend>
+                            <input type="radio" name="energy" id="low-energy" checked>
+                            <label for="low-energy">Low</label>
+                            <input type="radio" name="energy" id="medium-energy">
+                            <label for="medium-energy">Medium</label>
+                            <input type="radio" name="energy" id="high-energy">
+                            <label for="high-energy">High</label>
+                        </fieldset>
+
+                        <!-- task type -->
+                        <fieldset>
+                            <legend>Type</legend>
+                            <input type="radio" name="type" id="task-normal" checked>
+                            <label for="task-normal">Normal</label>
+                            <input type="radio" name="type" id="task-deadline">
+                            <label for="task-deadline">Deadline</label>
+                            <input type="radio" name="type" id="task-repeating">
+                            <label for="task-repeating">Repeating</label>
+                        </fieldset>
+
+                        <!-- deadline settings -->
+                        <input type="text" 
+                            class="text-input text-bordered surface" id="deadline-input"
+                            data-date-format="dd/mm/yyyy" data-language='en' 
+                            placeholder="Select deadline"
+                        >
+
+                        <!-- repeating task time -->
+                        <div id="repeating-input-time" class="d-flex gap-2" style="display: none;">
+                            <input class="text-input text-bordered surface" type="text" id="task-repeating-days" placeholder="days">
+
+                            <input class="text-input text-bordered surface" type="text" id="task-repeating-hours" placeholder="hours">
+
+                            <input class="text-input text-bordered surface" type="text" id="task-repeating-minutes" placeholder="minutes">
+                        </div>
+
+                        <!-- TODO repeating  task weekdays -->
+
+                        <!-- tag editor -->
                         <div id="tag-input-container" class="surface">
                             <div id="tags-container"></div>
                             <input type="text" id="tag-input" placeholder="Search tag...">
                             <div id="tag-suggestions"></div>
                         </div>
-                    </div>
 
-                    <button class="btn btn-sm bordered surface" id="add-task-button">
-                        Create
-                    </button>
+                        <button class="btn btn-sm bordered surface" id="add-task-button">
+                            Create
+                            <i class="material-symbols">add</i>
+                        </button>
+                    </div>
 
                 </div>
             </div>

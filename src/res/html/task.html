@@ -10,7 +10,7 @@
     <link href="styles/theme.css" rel="stylesheet">
     <link href="styles/task.css" rel="stylesheet">
 
-    <link href="styles/monokai-sublime.css" rel="stylesheet">
+    <link href="deps/monokai-sublime.css" rel="stylesheet">
 </head>
 <body class="background">
     <script src="deps/bootstrap.bundle.min.js"></script>
@@ -123,7 +123,17 @@
                         </div>
                     </div>
 
-                    <div class="d-flex flex-column">
+                    <div class="d-flex gap-3">
+                        <button class="background" id="settings-button">
+                            Edit task
+                            <i class="material-symbols">settings</i>
+                        </button>
+
+                        <button class="background" id="finish-button">
+                            Finish task
+                            <i class="material-symbols">check</i>
+                        </button>
+
                         <button class="background flex-grow-1" id="select-button" hidden>
                             Select task
                             <i class="material-symbols">play_arrow</i>

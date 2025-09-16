@@ -77,6 +77,11 @@ function modalActions() {
             addTaskModal.hide();
         });
     });
+
+    new AirDatepicker('#deadline-input', {
+        timepicker: true,
+        timeFormat: 'HH:MM'
+    });
 }
 
 // ============================================================================
@@ -186,14 +191,6 @@ function initTagInput() {
 
         // if found
         tagSuggestions.style.display = "block";
-    });
-
-    tagInput.addEventListener("focus", () => {
-        tagInputContainer.style.border = "2px solid var(--accent)";
-    });
-
-    tagInput.addEventListener("blur", () => {
-        tagInputContainer.style.border = "2px solid var(--surface)";
     });
 }
 
