@@ -3,7 +3,15 @@
 // web channel init
 // ============================================================================
 
+//TODO: remove freeze when model is thinking
 var aiController;
+
+// Make sure the response handler is properly set up BEFORE the channel is created
+window.receiveAIResponse = function(response) {
+    console.log("AI Response received:", response);
+    addMessage(response, 'ai');
+    scrollToBottom();
+};
 
 // async channel creation
 var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
@@ -14,15 +22,20 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
     if (channel.objects.ai_controller) {
         aiController = channel.objects.ai_controller;
         console.log("ai_controller found:", aiController);
-        console.log("test_predict method exists:", typeof aiController.test_predict === 'function');
+        console.log("predict method exists:", typeof aiController.predict === 'function');
         
-        // Test calling the method directly
-        try {
-            aiController.test_predict("test message");
-            console.log("test_predict called successfully");
-        } catch (error) {
-            console.error("Error calling test_predict:", error);
-        }
+        // Connect to the response signal
+        aiController.aiResponseReady.connect(function(response) {
+            console.log("Signal received:", response);
+            if (window.receiveAIResponse) {
+                window.receiveAIResponse(response);
+            } else {
+                console.error("receiveAIResponse function not found");
+                // Fallback: add message directly
+                addMessage(response, 'ai');
+                scrollToBottom();
+            }
+        });
     } else {
         console.error("ai_controller NOT found in channel.objects!");
     }
@@ -39,10 +52,13 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
 // chat functionality
 // ============================================================================
 
+// Move these to global scope so they can be accessed by receiveAIResponse
+var chatMessages;
+
 function initChat() {
     const messageInput = document.getElementById('message-input');
     const sendButton = document.getElementById('send-button');
-    const chatMessages = document.getElementById('chat-messages');
+    chatMessages = document.getElementById('chat-messages'); // Make global
     const clearChatButton = document.getElementById('clear-chat');
     
     messageInput.addEventListener('input', function() {
@@ -84,8 +100,19 @@ function initChat() {
         scrollToBottom();
         
         if (aiController) {
-            // Call the correct method name - test_predict instead of predict
-            aiController.test_predict(message);
+            console.log("Calling predict with:", message);
+            // Call the correct method name - predict instead of predict
+            try {
+                var result = aiController.predict(message);
+                console.log("predict returned:", result);
+            } catch (error) {
+                console.error("Error calling predict:", error);
+                // Fallback: show simulated response
+                setTimeout(() => {
+                    addMessage("Error connecting to AI. This is a simulated response.", 'ai');
+                    scrollToBottom();
+                }, 1000);
+            }
         } else {
             console.error("AI Controller not available");
             setTimeout(() => {
@@ -95,43 +122,44 @@ function initChat() {
         }
     }
     
-    function addMessage(text, sender) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${sender}-message`;
-        
-        const avatar = document.createElement('div');
-        avatar.className = 'message-avatar';
-        
-        const avatarIcon = document.createElement('span');
-        avatarIcon.className = 'material-symbols-outlined';
-        avatarIcon.textContent = sender === 'user' ? 'person' : 'robot';
-        avatar.appendChild(avatarIcon);
-        
-        const content = document.createElement('div');
-        content.className = 'message-content';
-        
-        const paragraph = document.createElement('p');
-        paragraph.textContent = text;
-        content.appendChild(paragraph);
-        
-        messageDiv.appendChild(avatar);
-        messageDiv.appendChild(content);
-        
-        chatMessages.appendChild(messageDiv);
-    }
-    
-    function scrollToBottom() {
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-    
-    // Make sure the response handler is properly set up
-    if (window.receiveAIResponse === undefined) {
-        window.receiveAIResponse = function(response) {
-            addMessage(response, 'ai');
-            scrollToBottom();
-        };
-    }
+    // Make scrollToBottom available globally
+    window.scrollToBottom = function() {
+        if (chatMessages) {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    };
 }
+
+// Make addMessage available globally
+window.addMessage = function(text, sender) {
+    if (!chatMessages) {
+        console.error("chatMessages not initialized");
+        return;
+    }
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}-message`;
+    
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    
+    const avatarIcon = document.createElement('span');
+    avatarIcon.className = 'material-symbols-outlined';
+    avatarIcon.textContent = sender === 'user' ? 'person' : 'robot';
+    avatar.appendChild(avatarIcon);
+    
+    const content = document.createElement('div');
+    content.className = 'message-content';
+    
+    const paragraph = document.createElement('p');
+    paragraph.textContent = text;
+    content.appendChild(paragraph);
+    
+    messageDiv.appendChild(avatar);
+    messageDiv.appendChild(content);
+    
+    chatMessages.appendChild(messageDiv);
+};
 
 document.addEventListener('DOMContentLoaded', function() {
     const messageInput = document.getElementById('message-input');
