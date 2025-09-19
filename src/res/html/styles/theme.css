@@ -160,6 +160,10 @@ legend {
   font-size: 1.3em !important;
 }
 
+input[type="checkbox"] {
+  accent-color: var(--accent);
+}
+
 input[type="color"] {
   background-color: transparent;
   border: 2px solid var(--border);

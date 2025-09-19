@@ -1,6 +1,7 @@
 
 from peewee import *
 from playhouse.shortcuts import model_to_dict
+from playhouse.sqlite_ext import *
 from datetime import datetime
 
 db = SqliteDatabase("jot.db")
@@ -26,13 +27,25 @@ class Fav(BaseModel):
     # TODO icon
 
 class Task(BaseModel):
-    name = CharField()
     color = CharField(default="#b8bb26")
+    name = CharField()
     parent = ForeignKeyField('self', backref='children', to_field="id", null=True)
     column = DeferredForeignKey('KanbanColumn', backref='tasks', to_field="id", null=True, default=None)
     order = IntegerField(default=0)
-    # TODO types
-    # TODO type cpecific data
+
+    is_completed = BooleanField(default=False)
+    completed_at = DateTimeField(null=True, default=None)
+
+    planned = IntegerField(default=0)
+    priority = IntegerField(default=1)
+    energy = IntegerField(default=1)
+    type = IntegerField(default=1)
+
+    # type specific data
+    deadline = DateTimeField(null=True, default=None)
+    repeat_type = IntegerField(null=True, default=1)
+    repeat_value = IntegerField(null=True, default=1)
+    repeat_days = JSONField(null=True, default=None)
 
     def get_all_dict(self):
         data = model_to_dict(self)
@@ -120,7 +133,12 @@ class DBController:
             # making first project
             print("DB is empty, initializing...")
 
-            task = self.create_task("Default task", "#b8bb26", None)
+            # default task
+            task = self.create_task({
+                'color': "#b8bb26",
+                'name': "Default task",
+                'parent': None,
+            })
 
             setting = Setting.create(
                 key="current",
@@ -146,19 +164,14 @@ class DBController:
     # TASK
     # ====================================================================
 
-    def create_task(self, name, color, parent_id, column_id = None, order = 0):
-        task = Task.create(
-            name=name,
-            color=color,
-            parent=parent_id,
-            column=column_id,
-            order=order
-        )
+    def create_task(self, task):
+        task = Task.create(**task)
 
-        # TODO create default columns
+        # TODO redesign?
         self.create_column("Todo", 0, task.id)
         self.create_column("In progress", 1, task.id)
         self.create_column("Done", 2, task.id)
+
         return task
 
     def get_task(self, task_id):

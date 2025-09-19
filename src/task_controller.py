@@ -34,43 +34,25 @@ class TaskController(QObject):
         current = self.app.db.get_task(current)
         return json.dumps(model_to_dict(current))
 
-    # create task at dashboard
-    @Slot(str, str, str, int, result=int)
-    def create_task(self, name, color, tags, parent_id):
-        if name == '' or color == '':
-            print('Error creating task')
-            return None
+    # create task using json
+    @Slot(str)
+    def create_task(self, task):
+        data = json.loads(task)
+        task = self.app.db.create_task(data)
 
-        if parent_id == 0:
-            parent_id = None
-        task = self.app.db.create_task(name, color, parent_id)
-        self.select_task(task)
+    # update task using json
+    @Slot(str)
+    def update_task(self, task):
+        data = json.loads(task)
+        task = self.app.db.get_task(data['id'])
 
-        tags = json.loads(tags)
-        for tag in tags:
-            self.app.db.create_task_tag(task.id, tag['id'])
+        # update fields
+        for key, value in data.items():
+            if key == 'id':
+                continue
 
-        return task
+            setattr(task, key, value)
 
-    # create task at column
-    # TODO maybe merge create func
-    @Slot(str, str, int, int, int, result=int)
-    def create_column_task(self, name, color, parent_id, column_id, order):
-        task = self.app.db.create_task(name, color, parent_id, column_id, order)
-        return task.id
-
-    # rename task
-    @Slot(int, str)
-    def rename_task(self, task_id, name):
-        task = self.app.db.get_task(task_id)
-        task.name = name
-        task.save()
-
-    # recolor task
-    @Slot(int, str)
-    def recolor_task(self, task_id, color):
-        task = self.app.db.get_task(task_id)
-        task.color = color
         task.save()
 
     # get full tree

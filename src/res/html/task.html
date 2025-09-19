@@ -11,9 +11,11 @@
     <link href="styles/task.css" rel="stylesheet">
 
     <link href="deps/monokai-sublime.css" rel="stylesheet">
+    <link href="deps/air-datepicker.css" rel="stylesheet">
 </head>
 <body class="background">
     <script src="deps/bootstrap.bundle.min.js"></script>
+    <script src="deps/air-datepicker.min.js"></script>
     <script src="deps/qwebchannel.js"></script>
 
     <script>
@@ -87,60 +89,193 @@
                 class="tab-pane fade show active" id="v-pills-task" 
                 role="tabpanel" aria-labelledby="v-pills-task-tab"
             >
+                <!-- left side -->
                 <div class="task-header">
+                    <div class="d-flex gap-3 flex-grow-1">
 
-                    <div class="rename-block controls-block">
-                        <div class="d-flex flex-column">  
-                            <input type="color" id="current-task-color">
-                        </div>
+                    <!-- color, name, planned time -->
+                    <div class="d-flex  gap-2">  
+                        <input 
+                            type="color" id="current-task-color"
+                            class="task-value"
+                            disabled
+                        >
 
                         <input 
-                            class="text-input text-bordered surface" 
-                            type="text" id="task-name"
+                            class="text-input text-bordered surface task-value" 
+                            type="text" id="current-task-name"
                             placeholder="Task name"
                             value="Task name"
                             disabled
                         >
 
-                        <button class="background" id="rename-button">
-                            <i class="material-symbols">edit</i>
-                        </button>
+                        <input
+                            class="text-input text-bordered surface task-value"
+                            type="text" id="current-planned-time"
+                            placeholder="Time"
+                            disabled
+                        >
+                    </div>
 
-                        <div id="rename-actions" class="ap-2">
-                            <button class="background" id="rename-ok-button">
-                                <i class="material-symbols">check</i>
-                            </button>
+                    <!-- priority, energy and type select -->
+                    <div class="d-flex gap-2">
+                        <select id="current-priority" class="task-value" disabled>
+                            <option value="1">Low</option>
+                            <option value="2">Medium</option>
+                            <option value="3">High</option>
+                        </select>
 
-                            <button class="background" id="rename-cancel-button">
-                                <i class="material-symbols">cancel</i>
-                            </button>
-                        </div>
+                        <select id="current-energy-level" class="task-value" disabled>
+                            <option value="1">Low</option>
+                            <option value="2">Medium</option>
+                            <option value="3">High</option>
+                        </select>
 
-                        <div id="tag-input-container" class="surface">
-                            <div id="tags-container"></div>
-                            <input type="text" id="tag-input" placeholder="Search tag...">
-                            <div id="tag-suggestions"></div>
+                        <select id="current-task-type" class="task-value" disabled>
+                            <option value="1">Normal</option>
+                            <option value="2">Deadline</option>
+                            <option value="3">Repeating</option>
+                        </select>
+                    </div>
+
+                    <!-- deadline type specific settings -->
+                    <div id="deadline-specific">
+                        <input type="text" 
+                            class="text-input text-bordered surface task-value"
+                            id="current-deadline"
+                            data-date-format="dd/mm/yyyy" data-language='en' 
+                            placeholder="Deadline"
+                            disabled
+                        >
+                    </div>
+
+                    <!-- repeating type specific settings -->
+                    <div id="repeating-specific" class="gap-2">
+                        <select id="current-repeat-type" class="task-value" disabled>
+                            <option value="1">By hour</option>
+                            <option value="2">By day</option>
+                            <option value="3">Select days</option>
+                        </select>
+
+                        <!-- value -->
+                        <input
+                            class="text-input text-bordered surface task-value"
+                            type="text" id="current-repeat-value"
+                            placeholder="Days"
+                            disabled
+                        >
+
+                        <!-- days -->
+                        <div class="days-select">
+                            <input 
+                                type="checkbox"
+                                id="current-all-check" name="current-all-check"
+                                class="task-value" disabled
+                            />
+                            <label for="current-all-check">All</label>
+
+                            <div class="d-flex gap-1">
+                                <input 
+                                    type="checkbox"
+                                    id="current-mon-check" name="current-days" 
+                                    class="task-value" disabled
+                                />
+                                <label for="current-mon-check">Mon</label>
+                            </div>
+                            <div class="d-flex gap-1">
+                                <input
+                                    type="checkbox"
+                                    id="current-tue-check" name="current-days"
+                                    class="task-value" disabled
+                                />
+                                <label for="current-tue-check">Tue</label>
+                            </div>
+                            <div class="d-flex gap-1">
+                                <input
+                                    type="checkbox"
+                                    id="current-wed-check" name="current-days"
+                                    class="task-value" disabled
+                                />
+                                <label for="current-wed-check">Wed</label>
+                            </div>
+                            <div class="d-flex gap-1">
+                                <input
+                                    type="checkbox"
+                                    id="current-thu-check" name="current-days"
+                                    class="task-value" disabled
+                                />
+                                <label for="current-thu-check">Thu</label>
+                            </div>
+                            <div class="d-flex gap-1">
+                                <input
+                                    type="checkbox"
+                                    id="current-fri-check" name="current-days"
+                                    class="task-value" disabled
+                                />
+                                <label for="current-fri-check">Fri</label>
+                            </div>
+                            <div class="d-flex gap-1">
+                                <input
+                                    type="checkbox"
+                                    id="current-sat-check" name="current-days"
+                                    class="task-value" disabled
+                                />
+                                <label for="current-sat-check">Sat</label>
+                            </div>
+                            <div class="d-flex gap-1">
+                                <input
+                                    type="checkbox"
+                                    id="current-sun-check" name="current-days"
+                                    class="task-value" disabled
+                                />
+                                <label for="current-sun-check">Sun</label>
+                            </div>
                         </div>
                     </div>
 
+                    <!-- TODO rename to current -->
+                    <!-- tag container -->
+                    <div id="tag-input-container" class="surface">
+                        <div id="tags-container"></div>
+                        <input type="text" id="tag-input" placeholder="Search tag...">
+                        <div id="tag-suggestions"></div>
+                    </div>
+
+                    </div>
+
+                    <!-- right side -->
                     <div class="d-flex gap-3">
-                        <button class="background" id="settings-button">
+                        <!-- edit mode buttons -->
+                        <button class="background px-3" id="settings-button">
                             Edit task
                             <i class="material-symbols">settings</i>
                         </button>
 
-                        <button class="background" id="finish-button">
+                        <div id="edit-confirmation" class="ap-2">
+                            <button class="background" id="save-button">
+                                Save
+                                <i class="material-symbols">save</i>
+                            </button>
+
+                            <button class="background" id="cancel-button">
+                                Cancel
+                                <i class="material-symbols">cancel</i>
+                            </button>
+                        </div>
+
+                        <!-- task control buttons -->
+                        <button class="background px-3" id="finish-button">
                             Finish task
                             <i class="material-symbols">check</i>
                         </button>
 
-                        <button class="background flex-grow-1" id="select-button" hidden>
+                        <button class="background flex-grow-1 px-3" id="select-button" hidden>
                             Select task
                             <i class="material-symbols">play_arrow</i>
                         </button>
                     </div>
-                </div>
 
+                </div>
                 <!-- dashboard columns -->
                 <div class="dashboard d-flex mx-2 my-3">
                     <div id="sticky" class="surface-background bordered">
