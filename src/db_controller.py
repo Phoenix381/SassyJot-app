@@ -164,8 +164,13 @@ class DBController:
     # TASK
     # ====================================================================
 
+    # using json as input
     def create_task(self, task):
-        task = Task.create(**task)
+        try:
+            task = Task.create(**task)
+        except Exception as e:
+            print(f"Could not create task: {e = }")
+            return None
 
         # TODO redesign?
         self.create_column("Todo", 0, task.id)

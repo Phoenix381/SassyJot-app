@@ -119,7 +119,7 @@ const tagSuggestions = document.getElementById("tag-suggestions");
 const stickyArea = document.getElementById("sticky");
 
 // ============================================================================
-// rename actions
+// task header actions
 // ============================================================================
 
 // editing status

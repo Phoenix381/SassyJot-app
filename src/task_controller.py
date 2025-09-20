@@ -35,10 +35,11 @@ class TaskController(QObject):
         return json.dumps(model_to_dict(current))
 
     # create task using json
-    @Slot(str)
+    @Slot(str, result=str)
     def create_task(self, task):
         data = json.loads(task)
         task = self.app.db.create_task(data)
+        return json.dumps(model_to_dict(task)) if task else ''
 
     # update task using json
     @Slot(str)

@@ -140,6 +140,23 @@
                             <input type="color" id="task-color" value="#b8bb26">
                         </div>
 
+                        <!-- planned time -->
+                        <input type="text" 
+                            class="text-input text-bordered surface" id="planned-input"
+                            placeholder="Planned time"
+                        >
+
+                        <!-- priority -->
+                        <fieldset>
+                            <legend>Priority</legend>
+                            <input value="1" type="radio" name="priority" id="low-priority" checked>
+                            <label for="low-priority">Low</label>
+                            <input value="2" type="radio" name="priority" id="medium-priority">
+                            <label for="medium-priority">Medium</label>
+                            <input value="3" type="radio" name="priority" id="high-priority">
+                            <label for="high-priority">High</label>
+                        </fieldset>
+
                         <!-- energy level -->
                         <fieldset>
                             <legend>Energy level</legend>
@@ -167,15 +184,83 @@
                             class="text-input text-bordered surface" id="deadline-input"
                             data-date-format="dd/mm/yyyy" data-language='en' 
                             placeholder="Select deadline"
+                            style="display: none;"
                         >
 
                         <!-- repeating task time -->
-                        <div id="repeating-input-time" class="d-flex gap-2" style="display: none;">
-                            <input class="text-input text-bordered surface" type="text" id="task-repeating-days" placeholder="days">
+                        <div id="repeating-specific" class="gap-2" style="display: none;">
+                            <!-- type -->
+                            <select id="repeat-type">
+                                <option value="1">By hour</option>
+                                <option value="2">By day</option>
+                                <option value="3">Select days</option>
+                            </select>
 
-                            <input class="text-input text-bordered surface" type="text" id="task-repeating-hours" placeholder="hours">
+                            <!-- value -->
+                            <input
+                                class="text-input text-bordered surface"
+                                type="text" id="repeat-value"
+                                placeholder="Days"
+                            >
 
-                            <input class="text-input text-bordered surface" type="text" id="task-repeating-minutes" placeholder="minutes">
+                            <!-- days -->
+                            <div class="days-select">
+                                <input 
+                                    type="checkbox"
+                                    id="all-check" name="all-check"
+                                />
+                                <label for="all-check">All</label>
+
+                                <div class="d-flex gap-1">
+                                    <input 
+                                        type="checkbox"
+                                        id="mon-check" name="days" 
+                                    />
+                                    <label for="mon-check">Mon</label>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <input
+                                        type="checkbox"
+                                        id="tue-check" name="days"
+                                    />
+                                    <label for="tue-check">Tue</label>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <input
+                                        type="checkbox"
+                                        id="wed-check" name="days"
+                                    />
+                                    <label for="wed-check">Wed</label>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <input
+                                        type="checkbox"
+                                        id="thu-check" name="days"
+                                    />
+                                    <label for="thu-check">Thu</label>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <input
+                                        type="checkbox"
+                                        id="fri-check" name="days"
+                                    />
+                                    <label for="fri-check">Fri</label>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <input
+                                        type="checkbox"
+                                        id="sat-check" name="days"
+                                    />
+                                    <label for="sat-check">Sat</label>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <input
+                                        type="checkbox"
+                                        id="sun-check" name="days"
+                                    />
+                                    <label for="sun-check">Sun</label>
+                                </div>
+                            </div>                            
                         </div>
 
                         <!-- TODO repeating  task weekdays -->

@@ -204,8 +204,21 @@ body {
     border-radius: 10px;
 }
 
-#repeating-input-time input {
-    text-align: center;
+#repeat-value {
+    width: 20%;
+}
+
+.days-select {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0 0.2em;
+    min-width: 180px;
+    max-width: 180px;
+}
+
+.days-select label {
+    font-size: 14px;
 }
 
 /* ================================================== */
