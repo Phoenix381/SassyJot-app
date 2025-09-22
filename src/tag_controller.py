@@ -35,7 +35,7 @@ class TagController(QObject):
     @Slot(int, result=str)
     def get_task_tags(self, task_id):
         tags = self.app.db.get_task_tags(task_id)
-        return json.dumps([model_to_dict(tag) for tag in tags])
+        return json.dumps([model_to_dict(tag) for tag in tags], default=str)
 
     # add tag to task
     @Slot(int, int)

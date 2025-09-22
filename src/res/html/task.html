@@ -265,7 +265,9 @@
                         </div>
 
                         <!-- task control buttons -->
-                        <button class="background px-3" id="finish-button">
+                        <button class="background px-3" id="finish-button"
+                            data-bs-toggle="modal" data-bs-target="#finishConfirmationModal"
+                        >
                             Finish task
                             <i class="material-symbols">check</i>
                         </button>
@@ -375,6 +377,10 @@
         </div>
     </div>
 
+    <!-- ================================================== -->
+    <!-- add task to column modal -->
+    <!-- ================================================== -->
+
     <!-- add tasks to column -->
     <div class="modal fade" id="addTaskModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -391,6 +397,27 @@
                         Create
                     </button>
 
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================== -->
+    <!-- finish confirmation modal -->
+    <!-- ================================================== -->
+
+    <!-- finish confirmation -->
+    <div class="modal fade" id="finishConfirmationModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content d-flex align-items-center justify-content-center">
+                <div class="d-flex gap-2 justify-center">
+                    <button class="btn btn-sm bordered surface" id="finish-confirmation-button">
+                        Finish
+                    </button>
+
+                    <button class="btn btn-sm bordered surface" id="cancel-confirmation-button">
+                        Cancel
+                    </button>
                 </div>
             </div>
         </div>

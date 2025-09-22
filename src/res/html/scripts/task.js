@@ -42,6 +42,12 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
 
         // TODO days
 
+        console.log(task);
+        if(task.is_completed) {
+            // TODO unfinish task button
+            finishButton.setAttribute("hidden", true);
+        }
+
         selected = taskController.get_current_task().then(t => {
             selected = JSON.parse(t);
 
@@ -108,6 +114,9 @@ const saveButton = document.getElementById("save-button");
 const cancelButton = document.getElementById("cancel-button");
 
 const finishButton = document.getElementById("finish-button");
+const finishConfirmation = document.getElementById("finish-confirmation-button");
+const cancelConfirmation = document.getElementById("cancel-confirmation-button");
+const finishConfirmationModal = new bootstrap.Modal(document.getElementById("finishConfirmationModal"));
 const selectButton = document.getElementById("select-button");
 
 // current task tag input
@@ -250,6 +259,16 @@ function taskActions() {
            task = updated;
         });
     }
+
+    // finish task
+    finishConfirmation.addEventListener("click", () => {
+        taskController.finish_task(task.id);
+        finishConfirmationModal.hide();
+    });
+
+    cancelConfirmation.addEventListener("click", () => {
+        finishConfirmationModal.hide(); 
+    });
 }
 
 // ============================================================================

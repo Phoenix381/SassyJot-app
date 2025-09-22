@@ -47,9 +47,15 @@ class Task(BaseModel):
     repeat_value = IntegerField(null=True, default=1)
     repeat_days = JSONField(null=True, default=None)
 
+    # only active tasks
     def get_all_dict(self):
         data = model_to_dict(self)
-        data['children'] = [child.get_all_dict() for child in sorted(self.children, key=lambda x: x.order)]
+        children = []
+        for child in sorted(self.children, key=lambda x: x.order):
+            if child.is_completed:
+                continue
+            children.append(child.get_all_dict())
+        data['children'] = children
         return data
 
 class Spent(BaseModel):
@@ -188,14 +194,21 @@ class DBController:
 
     def get_top_tasks(self):
         try:
-            return list( Task.select().where(Task.parent == None) )
+            return list( Task.select().where(
+                (Task.parent == None) &
+                (Task.is_completed == False)
+            ) )
         except Task.DoesNotExist:
             print("There is no tasks in db")
             return None
 
     def get_column_tasks(self, column_id):
         try:
-            return list( Task.select().where(Task.column == column_id).order_by(Task.order) )
+            return list( Task.select().where(
+                (Task.column == column_id) &
+                (Task.is_completed == False)
+            )
+            .order_by(Task.order) )
         except Task.DoesNotExist:
             print(f"There is no tasks in db for {column_id = }")
             return []
@@ -227,6 +240,17 @@ class DBController:
                 task.save()
         except Task.DoesNotExist:
             print(f"Error moving task: {task_id = }")
+
+    # finish task
+    # TODO will probably break order
+    def finish_task(self, task_id):
+        try:
+            task = Task.get(Task.id == task_id)
+            task.is_completed = True
+            task.completed_at = datetime.now()
+            task.save()
+        except Task.DoesNotExist:
+            print(f"Error finishing task: {task_id = }")
 
     # ====================================================================
     # SPENT

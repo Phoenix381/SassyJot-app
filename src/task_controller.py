@@ -32,7 +32,7 @@ class TaskController(QObject):
     def get_current_task(self):
         current = self.app.db.get_setting('current')
         current = self.app.db.get_task(current)
-        return json.dumps(model_to_dict(current))
+        return json.dumps(model_to_dict(current), default=str)
 
     # create task using json
     @Slot(str, result=str)
@@ -80,7 +80,7 @@ class TaskController(QObject):
     # TODO check if used
     @Slot(int, result=str)
     def get_task(self, id):
-        return json.dumps(model_to_dict(self.app.db.get_task(id)))
+        return json.dumps(model_to_dict(self.app.db.get_task(id)), default=str)
 
     # get tasks for column
     @Slot(int, result=str)
@@ -138,7 +138,7 @@ class TaskController(QObject):
     @Slot(int, result=str)
     def get_kanban_columns(self, task_id):
         columns = self.app.db.get_columns(task_id)
-        return json.dumps([model_to_dict(c) for c in columns])
+        return json.dumps([model_to_dict(c) for c in columns], default=str)
     
     # make column
     @Slot(str, int, int, result=int)
@@ -166,3 +166,8 @@ class TaskController(QObject):
     def get_spent_today(self):
         pomodoros = self.app.db.get_spent_today()
         return json.dumps([{'task_id': p.task_id, 'amount': p.amount} for p in pomodoros])
+
+    # finish task
+    @Slot(int)
+    def finish_task(self, task_id):
+        self.app.db.finish_task(task_id)
