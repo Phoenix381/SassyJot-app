@@ -72,6 +72,7 @@ class TabController(QObject):
         web_channel.registerObject("card_controller", self.app.card_controller)
         web_channel.registerObject("tag_controller", self.app.tag_controller)
         web_channel.registerObject("file_controller", self.app.file_controller)
+        web_channel.registerObject("ai_controller", self.app.ai_controller)
         new_tab.page().setWebChannel(web_channel)
         
         # Add to tab widget
