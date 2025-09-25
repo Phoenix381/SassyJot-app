@@ -44,6 +44,8 @@ body {
     justify-content: space-between;
     gap: 1em;
 
+    white-space: nowrap;
+
     padding: 1em;
 
     background-color: #303030;
@@ -55,20 +57,31 @@ body {
     background-color: #303030;
 }
 
-#task-name {
+.task-header select {
+    max-width: 120px;
+}
+
+#current-task-name {
     border: 2px solid var(--accent);
     margin: 0px;
     border-radius: 5px !important;
 }
 
-#task-name:disabled {
+#current-task-name:disabled {
     border: 1px solid var(--border);
     margin: 1px;
     color: var(--text-secondary) !important;
 }
 
-#renameButton {
+#edit-confirmation {
+    display: none;
+
+    gap: 0.5em;
     height: 100%;
+}
+
+#edit-confirmation button {
+    flex: 1;
 }
 
 .tab-pane.active {
@@ -116,6 +129,46 @@ body {
 
 #sticky {
     flex: 1;
+}
+
+#current-planned-time {
+    max-width: 80px;
+}
+
+#current-deadline {
+    max-width: 165px;
+    height: 100%;
+}
+
+#current-task-color {
+    height: 42px;
+    border-radius: 5px;
+}
+
+#repeating-specific {
+    max-width: 25%;
+    min-width: min-content;
+}
+
+#repeating-specific input {
+    max-width: 100px;
+}
+
+.days-select {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0 0.2em;
+    min-width: 220px;
+    max-width: 220px;
+}
+
+.days-select label {
+    font-size: 14px;
+}
+
+#current-all-check ~ label {
+    margin-right: 2em;
 }
 
 /* ================================================== */
@@ -229,6 +282,18 @@ input[type="text"] {
     border-radius: 10px !important;
 }
 
+button {
+    gap: 0.5em;
+}
+
+select {
+    height: 100%;
+}
+
+select:disabled {
+    pointer-events: none;
+}
+
 .side-nav button {
     border-radius: 50% !important;
 }
@@ -261,4 +326,123 @@ input[type="text"] {
 #task-color {
     height: 38px;
     border-radius: 5px;
+}
+
+/* ================================================== */
+/* tag input */
+/* ================================================== */
+
+#tag-input-container {
+    position: relative;
+
+    border-radius: 10px;
+    border: 2px solid var(--surface);
+    padding: 2px !important;
+
+    display: flex;
+    gap: 0.5em;
+
+    /*  TODO check if it works  */
+    max-width: 60%;
+
+    min-width: 200px;
+}
+
+#tags-container {
+    display: flex;
+    gap: 0.5em;
+    align-items: center;
+    color: var(--text-secondary);
+}
+
+#tag-input {
+    /*  invisible on load  */
+    display: none;
+
+    width: 100%;
+
+    background-color: var(--surface);
+    border: none;
+}
+
+#tag-input:focus {
+    border: none;
+}
+
+#tag-input-container {
+    position: relative;
+}
+
+#tag-suggestions {
+    position: absolute;
+    top: 2.5em;
+    left: 0;
+    right: 0;
+
+    max-content;
+
+    border-radius: 5px;
+
+    overflow-y: auto;
+    z-index: 10;
+    display: none;
+
+    background-color: var(--selectable);
+}
+
+.search-result {
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+
+    padding: 8px 1em;
+    transition: background 0.2s;
+    border-bottom: 1px solid var(--border);
+}
+
+.search-result:last-child {
+    border-bottom: none;
+}
+
+.search-result:hover {
+    background: var(--choice);
+}
+
+.tag-preview {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+
+    border-radius: 50%;
+}
+
+.tag {
+    display: inline-flex;
+    gap: 0.5em;
+    align-items: center;
+
+    padding: 2px 8px;
+
+    opacity: 0.95;
+    border-radius: 5px;
+    color: var(--text);
+}
+
+.tag-remove {
+    cursor: pointer;
+    background: var(--selectable);
+    border-radius: 50%;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 20px;
+    height: 20px;
+}
+
+.tag-remove:hover {
+    background: var(--focused);
 }

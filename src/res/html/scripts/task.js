@@ -4,6 +4,7 @@
 // ============================================================================
 
 var taskController;
+var tagController;
 var fileController;
 
 var task;
@@ -15,6 +16,7 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
     console.log("Available objects:", channel.objects);
 
     taskController = channel.objects.task_controller;
+    tagController = channel.objects.tag_controller;
     fileController = channel.objects.file_controller;
 
     // selected task
@@ -23,7 +25,28 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
 
     task = taskController.get_task(id).then(t => {
         task = JSON.parse(t);
-        taskName.value = task.name;
+
+        // init task data
+        currentTaskName.value = task.name;
+        currentTaskColor.value = task.color;
+        currentPlannedTime.value = task.planned;
+
+        currentPriority.value = task.priority;
+        currentEnergyLevel.value = task.energy;
+        currentTaskType.value = task.type;
+        currentTaskType.dispatchEvent(new Event('change'));
+
+        currentDeadline.value = task.deadline;
+        currentRepeatType.value = task.repeat_type;
+        currentRepeatValue.value = task.repeat_value;
+
+        // TODO days
+
+        console.log(task);
+        if(task.is_completed) {
+            // TODO unfinish task button
+            finishButton.setAttribute("hidden", true);
+        }
 
         selected = taskController.get_current_task().then(t => {
             selected = JSON.parse(t);
@@ -43,10 +66,11 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
         // init after getting task id
         initSticky();
         initKanban();
+        initTagInput();
     });
 
     // setting callbacks here
-    renameActions();
+    taskActions();
     modalActions();
 });
 
@@ -67,42 +91,183 @@ const taskColor = document.getElementById("task-color");
 const columnTaskName = document.getElementById("column-task-name");
 const addTaskButton = document.getElementById("add-task-button");
 
-// dashboard rename
-const taskName = document.getElementById("task-name");
+// TODO add task tag input
+
+// edit task
+const currentTaskColor = document.getElementById("current-task-color");
+const currentTaskName = document.getElementById("current-task-name");
+const currentPlannedTime = document.getElementById("current-planned-time");
+const currentPriority = document.getElementById("current-priority");
+const currentEnergyLevel = document.getElementById("current-energy-level");
+const currentTaskType = document.getElementById("current-task-type");
+const currentDeadline = document.getElementById("current-deadline");
+const currentRepeatType = document.getElementById("current-repeat-type");
+const currentRepeatValue = document.getElementById("current-repeat-value");
+// TODO days checkboxes
+
+const deadlineSpecific = document.getElementById("deadline-specific");
+const repeatingSpecific = document.getElementById("repeating-specific");
+
+const settingsButton = document.getElementById("settings-button");
+const editConfirmation = document.getElementById("edit-confirmation");
+const saveButton = document.getElementById("save-button");
+const cancelButton = document.getElementById("cancel-button");
+
+const finishButton = document.getElementById("finish-button");
+const finishConfirmation = document.getElementById("finish-confirmation-button");
+const cancelConfirmation = document.getElementById("cancel-confirmation-button");
+const finishConfirmationModal = new bootstrap.Modal(document.getElementById("finishConfirmationModal"));
 const selectButton = document.getElementById("select-button");
-const renameButton = document.getElementById("rename-button");
-const renameOkButton = document.getElementById("rename-ok-button");
-const renameCancelButton = document.getElementById("rename-cancel-button");
+
+// current task tag input
+const tagInputContainer = document.getElementById("tag-input-container");
+const tagsContainer = document.getElementById("tags-container");
+const tagInput = document.getElementById("tag-input");
+const tagSuggestions = document.getElementById("tag-suggestions");
 
 const stickyArea = document.getElementById("sticky");
 
 // ============================================================================
-// rename actions
+// task header actions
 // ============================================================================
-function renameActions() {
-    renameButton.addEventListener("click", () => {
-        renameButton.setAttribute("hidden", true);
-        renameOkButton.removeAttribute("hidden");
-        renameCancelButton.removeAttribute("hidden");
-        taskName.removeAttribute("disabled");
-        taskName.focus();
+
+// editing status
+let editing = false;
+
+function taskActions() {
+    // init datepicker
+    new AirDatepicker('#current-deadline', {
+        timepicker: true,
+        timeFormat: 'HH:MM'
     });
 
-    renameOkButton.addEventListener("click", () => {
-        taskController.rename_task(task.id, taskName.value).then(() => {
-            renameOkButton.setAttribute("hidden", true);  
-            renameCancelButton.setAttribute("hidden", true);
-            taskName.setAttribute("disabled", true);
-            renameButton.removeAttribute("hidden");
+    // enter edit mode
+    settingsButton.addEventListener("click", () => {
+        editing = true;
+
+        settingsButton.style.display = "none";
+        editConfirmation.style.display = "flex";
+
+        // enable elements
+        let controls = document.getElementsByClassName("task-value");
+        for (let el of controls) {
+            el.removeAttribute("disabled");
+        }
+
+        // enable tag removal
+        let tags = document.getElementsByClassName("tag-remove");
+        for (let el of tags) {
+            el.style.display = "flex";
+        }
+
+        tagInput.style.display = "block";
+    });
+
+    // cancel edit mode
+    cancelButton.addEventListener("click", () => {
+        editing = false;
+
+        settingsButton.style.display = "flex";
+        editConfirmation.style.display = "none";
+
+        // disable elements
+        let controls = document.getElementsByClassName("task-value");
+        for (let el of controls) {
+            el.setAttribute("disabled", true);
+        }
+
+        // disable tag removal
+        let tags = document.getElementsByClassName("tag-remove");
+        for (let el of tags) {
+            el.style.display = "none";
+        }
+
+        // TODO undo tag changes?
+
+        tagInput.style.display = "none";
+        tagInput.value = "";
+    });
+
+    // save edit mode
+    saveButton.addEventListener("click", () => {
+        editing = false;
+
+        settingsButton.style.display = "flex";
+        editConfirmation.style.display = "none";
+
+        // save changes
+        updateTask();
+
+        // disable elements
+        let controls = document.getElementsByClassName("task-value");
+        for (let el of controls) {
+            el.setAttribute("disabled", true);
+        }
+
+        // disable tag removal
+        let tags = document.getElementsByClassName("tag-remove");
+        for (let el of tags) {
+            el.style.display = "none";
+        }
+
+        tagInput.style.display = "none";
+        tagInput.value = "";
+    });
+
+    // updating task type
+    currentTaskType.addEventListener("change", (e) => {
+        switch (e.target.value) {
+            case "1":
+                deadlineSpecific.style.display = "none";
+                repeatingSpecific.style.display = "none";
+                break;
+            case "2":
+                deadlineSpecific.style.display = "flex";
+                repeatingSpecific.style.display = "none";
+                break;
+            case "3":
+                deadlineSpecific.style.display = "none";
+                repeatingSpecific.style.display = "flex";
+                break;
+        }
+    });
+
+    // task update function
+    function updateTask() {
+        if(currentTaskType.value == '3') {
+            // TODO convert repeat days to array
+            days = [];
+        }
+
+        let updated = {
+            id: task.id,
+            color: currentTaskColor.value,
+            name: currentTaskName.value,
+            planned: currentPlannedTime.value,
+            priority: currentPriority.value,
+            energy: currentEnergyLevel.value,
+            type: currentTaskType.value,
+            // tags?
+            deadline: currentTaskType.value == '2' ? currentDeadline.value : null,
+            repeat_type: currentTaskType.value == '3' ? currentRepeatType.value : null,
+            repeat_value: currentTaskType.value == '3' ? currentRepeatValue.value : null,
+            repeat_days: currentTaskType.value == '3' ? days : null
+        };
+
+        let payload = JSON.stringify(updated);
+        taskController.update_task(payload).then(() => {
+           task = updated;
         });
+    }
+
+    // finish task
+    finishConfirmation.addEventListener("click", () => {
+        taskController.finish_task(task.id);
+        finishConfirmationModal.hide();
     });
 
-    renameCancelButton.addEventListener("click", () => {
-        renameOkButton.setAttribute("hidden", true); 
-        renameCancelButton.setAttribute("hidden", true);
-        taskName.value = task.name;
-        taskName.setAttribute("disabled", true);
-        renameButton.removeAttribute("hidden");
+    cancelConfirmation.addEventListener("click", () => {
+        finishConfirmationModal.hide(); 
     });
 }
 
@@ -278,4 +443,129 @@ function initKanban() {
             }
         });
     });
+}
+
+// ============================================================================
+// tag input
+// ============================================================================
+
+var tagList = [];
+var selectedTags = [];
+
+function initTagInput() {
+    tagController.get_tags().then(result => {
+        tagList = JSON.parse(result);
+    });
+
+    // init selected
+    tagController.get_task_tags(task.id).then(result => {
+        taskTags = JSON.parse(result);
+
+        taskTags.forEach(tag => {
+            selectedTags.push(tag.tag);
+        });
+
+        renderTags();
+    });
+
+    // tag input
+    tagInput.addEventListener("input", () => {
+        const val = tagInput.value.toLowerCase().trim();
+        tagSuggestions.innerHTML = "";
+
+        if (val === "") {
+            tagSuggestions.style.display = "none";
+            return;
+        }
+
+        // searching for tag in list
+        const filteredTags = tagList.filter(tag => 
+            tag.name.toLowerCase().includes(val) &&
+            !selectedTags.some(t => t.id == tag.id)
+        );
+
+        if (filteredTags.length === 0) {
+            tagSuggestions.style.display = "none";
+            return;
+        }
+
+        // adding to results
+        filteredTags.forEach(tag => {
+            let row = document.createElement("div");
+            row.className = "search-result";
+            row.innerHTML = `
+                <span class="tag-preview" style="background: ${tag.color}"></span>
+                ${tag.name}
+            `;
+
+            // add tag logic
+            row.addEventListener("click", () => {
+                addTag(tag);
+                tagInput.value = "";
+                tagSuggestions.style.display = "none";
+            });
+
+            tagSuggestions.appendChild(row);
+        });
+
+        // if found
+        tagSuggestions.style.display = "block";
+    });
+
+    renderTags();
+}
+
+function addTag(tag) {
+    if (selectedTags.some(t => t.id == tag.id)) {   
+        return;
+    }
+
+    // saving to db
+    tagController.add_tag_to_task(task.id, tag.id);
+
+    // adding to list
+    selectedTags.push(tag);
+    renderTags();
+}
+
+function removeTag(id) {
+    // removing from db
+    tagController.remove_tag_from_task(task.id, id);
+
+    // removing from list
+    selectedTags = selectedTags.filter(t => t.id != id);   
+    renderTags();
+}
+
+function renderTags() {
+    tagsContainer.innerHTML = "";
+
+    // adding selected tags to container
+    selectedTags.forEach(tag => {
+        const tagElement = document.createElement("div");
+        tagElement.className = "tag";
+        tagElement.style.backgroundColor = tag.color;
+        tagElement.innerHTML = `
+            ${tag.name}
+            <span 
+                class="tag-remove" data-id="${tag.id}"
+                ${editing ? "" : "style=display:none"}
+            >×</span>
+        `;
+
+        tagsContainer.appendChild(tagElement);
+    });
+
+    // remove tag events
+    tagsContainer.querySelectorAll(".tag-remove").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const id = btn.getAttribute("data-id"); 
+            removeTag(id);
+        });
+    });
+
+    // empty tags
+    if (selectedTags.length == 0) {
+        tagsContainer.innerHTML = "No tags";
+    }
 }

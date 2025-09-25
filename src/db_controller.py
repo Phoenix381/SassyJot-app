@@ -1,6 +1,7 @@
 
 from peewee import *
 from playhouse.shortcuts import model_to_dict
+from playhouse.sqlite_ext import *
 from datetime import datetime
 
 db = SqliteDatabase("jot.db")
@@ -26,17 +27,35 @@ class Fav(BaseModel):
     # TODO icon
 
 class Task(BaseModel):
-    name = CharField()
     color = CharField(default="#b8bb26")
+    name = CharField()
     parent = ForeignKeyField('self', backref='children', to_field="id", null=True)
     column = DeferredForeignKey('KanbanColumn', backref='tasks', to_field="id", null=True, default=None)
     order = IntegerField(default=0)
-    # TODO types
-    # TODO type cpecific data
 
+    is_completed = BooleanField(default=False)
+    completed_at = DateTimeField(null=True, default=None)
+
+    planned = IntegerField(default=0)
+    priority = IntegerField(default=1)
+    energy = IntegerField(default=1)
+    type = IntegerField(default=1)
+
+    # type specific data
+    deadline = DateTimeField(null=True, default=None)
+    repeat_type = IntegerField(null=True, default=1)
+    repeat_value = IntegerField(null=True, default=1)
+    repeat_days = JSONField(null=True, default=None)
+
+    # only active tasks
     def get_all_dict(self):
         data = model_to_dict(self)
-        data['children'] = [child.get_all_dict() for child in sorted(self.children, key=lambda x: x.order)]
+        children = []
+        for child in sorted(self.children, key=lambda x: x.order):
+            if child.is_completed:
+                continue
+            children.append(child.get_all_dict())
+        data['children'] = children
         return data
 
 class Spent(BaseModel):
@@ -120,7 +139,12 @@ class DBController:
             # making first project
             print("DB is empty, initializing...")
 
-            task = self.create_task("Default task", "#b8bb26", None)
+            # default task
+            task = self.create_task({
+                'color': "#b8bb26",
+                'name': "Default task",
+                'parent': None,
+            })
 
             setting = Setting.create(
                 key="current",
@@ -146,19 +170,19 @@ class DBController:
     # TASK
     # ====================================================================
 
-    def create_task(self, name, color, parent_id, column_id = None, order = 0):
-        task = Task.create(
-            name=name,
-            color=color,
-            parent=parent_id,
-            column=column_id,
-            order=order
-        )
+    # using json as input
+    def create_task(self, task):
+        try:
+            task = Task.create(**task)
+        except Exception as e:
+            print(f"Could not create task: {e = }")
+            return None
 
-        # TODO create default columns
+        # TODO redesign?
         self.create_column("Todo", 0, task.id)
         self.create_column("In progress", 1, task.id)
         self.create_column("Done", 2, task.id)
+
         return task
 
     def get_task(self, task_id):
@@ -170,14 +194,21 @@ class DBController:
 
     def get_top_tasks(self):
         try:
-            return list( Task.select().where(Task.parent == None) )
+            return list( Task.select().where(
+                (Task.parent == None) &
+                (Task.is_completed == False)
+            ) )
         except Task.DoesNotExist:
             print("There is no tasks in db")
             return None
 
     def get_column_tasks(self, column_id):
         try:
-            return list( Task.select().where(Task.column == column_id).order_by(Task.order) )
+            return list( Task.select().where(
+                (Task.column == column_id) &
+                (Task.is_completed == False)
+            )
+            .order_by(Task.order) )
         except Task.DoesNotExist:
             print(f"There is no tasks in db for {column_id = }")
             return []
@@ -209,6 +240,17 @@ class DBController:
                 task.save()
         except Task.DoesNotExist:
             print(f"Error moving task: {task_id = }")
+
+    # finish task
+    # TODO will probably break order
+    def finish_task(self, task_id):
+        try:
+            task = Task.get(Task.id == task_id)
+            task.is_completed = True
+            task.completed_at = datetime.now()
+            task.save()
+        except Task.DoesNotExist:
+            print(f"Error finishing task: {task_id = }")
 
     # ====================================================================
     # SPENT
@@ -549,6 +591,7 @@ class DBController:
             return None
 
     # get tag by id
+    # TODO remove?
     def get_tag(self, tag_id):
         try:
             return Tag.get(Tag.id == tag_id)
@@ -583,6 +626,20 @@ class DBController:
         except:
             print(f"Failed to save task tag: {task_id=} and {tag_id=}")
             return None
+
+    def get_task_tags(self, task_id):
+        try:
+            return list( TaskTag.select().where(TaskTag.task == task_id) )
+        except TaskTag.DoesNotExist:
+            print(f"There is no tags for task {task_id}")
+            return None
+
+    def delete_task_tag(self, task_id, tag_id):
+        try:
+            task_tag = TaskTag.get((TaskTag.task == task_id) & (TaskTag.tag == tag_id))
+            task_tag.delete_instance()
+        except TaskTag.DoesNotExist:
+            print(f"Try to delete not existing task tag: {task_id = } and {tag_id = }")
 
     # ====================================================================
     # NOTE TAG

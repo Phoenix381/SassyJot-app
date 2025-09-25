@@ -44,16 +44,29 @@ const addTaskButton = document.getElementById("add-task-button");
 
 const addTaskModalElement = document.getElementById("addTaskModal");
 const addTaskModal = new bootstrap.Modal(addTaskModalElement);
-const taskColorInput = document.getElementById("task-color");
+
+// task input
 const taskNameInput = document.getElementById("task-name-input");
+const taskColor = document.getElementById("task-color");
+const plannedInput = document.getElementById("planned-input");
+// priority, energy, type radio got by selector
+const taskNormal = document.getElementById("task-normal");
+const taskDeadline = document.getElementById("task-deadline");
+const taskRepeating = document.getElementById("task-repeating");
+const deadlineInput = document.getElementById("deadline-input");
+const repeatingSpecific = document.getElementById("repeating-specific");
+const repeatType = document.getElementById("repeat-type");
+const repeattValue = document.getElementById("repeat-value");
+// TODO days
 
-const tasksContainer = document.getElementById("tasks");
-
+// dashboard top part
 const taskName = document.getElementById("task-name");
 
+const tasksContainer = document.getElementById("tasks");
 const stickyArea = document.getElementById("sticky");
 
 // tag input
+const tagInputContainer = document.getElementById("tag-input-container");
 const tagsContainer = document.getElementById("tags-container");
 const tagInput = document.getElementById("tag-input");
 const tagSuggestions = document.getElementById("tag-suggestions");
@@ -63,18 +76,88 @@ const tagSuggestions = document.getElementById("tag-suggestions");
 // ============================================================================
 
 function modalActions() {
+    new AirDatepicker('#deadline-input', {
+        timepicker: true,
+        timeFormat: 'HH:MM'
+    });
+
     addTaskButton.addEventListener("click", () => {
         let tags = JSON.stringify(selectedTags);
 
-        taskController.create_task(taskNameInput.value, taskColorInput.value, tags, 0).then(result => {
-            let task = JSON.parse(result);
+        // get priority, energy, type from radio buttons
+        let priority = document.querySelector('input[name=priority]:checked').value;
+        let energy = document.querySelector('input[name=energy]:checked').value;
+        let taskType = document.querySelector('input[name=type]:checked').value;
 
-            taskName.innerHTML = taskNameInput.value;
-            task_id = task.id;
+        if(taskType == '3') {
+            // TODO convert repeat days to array
+            days = [];
+        }
+
+        let updated = {
+            color: taskColor.value,
+            name: taskNameInput.value,
+            planned: plannedInput.value,
+            priority: priority,
+            energy: energy,
+            type: taskType,
+            // tags?
+            deadline: taskType == '2' ? deadlineInput.value : null,
+            repeat_type: taskType == '3' ? repeatType.value : null,
+            repeat_value: taskType == '3' ? repeatValue.value : null,
+            repeat_days: taskType == '3' ? days : null
+        };        
+
+        // add task
+        let payload = JSON.stringify(updated);
+        taskController.create_task(payload).then(result => {
+            console.log(result);
+            if (result == '') {
+                // TODO error check
+                return;
+            }
+
+            let new_task = JSON.parse(result);
+
+            taskName.innerHTML = new_task.value;
+            task_id = new_task.id;
 
             loadTasks();
             addTaskModal.hide();
+
+            // add tags to task
+            for (let tag of selectedTags) {
+                tagController.add_tag_to_task(task_id, tag.id);
+            }
         });
+
+    });
+
+    taskNormal.addEventListener("change", (e) => {
+        if (e.target.checked) {
+            deadlineInput.style.display = "none";
+            repeatingSpecific.style.display = "none";
+        }
+    });
+
+    taskDeadline.addEventListener("change", (e) => {
+        if (e.target.checked) { 
+            deadlineInput.style.display = "flex";
+            repeatingSpecific.style.display = "none";
+        }
+    });
+
+    taskRepeating.addEventListener("change", (e) => {
+        if (e.target.checked) { 
+            deadlineInput.style.display = "none";
+            repeatingSpecific.style.display = "flex";
+        }
+    });
+
+    addTaskModalElement.addEventListener("hidden.bs.modal", () => {
+        let defaultType = document.getElementById("task-normal").checked = true;
+        deadlineInput.style.display = "none";
+        repeatingSpecific.style.display = "none";
     });
 }
 
@@ -90,7 +173,12 @@ function addTasks(target, tasks, level) {
         task_container.classList.add("task-container");
         task_container.style = "padding-left: " + level * 20 + "px";
 
-        task_link = document.createElement("a");
+        let task_color = document.createElement("div");
+        task_color.classList.add("task-color");
+        task_color.style.backgroundColor = task.color;
+        task_container.appendChild(task_color);
+
+        let task_link = document.createElement("a");
         task_link.setAttribute("href", "task.html?id="+task.id);
         if (task.id == task_id) {
             task_link.classList.add("selected");

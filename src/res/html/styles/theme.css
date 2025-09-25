@@ -23,6 +23,7 @@
 
 html {
   color: var(--text);
+  color-scheme: dark;
 }
 
 /* ================================================== */
@@ -131,6 +132,37 @@ button:focus {
 /* ================================================== */
 /* elements */
 /* ================================================== */
+
+#air-datepicker {
+  transition: all 0.1s ease;
+  /* on top of bootstrap modal */
+  z-index: 2048 !important;
+}
+
+input[type="radio"] {
+  padding: 2px 2px;
+
+  /* TODO proper styling */
+  /*  appearance: none;*/
+  accent-color: var(--accent);
+}
+
+fieldset {
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 0px 12px;
+}
+
+legend {
+  float: none !important;
+  width: auto !important;
+  margin: 0;
+  font-size: 1.3em !important;
+}
+
+input[type="checkbox"] {
+  accent-color: var(--accent);
+}
 
 input[type="color"] {
   background-color: transparent;

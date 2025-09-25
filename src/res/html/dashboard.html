@@ -11,10 +11,12 @@
     <link href="styles/dashboard.css" rel="stylesheet">
     <link href="styles/calendar.css" rel="stylesheet">
 
-    <link href="monokai-sublime.css" rel="stylesheet">
+    <link href="deps/monokai-sublime.css" rel="stylesheet">
+    <link href="deps/air-datepicker.css" rel="stylesheet">
 </head>
 <body class="background">
     <script src="deps/bootstrap.bundle.min.js"></script>
+    <script src="deps/air-datepicker.min.js"></script>
     <script src="deps/qwebchannel.js"></script>
 
     <script>
@@ -129,24 +131,152 @@
             <div class="modal-content d-flex align-items-center justify-content-center">
                 <div class="d-flex gap-2 justify-center">
                     
-                    <div class="d-flex flex-column">
-                        
-                        <input type="color" id="task-color" value="#b8bb26">
-                    </div>
+                    <div class="d-flex flex-column gap-2 add-modal-inputs">
+                        <div class="d-flex align-items-center gap-2">
+                            <!-- task name -->
+                            <input class="text-input text-bordered surface" type="text" id="task-name-input" placeholder="Name">
 
-                    <div class="d-flex flex-column gap-1 add-modal-inputs">
-                        <input class="text-input text-bordered surface" type="text" id="task-name-input" placeholder="Name">
+                            <!-- task color -->
+                            <input type="color" id="task-color" value="#b8bb26">
+                        </div>
 
-                        <div class="tag-input-container surface">
+                        <!-- planned time -->
+                        <input type="text" 
+                            class="text-input text-bordered surface" id="planned-input"
+                            placeholder="Planned time"
+                        >
+
+                        <!-- priority -->
+                        <fieldset>
+                            <legend>Priority</legend>
+                            <input value="1" type="radio" name="priority" id="low-priority" checked>
+                            <label for="low-priority">Low</label>
+                            <input value="2" type="radio" name="priority" id="medium-priority">
+                            <label for="medium-priority">Medium</label>
+                            <input value="3" type="radio" name="priority" id="high-priority">
+                            <label for="high-priority">High</label>
+                        </fieldset>
+
+                        <!-- energy level -->
+                        <fieldset>
+                            <legend>Energy level</legend>
+                            <input value="1" type="radio" name="energy" id="low-energy" checked>
+                            <label for="low-energy">Low</label>
+                            <input value="2" type="radio" name="energy" id="medium-energy">
+                            <label for="medium-energy">Medium</label>
+                            <input value="3" type="radio" name="energy" id="high-energy">
+                            <label for="high-energy">High</label>
+                        </fieldset>
+
+                        <!-- task type -->
+                        <fieldset>
+                            <legend>Type</legend>
+                            <input value="1" type="radio" name="type" id="task-normal" checked>
+                            <label for="task-normal">Normal</label>
+                            <input value="2" type="radio" name="type" id="task-deadline">
+                            <label for="task-deadline">Deadline</label>
+                            <input value="3" type="radio" name="type" id="task-repeating">
+                            <label for="task-repeating">Repeating</label>
+                        </fieldset>
+
+                        <!-- deadline settings -->
+                        <input type="text" 
+                            class="text-input text-bordered surface" id="deadline-input"
+                            data-date-format="dd/mm/yyyy" data-language='en' 
+                            placeholder="Select deadline"
+                            style="display: none;"
+                        >
+
+                        <!-- repeating task time -->
+                        <div id="repeating-specific" class="gap-2" style="display: none;">
+                            <!-- type -->
+                            <select id="repeat-type">
+                                <option value="1">By hour</option>
+                                <option value="2">By day</option>
+                                <option value="3">Select days</option>
+                            </select>
+
+                            <!-- value -->
+                            <input
+                                class="text-input text-bordered surface"
+                                type="text" id="repeat-value"
+                                placeholder="Days"
+                            >
+
+                            <!-- days -->
+                            <div class="days-select">
+                                <input 
+                                    type="checkbox"
+                                    id="all-check" name="all-check"
+                                />
+                                <label for="all-check">All</label>
+
+                                <div class="d-flex gap-1">
+                                    <input 
+                                        type="checkbox"
+                                        id="mon-check" name="days" 
+                                    />
+                                    <label for="mon-check">Mon</label>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <input
+                                        type="checkbox"
+                                        id="tue-check" name="days"
+                                    />
+                                    <label for="tue-check">Tue</label>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <input
+                                        type="checkbox"
+                                        id="wed-check" name="days"
+                                    />
+                                    <label for="wed-check">Wed</label>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <input
+                                        type="checkbox"
+                                        id="thu-check" name="days"
+                                    />
+                                    <label for="thu-check">Thu</label>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <input
+                                        type="checkbox"
+                                        id="fri-check" name="days"
+                                    />
+                                    <label for="fri-check">Fri</label>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <input
+                                        type="checkbox"
+                                        id="sat-check" name="days"
+                                    />
+                                    <label for="sat-check">Sat</label>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <input
+                                        type="checkbox"
+                                        id="sun-check" name="days"
+                                    />
+                                    <label for="sun-check">Sun</label>
+                                </div>
+                            </div>                            
+                        </div>
+
+                        <!-- TODO repeating  task weekdays -->
+
+                        <!-- tag editor -->
+                        <div id="tag-input-container" class="surface">
                             <div id="tags-container"></div>
                             <input type="text" id="tag-input" placeholder="Search tag...">
                             <div id="tag-suggestions"></div>
                         </div>
-                    </div>
 
-                    <button class="btn btn-sm bordered surface" id="add-task-button">
-                        Create
-                    </button>
+                        <button class="btn btn-sm bordered surface" id="add-task-button">
+                            Create
+                            <i class="material-symbols">add</i>
+                        </button>
+                    </div>
 
                 </div>
             </div>

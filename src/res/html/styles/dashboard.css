@@ -112,10 +112,17 @@ body {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
+    padding-left: 1em;
 }
 
 .surface-dark {
     padding: 1em;
+}
+
+.task-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
 }
 
 .selected {
@@ -124,6 +131,12 @@ body {
 
 .selected-task {
     text-decoration: underline;
+}
+
+.task-color {
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
 }
 
 .tabs {
@@ -166,23 +179,59 @@ body {
 
 #task-name-input {
     border-radius: 5px;
+    flex: 1;
 }
 
 #task-color {
     flex: 1;
     border-radius: 5px;
+    max-width: 38px;
+    height: 100%;
 }
 
 .add-modal-inputs {
     min-width: 400px;
 }
 
+#deadline-input {
+    width: 100%;
+}
+
+#add-task-button {
+    display: flex;
+    gap: 0.5em;
+    padding: 0.5em;
+    border-radius: 10px;
+}
+
+#repeat-value {
+    width: 20%;
+}
+
+.days-select {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0 0.2em;
+    min-width: 180px;
+    max-width: 180px;
+}
+
+.days-select label {
+    font-size: 14px;
+}
+
 /* ================================================== */
 /* tag input */
 /* ================================================== */
 
-.tag-input-container {
+#tag-input-container {
     border-radius: 10px;
+    border: 2px solid var(--surface);
+}
+
+#tag-input-container:focus-within {
+    border: 2px solid var(--accent);
 }
 
 #tags-container {
@@ -204,7 +253,7 @@ body {
     border: none;
 }
 
-.tag-input-container {
+#tag-input-container {
     position: relative;
 }
 

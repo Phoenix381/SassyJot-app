@@ -32,38 +32,28 @@ class TaskController(QObject):
     def get_current_task(self):
         current = self.app.db.get_setting('current')
         current = self.app.db.get_task(current)
-        return json.dumps(model_to_dict(current))
+        return json.dumps(model_to_dict(current), default=str)
 
-    # create task at dashboard
-    @Slot(str, str, str, int, result=int)
-    def create_task(self, name, color, tags, parent_id):
-        if name == '' or color == '':
-            print('Error creating task')
-            return None
+    # create task using json
+    @Slot(str, result=str)
+    def create_task(self, task):
+        data = json.loads(task)
+        task = self.app.db.create_task(data)
+        return json.dumps(model_to_dict(task)) if task else ''
 
-        if parent_id == 0:
-            parent_id = None
-        task = self.app.db.create_task(name, color, parent_id)
-        self.select_task(task)
+    # update task using json
+    @Slot(str)
+    def update_task(self, task):
+        data = json.loads(task)
+        task = self.app.db.get_task(data['id'])
 
-        tags = json.loads(tags)
-        for tag in tags:
-            self.app.db.create_task_tag(task.id, tag['id'])
+        # update fields
+        for key, value in data.items():
+            if key == 'id':
+                continue
 
-        return task
+            setattr(task, key, value)
 
-    # create task at column
-    # TODO maybe merge create func
-    @Slot(str, str, int, int, int, result=int)
-    def create_column_task(self, name, color, parent_id, column_id, order):
-        task = self.app.db.create_task(name, color, parent_id, column_id, order)
-        return task.id
-
-    # rename task
-    @Slot(int, str)
-    def rename_task(self, task_id, name):
-        task = self.app.db.get_task(task_id)
-        task.name = name
         task.save()
 
     # get full tree
@@ -90,7 +80,7 @@ class TaskController(QObject):
     # TODO check if used
     @Slot(int, result=str)
     def get_task(self, id):
-        return json.dumps(model_to_dict(self.app.db.get_task(id)))
+        return json.dumps(model_to_dict(self.app.db.get_task(id)), default=str)
 
     # get tasks for column
     @Slot(int, result=str)
@@ -148,7 +138,7 @@ class TaskController(QObject):
     @Slot(int, result=str)
     def get_kanban_columns(self, task_id):
         columns = self.app.db.get_columns(task_id)
-        return json.dumps([model_to_dict(c) for c in columns])
+        return json.dumps([model_to_dict(c) for c in columns], default=str)
     
     # make column
     @Slot(str, int, int, result=int)
@@ -176,3 +166,8 @@ class TaskController(QObject):
     def get_spent_today(self):
         pomodoros = self.app.db.get_spent_today()
         return json.dumps([{'task_id': p.task_id, 'amount': p.amount} for p in pomodoros])
+
+    # finish task
+    @Slot(int)
+    def finish_task(self, task_id):
+        self.app.db.finish_task(task_id)
