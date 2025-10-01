@@ -127,7 +127,7 @@ class TaskController(QObject):
     # get current task sticky
     @Slot(int, result=str)
     def get_sticky(self, task_id):
-        return self.app.db.get_note(task_id)
+        return self.app.db.get_sticky_note(task_id)
 
     # update current task sticky
     @Slot(str, int)

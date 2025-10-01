@@ -416,7 +416,7 @@ class DBController:
     # ====================================================================
 
     # initial load
-    def get_note(self, task_id):
+    def get_sticky_note(self, task_id):
         try:
             note = StickyNote.get(StickyNote.task == task_id)
             return note.text
@@ -462,6 +462,13 @@ class DBController:
             return list( Note.select() )
         except Note.DoesNotExist:
             print("There is no notes in db")
+            return None
+
+    def get_note(self, note_id):
+        try:
+            return Note.get(Note.id == note_id)
+        except Note.DoesNotExist:
+            print(f"Failed to get note id {note_id}")
             return None
 
     # can`t merge because of editor callback

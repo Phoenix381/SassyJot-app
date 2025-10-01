@@ -21,6 +21,12 @@ class NoteController(QObject):
         notes = self.app.db.get_notes()
         return json.dumps([model_to_dict(note) for note in notes])
 
+    # get note by id
+    @Slot(int, result=str)
+    def get_note(self, note_id):
+        note = self.app.db.get_note(note_id)
+        return json.dumps(model_to_dict(note))
+
     # update note text
     @Slot(str, int)
     def update_note_text(self, text, note_id):

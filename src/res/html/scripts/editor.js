@@ -6,13 +6,12 @@
 // element id for callback
 // file controller for images
 // TODO controller for links
-function makeEditor(container, initialText, saveCallback, updating_id, file_controller) {
+// TODO pass qt channel instead of conrollers
+function makeEditor(container, initialText, saveCallback, updating_id, file_controller, note_controller) {
   if (!container) return;
 
   container.classList.add('editor');
-
-  let source = initialText || '';
-  container.innerHTML = source;
+  container.innerHTML = initialText || '<div>(empty)</div>';
   let mode = 'render';
 
   // init md renderer
@@ -38,6 +37,7 @@ function makeEditor(container, initialText, saveCallback, updating_id, file_cont
   function sanitizeHtml(html) {
     if (window.DOMPurify) return DOMPurify.sanitize(html);
 
+    // TODO scripting support and styling?
     return html.replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
                .replace(/<style[\s\S]*?>[\s\S]*?<\/style>/gi, '')
                .replace(/\son\w+\s*=\s*"[^"]*"/gi, '')
@@ -47,11 +47,104 @@ function makeEditor(container, initialText, saveCallback, updating_id, file_cont
   // ======================================================================
   // CONVERSIONS
   // ======================================================================
-
   // TODO keep whitespaces
+  let note_links = [];
+  let images = [];
 
-  // async img loading
-  async function initialImgLoad() {
+  //             loaded
+  //               ||
+  //               \/
+  //  render <==> edit
+  //               ||
+  //               \/
+  //              save
+
+  // initially loaded from db to edit (+loading resources)
+  async function loaded2edit() {
+    // load images
+    await loadImages();
+    // TODO load note links
+    // await loadLinks();
+  }
+
+  // converting elements to md for render
+  let saved_text = '';
+  async function edit2render() {
+    // save source text
+    saved_text = container.innerHTML;
+
+    // converting html images to md
+    const images = container.querySelectorAll('img');
+
+    images.forEach(img => {
+      let alt = img.alt;
+      let src = img.src;
+
+      let md_img = ` ![${alt}](${src}) `;
+
+      // replace image
+      const parent = img.parentElement;
+      if (parent) parent.replaceChild(document.createTextNode(md_img), img);
+    });
+
+    // TODO converting html note links to md
+    // const links = Array.from(container.querySelectorAll('a')).filter(a => a.hasAttribute('note-id'));
+    // links.forEach(link => {
+    //   let note_id = link.getAttribute('note-id');
+    //   let md_link = ` [${link.innerText}](${note_id}) `;
+
+    //   // replace link
+    //   const parent = link.parentElement;
+    //   if (parent) parent.replaceChild(document.createTextNode(md_link), link);
+    // });
+  }
+
+  // converting md to elements for edit 
+  async function render2edit() {
+    container.innerHTML = saved_text;
+  }
+
+  // converting elements to links for saving (not showing result)
+  async function edit2save() {
+    if (mode !== 'source') return;
+
+    let result = '';
+    
+    function processNode(node) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        result += node.textContent;
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        if (node.tagName === 'IMG') {
+          // converting IMG to special format
+          result += ` [[${node.alt}]] `;
+        } else if (node.tagName === 'A') {
+          // TODO converting A note link to special format
+          note_id = node.getAttribute('href');
+          result += ` {{${note_id}}} `;
+        } else {
+          // Process all child nodes
+          Array.from(node.childNodes).forEach(processNode);
+          
+          // Add line breaks for block elements
+          if (['P', 'BR', 'LI'].includes(node.tagName)) {
+              result += '\n';
+          }
+        }
+      }
+    }
+    
+    Array.from(container.childNodes).forEach(processNode);
+    return result.trim();
+  }
+
+  // ======================================================================
+  // LOADING RELATED RESOURCES
+  // ======================================================================
+
+  // init img loading
+  async function loadImages() {
+    let source = container.innerHTML;
+
     const matches = [...source.matchAll(/\[\[([0-9]*)\]\]/g)];
     const replacements = await Promise.all(
       matches.map(async (match) => {
@@ -66,90 +159,52 @@ function makeEditor(container, initialText, saveCallback, updating_id, file_cont
       })
     );
 
-    let converted = source;
     replacements.forEach(({ match, replacement }) => {
-      converted = converted.replace(match, replacement);
+      source = source.replace(match, replacement);
     });
 
-    return converted;
+    container.innerHTML = source;
   }
 
-  // loaded text to md
-  async function initContent() {
-    const converted = await initialImgLoad();
+  // init note link loading
+  async function loadLinks() {
+    let source = container.innerHTML;
 
-    container.innerHTML = converted;
-  }
-
-  // editor to markdown
-  async function convertToMarkdown() {
-    const images = container.querySelectorAll('img');
-
-    images.forEach(img => {
-      let alt = img.alt;
-      let src = img.src;
-
-      let md_img = ` ![${alt}](${src}) `;
-
-      // replace image
-      const parent = img.parentElement;
-      if (parent) parent.replaceChild(document.createTextNode(md_img), img);
-    });
-  }
-
-  // markdown to editor
-  async function convertToHTML() {
-    // convert images
-    let converted = container.innerHTML.replace( /!\[([^\]]*)\]\(([^)\s]+)\)/g, 
-      (match, alt, src) => {
-        return `<img src="${src}" alt="${alt}" />`;
-      }
+    const matches = [...source.matchAll(/\{\{([0-9]*)\}\}/g)];
+    const replacements = await Promise.all(
+      matches.map(async (match) => {
+        const note_id = match[1];
+        try {
+          let data = await note_controller.get_note(note_id);
+          data = await JSON.parse(data);
+          return { match: match[0], replacement: data };
+        } catch (error) {
+          console.error(`Error loading note ${note_id}:`, error);
+          return { match: match[0], replacement: match[0] }; // Return original if error
+        }
+      })
     );
 
-    container.innerHTML = converted;
-  }
+    replacements.forEach(({ match, replacement }) => {
+      replacement = ` [${replacement.name}](${replacement.id}) `;
+      source = source.replace(match, replacement);
+    });
 
-  // editor to source for saving
-  function convertToText() {
-    if (mode !== 'source') return source;
-    let result = '';
-    
-    function processNode(node) {
-        if (node.nodeType === Node.TEXT_NODE) {
-            result += node.textContent;
-        } else if (node.nodeType === Node.ELEMENT_NODE) {
-            if (node.tagName === 'IMG') {
-                // Add image as link format
-                result += ` [[${node.alt}]] `;
-            } else {
-                // Process all child nodes
-                Array.from(node.childNodes).forEach(processNode);
-                
-                // Add line breaks for block elements
-                if (['DIV', 'P', 'BR', 'LI'].includes(node.tagName)) {
-                    result += '\n';
-                }
-            }
-        }
-    }
-    
-    Array.from(container.childNodes).forEach(processNode);
-    return result.trim();
+    container.innerHTML = source;
   }
 
   // ======================================================================
   // CHANGING STATES
   // ======================================================================
 
-  // render text
-  async function safeRender() {
+  // render md
+  async function render() {
     mode = 'render';
 
     container.setAttribute('contenteditable', 'false');
     container.classList.remove('active-editor');
-    source = convertToText();
 
-    convertToMarkdown().then(() => {
+    edit2render().then(() => {
       const rendered = md.render(container.innerText || '');
       const html = sanitizeHtml(rendered);
       container.innerHTML = html || '<div>(empty)</div>';
@@ -168,11 +223,13 @@ function makeEditor(container, initialText, saveCallback, updating_id, file_cont
   // TODO keep empty spaces
   function showEditor() {
     mode = 'source';
-    convertToHTML();
+    render2edit().then(() => {
+      container.setAttribute('contenteditable', 'true');
+      // TODO check css selection inside
+      container.classList.add('active-editor');
+    });
 
-    container.setAttribute('contenteditable', 'true');
-    container.classList.add('active-editor');
-
+    // ???
     setTimeout(() => {
       container.focus();
       sel = window.getSelection();
@@ -195,47 +252,95 @@ function makeEditor(container, initialText, saveCallback, updating_id, file_cont
   }
 
   const debouncedSave = debounce((val) => {
-    if(mode == 'source') val = convertToText();
+    if(mode !== 'source') return;
 
     saveCallback && saveCallback(val, updating_id);
   }, 500);
 
   // finishing editing
   function commitEdits() {
-    source = convertToText();
+    if (!saveCallback) return;
 
-    if (saveCallback)
-      debouncedSave(source);
-
-    safeRender();
+    edit2save().then((text) => {
+      debouncedSave(text);
+      render();
+    });
   }
 
   function cancelEdits() {
-    safeRender();
+    render();
   }
 
   // saving during edit
   container.addEventListener('input', () => {
     if (mode !== 'source') return;
 
-    source = convertToText();
-    debouncedSave(source);
+    edit2save().then((text) => {
+      debouncedSave(text);
+    });
   });
 
-  // editor mode hotkeys
+  // TODO temp link to keep current note search?
+  let temp_link = null;
+
+  // editor mode input processing
   container.addEventListener('keydown', (e) => {
     if (mode !== 'source') return;
 
+    // hotkeys
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { 
-      e.preventDefault(); 
-      commitEdits(); 
+      e.preventDefault();
+      commitEdits();
+      return;
     } else if (e.key === 'Escape') { 
-      e.preventDefault(); 
-      cancelEdits(); 
+      e.preventDefault();
+      cancelEdits();
+      return;
     } else if (e.key === 'Tab') {
       e.preventDefault();
       // deprecated or something
       document.execCommand('insertText', false, '    ');
+      return;
+    }
+
+    // input
+    // adding link to another note
+    // TODO add div with tooltip and temporarily keep ref to change content on selection
+    // TODO add temp search result box then delete it
+    if (e.key === '{') {
+      let prevChar = container.innerText[container.innerText.length - 1];
+      if (prevChar === '{') {
+        // remove instead of adding
+        e.preventDefault();
+        container.innerText = container.innerText.slice(0, -1);
+
+        temp_link = document.createElement('a');
+        temp_link.classList.add('note-link');
+        temp_link.setAttribute('href', '1');
+        temp_link.setAttribute('target', '_blank');
+        // TODO remove test content
+        temp_link.setAttribute('note-id', '1');
+        temp_link.innerHTML = `temp link<div class="tooltiptext">tooltip content</div>`;
+        // let displayed = document.createElement('div');
+        // let tooltip = document.createElement('div');
+        // tooltip.classList.add('tooltiptext');
+
+        // displayed.innerHTML = '{{displayed content}}';
+        // tooltip.innerHTML = 'tooltip content';
+        
+        // temp_link.appendChild(displayed);
+        // temp_link.appendChild(tooltip);
+
+        container.appendChild(temp_link);
+
+        // move cursor after element
+        const selection = window.getSelection()
+        const newRange = document.createRange();
+        newRange.setStartAfter(temp_link);
+        newRange.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(newRange);
+      }
     }
   });
 
@@ -317,8 +422,12 @@ function makeEditor(container, initialText, saveCallback, updating_id, file_cont
         } else {
           container.appendChild(img);
         }
+        
+        // save after pasting
+        edit2save().then((text) => {
+          debouncedSave(text);
+        });
       });
-
     }).catch(err => {
       console.error(err);
       return;
@@ -330,8 +439,8 @@ function makeEditor(container, initialText, saveCallback, updating_id, file_cont
   // ======================================================================
 
   // initial render
-  initContent().then(() => {
-    safeRender();
+  loaded2edit().then(() => {
+    render();
   });
 
   // ======================================================================
@@ -340,9 +449,9 @@ function makeEditor(container, initialText, saveCallback, updating_id, file_cont
 
   return {
     getSource: () => source,
-    setSource: (s) => { source = String(s || ''); safeRender(); },
+    setSource: (s) => { source = String(s || ''); render(); },
     edit: () => { showEditor(); },
-    render: () => safeRender(),
+    render: () => render(),
     setId: (id) => updating_id = id
   };
 }
