@@ -16,6 +16,8 @@ function makeEditor(container, initialText, saveCallback, updating_id, channel) 
   container.innerHTML = initialText || '<div>(empty)</div>';
   let mode = 'render';
 
+  document.execCommand('defaultParagraphSeparator', false, 'div');
+
   // keeping track of suggestion results
   let suggestions = null;
 
@@ -291,23 +293,30 @@ function makeEditor(container, initialText, saveCallback, updating_id, channel) 
     render();
   }
 
-  // saving during edit
-  container.addEventListener('input', () => {
+  // processsing input
+  let isProcessingInput = false;
+  container.oninput = ({ target: { firstChild } }) => {
     if (mode !== 'source') return;
 
+    // editor logic
+    isProcessingInput = true;
+    if (firstChild && firstChild.nodeType === 3) document.execCommand('formatBlock', false, `<div>`)
+    else if (container.innerHTML === '<br>') container.innerHTML = ''
+    isProcessingInput = false;
+    
+    // saving text
     edit2save().then((text) => {
       debouncedSave(text);
     });
-  });
+  }
 
-  // editor mode input processing
+  // editor mode key press reaction
   container.addEventListener('keydown', (e) => {
     if (mode !== 'source') return;
 
     // TODO typing inside link should show search suggestions
-    // TODO first char is not attributed to link
     const selection = window.getSelection();
-    if (!sel || sel.rangeCount === 0) return;
+    if (!selection || selection.rangeCount === 0) return;
     const range = selection.getRangeAt(0);
 
     let el = range.commonAncestorContainer.nodeType === Node.TEXT_NODE 
@@ -364,9 +373,9 @@ function makeEditor(container, initialText, saveCallback, updating_id, channel) 
     }
 
     // hotkeys
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { 
-      e.preventDefault();
-      commitEdits();
+    if (e.key === 'Enter' && document.queryCommandValue('formatBlock') === 'blockquote') {
+      // putting new lines in divs
+      setTimeout(() => document.execCommand('formatBlock', false, `<div>`), 0)
       return;
     } else if (e.key === 'Escape') { 
       e.preventDefault();
@@ -374,7 +383,6 @@ function makeEditor(container, initialText, saveCallback, updating_id, channel) 
       return;
     } else if (e.key === 'Tab') {
       e.preventDefault();
-      // deprecated or something
       document.execCommand('insertText', false, '    ');
       return;
     }
@@ -383,6 +391,9 @@ function makeEditor(container, initialText, saveCallback, updating_id, channel) 
     if (e.key === '{') {
       // check prev char
       const { startContainer, startOffset } = range;
+      // only proceed if in a text node
+      if (startContainer.nodeType !== Node.TEXT_NODE) return;
+
       const text = startContainer.textContent;
       let prevChar = '';
       if (startOffset > 0) {
@@ -390,60 +401,35 @@ function makeEditor(container, initialText, saveCallback, updating_id, channel) 
       }
 
       if (prevChar === '{') {
-        // // bracket would be part of link so remove char before cursor
-        // e.preventDefault();
-        // container.innerText = container.innerText.substring(0, startOffset - 1)
-        //   + container.innerText.substring(startOffset);
-
-        // // TODO link creation (should be on click), move to suggestions
-        // temp_link = document.createElement('a');
-        // temp_link.classList.add('note-link');
-        // temp_link.setAttribute('href', '1');
-        // temp_link.innerHTML = `link name`;
-
-        // // append after cursor
-        // // startContainer.parentNode.insertBefore(temp_link, startContainer.nextSibling);
-
-        // const parent = startContainer.parentNode;
-        // if (parent) {
-        //   if(startOffset < startContainer.textContent.length) {
-        //     // Split the text node at the cursor position
-        //     const afterText = startContainer.splitText(startOffset - 1);
-        //     // Insert the link between the split nodes
-        //     parent.insertBefore(temp_link, afterText);
-        //   } else {
-        //     parent.insertBefore(temp_link, startContainer.nextSibling);
-        //   }
-        // } else {
-        //   container.appendChild(temp_link);
-        // }
-
-        // // move cursor after element
-        // const selection = window.getSelection()
-        // const newRange = document.createRange();
-        // newRange.setStartAfter(temp_link);
-        // newRange.collapse(true);
-        // selection.removeAllRanges();
-        // selection.addRange(newRange);
-
         if (range.startContainer.nodeType !== Node.TEXT_NODE) return; 
         const { startContainer, startOffset } = range; 
         const prevChar = startOffset > 0 ? startContainer.textContent.charAt(startOffset - 1) : ''; 
         if (prevChar === '{') { 
-          e.preventDefault(); // remove the previous '{' 
-          const delRange = document.createRange(); 
-          delRange.setStart(startContainer, startOffset - 1); 
-          delRange.setEnd(startContainer, startOffset); 
-          delRange.deleteContents(); // insert temp link 
-          const temp_link = document.createElement('a'); 
-          temp_link.className = 'note-link'; 
-          temp_link.href = '1'; 
-          temp_link.textContent = 'link name'; 
-          range.insertNode(temp_link); // move caret after link 
-          sel.removeAllRanges(); 
-          const newRange = document.createRange(); 
-          newRange.setStartAfter(temp_link); 
-          newRange.collapse(true); sel.addRange(newRange); 
+          e.preventDefault();
+      
+          // remove the previous '{'
+          const delRange = document.createRange();
+          delRange.setStart(startContainer, startOffset - 1);
+          delRange.setEnd(startContainer, startOffset);
+          delRange.deleteContents();
+          
+          // create and insert temp link
+          // TODO move to search suggestions selection
+          // TODO try builtin link create in exec
+          const temp_link = document.createElement('a');
+          temp_link.className = 'note-link';
+          temp_link.href = '1';
+          temp_link.textContent = 'link name';
+          
+          // Insert the link at current position
+          range.insertNode(temp_link);
+          
+          // move caret after link
+          selection.removeAllRanges();
+          const newRange = document.createRange();
+          newRange.setStartAfter(temp_link);
+          newRange.collapse(true);
+          selection.addRange(newRange);
         } 
       }
     }
