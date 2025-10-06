@@ -149,7 +149,7 @@ function selectNote(id, name, text, status) {
     selectedStatus.value = status;
 
     if(!noteEditor) {
-        noteEditor = makeEditor(noteText, text, noteController.update_note_text, id, fileController, noteController);
+        noteEditor = makeEditor(noteText, text, noteController.update_note_text, id, channel);
     } else {
         noteEditor.setSource(text);
         noteEditor.setId(id);
@@ -161,8 +161,8 @@ function selectNote(id, name, text, status) {
 // ============================================================================
 
 function initCardControls() {
-    newCardHeadEditor = makeEditor(newCardHeader, "", null, null, fileController, noteController);
-    newCardBodyEditor = makeEditor(newCardBody, "", null, null, fileController, noteController);
+    newCardHeadEditor = makeEditor(newCardHeader, "", null, null, channel);
+    newCardBodyEditor = makeEditor(newCardBody, "", null, null, channel);
 
     closeEditorButton.addEventListener("click", () => {
         editCardsModal.hide();
@@ -220,7 +220,7 @@ function selectCard(id) {
 
         // card header
         if(!cardHeadEditor) {
-            cardHeadEditor = makeEditor(headerEditor, card.header, cardController.update_card_header, selected_card_id, fileController, noteController);
+            cardHeadEditor = makeEditor(headerEditor, card.header, cardController.update_card_header, selected_card_id, channel);
         } else {
             cardHeadEditor.setSource(card.header);
             cardHeadEditor.setId(selected_card_id);
@@ -228,7 +228,7 @@ function selectCard(id) {
 
         // card body
         if(!cardBodyEditor) {
-            cardBodyEditor = makeEditor(bodyEditor, card.body, cardController.update_card_body, selected_card_id, fileController, noteController);
+            cardBodyEditor = makeEditor(bodyEditor, card.body, cardController.update_card_body, selected_card_id, channel);
         } else {
             cardBodyEditor.setSource(card.body);   
             cardBodyEditor.setId(selected_card_id);

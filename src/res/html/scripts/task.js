@@ -44,7 +44,6 @@ var channel = new QWebChannel(qt.webChannelTransport, function(channel) {
 
         // TODO days
 
-        console.log(task);
         if(task.is_completed) {
             // TODO unfinish task button
             finishButton.setAttribute("hidden", true);
@@ -311,7 +310,7 @@ function modalActions() {
 
 function initSticky() {
     taskController.get_sticky(task.id).then(text => {
-        makeEditor(stickyArea, text, taskController.update_sticky, task.id, fileController, noteController);
+        makeEditor(stickyArea, text, taskController.update_sticky, task.id, channel);
     });
 }
 

@@ -214,7 +214,7 @@ function loadTasks() {
 
 function initSticky() {
     taskController.get_sticky(0).then(text => {
-        makeEditor(stickyArea, text, taskController.update_sticky, 0, fileController, noteController);
+        makeEditor(stickyArea, text, taskController.update_sticky, 0, channel);
     });
 }
 
