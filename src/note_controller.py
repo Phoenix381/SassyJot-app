@@ -48,3 +48,9 @@ class NoteController(QObject):
     def get_links(self):
         # TODO
         return json.dumps([])
+
+    # search notes
+    @Slot(str, result=str)
+    def search_notes(self, query):
+        notes = self.app.db.search_notes(query)
+        return json.dumps([model_to_dict(note) for note in notes])

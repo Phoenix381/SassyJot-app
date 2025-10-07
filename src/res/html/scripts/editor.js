@@ -360,16 +360,34 @@ function makeEditor(container, initialText, saveCallback, updating_id, channel) 
       const rect = range.getBoundingClientRect(); 
       const containerRect = container.getBoundingClientRect(); 
       suggestions.style.position = 'absolute'; 
-      suggestions.style.left = `${rect.left - containerRect.left}px`; 
-      suggestions.style.top = `${rect.bottom - containerRect.top + 6}px`; 
-      suggestions.textContent = 'test'; // placeholder, sanitize content
+      suggestions.style.left = `${rect.left}px`; 
+      suggestions.style.top = `${rect.bottom + 6}px`; 
+
+      // TODO query text without link
+      let query = anchor.textContent;
+      note_controller.search_notes(query).then((result) => {
+        let notes = JSON.parse(result);
+
+        notes.forEach((note) => {
+          let suggestion = document.createElement('div');
+          suggestion.classList.add('suggestion');
+          suggestion.innerText = note.name;
+
+          suggestion.addEventListener('click', () => {
+            suggestions.remove();
+          });
+
+          suggestions.appendChild(suggestion);
+        });
+      });
 
       container.appendChild(suggestions);
 
-      // TODO actual search
-      suggestions.innerHTML = `test`;
-
       return;
+    } else {
+      if(suggestions) {
+        suggestions.remove();
+      }
     }
 
     // hotkeys
@@ -415,7 +433,6 @@ function makeEditor(container, initialText, saveCallback, updating_id, channel) 
           
           // create and insert temp link
           // TODO move to search suggestions selection
-          // TODO try builtin link create in exec
           const temp_link = document.createElement('a');
           temp_link.className = 'note-link';
           temp_link.href = '1';

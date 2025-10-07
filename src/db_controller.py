@@ -502,6 +502,13 @@ class DBController:
             print(f"Failed to update note id {note_id}")
             return None
 
+    def search_notes(self, query):
+        try:
+            return list( Note.select().where(Note.name.contains(query)) )
+        except Note.DoesNotExist:
+            print("There is no notes in db")
+            return None
+
     # ====================================================================
     # CARD
     # ====================================================================
