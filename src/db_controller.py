@@ -89,6 +89,13 @@ class Note(BaseModel):
     status = IntegerField()
     # TODO type
 
+class NoteLink(BaseModel):
+    note = ForeignKeyField(Note, to_field="id")
+    linked = ForeignKeyField(Note, backref='linked_notes', to_field="id")
+
+    class Meta:
+        primary_key = CompositeKey('note', 'linked')
+
 class Card(BaseModel):
     header = TextField()
     body = TextField()
@@ -115,7 +122,7 @@ class NoteTag(BaseModel):
     class Meta:
         primary_key = CompositeKey('note', 'tag')
 
-# TODO tags sfor files annd maybe cards
+# TODO tags for files annd maybe cards
 
 # CONTROLLER
 class DBController:
@@ -128,7 +135,7 @@ class DBController:
             Setting, History, Fav, 
             Task, KanbanColumn, Spent,
             OpenedLink, StickyNote,
-            Note, Card,
+            Note, Card, NoteLink,
             Tag, TaskTag, NoteTag,
         ])
 
@@ -578,6 +585,51 @@ class DBController:
         except Card.DoesNotExist:
             print(f"Failed to update card id {card_id}")
             return None
+
+    # ====================================================================
+    # NOTE LINK
+    # ====================================================================
+    
+    # get all links
+    def get_all_note_links(self):
+        try:
+            return list( NoteLink.select() )
+        except NoteLink.DoesNotExist:
+            print("There is no links in db")
+            return None
+
+    # get note links
+    def get_note_links(self, note_id):
+        try:
+            return list( NoteLink.select().where(NoteLink.note == note_id) )
+        except NoteLink.DoesNotExist:
+            print("There is no links in db")
+            return None
+
+    # create link
+    def create_note_link(self, note, linked):
+        try:
+            link = NoteLink.create(
+                note=note,
+                linked=linked
+            )
+            link.save()
+            return link
+        except:
+            print(f"Failed to save link {note} -> {linked}")
+            return None
+
+    # delete link
+    def delete_note_link(self, note, linked):
+        try:
+            link = NoteLink.get(
+                (NoteLink.note == note) & 
+                (NoteLink.linked == linked)
+            )
+            link.delete_instance()
+        except NoteLink.DoesNotExist:
+            print(f"Trying to delete not existing link: {note = } and {linked = }")
+
 
     # ====================================================================
     # TAG

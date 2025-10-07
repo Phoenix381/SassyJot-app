@@ -2,6 +2,7 @@
 from PySide6.QtCore import QObject, Slot
 from playhouse.shortcuts import model_to_dict
 import json
+import re
 
 class NoteController(QObject):
     def __init__(self, app):
@@ -30,6 +31,23 @@ class NoteController(QObject):
     # update note text
     @Slot(str, int)
     def update_note_text(self, text, note_id):
+        # update links
+        pattern = r'\{\{(\d+)\}\}'
+        new_ids = [int(i) for i in re.findall(pattern, text)]
+
+        links = self.app.db.get_note_links(note_id)
+        old_ids = [link['id'] for link in links]
+
+        ids_to_add = set(new_ids) - set(old_ids)
+        ids_to_remove = set(old_ids) - set(new_ids)
+
+        # db update
+        for id in ids_to_add:
+            self.app.db.create_note_link(current_id, id)
+
+        for id in ids_to_remove:
+            self.app.db.delete_note_link(current_id, id)
+
         self.app.db.update_note_text(text, note_id)
 
     # update note status
