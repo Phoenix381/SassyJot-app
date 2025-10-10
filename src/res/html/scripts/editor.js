@@ -556,8 +556,8 @@ function makeEditor(container, initialText, saveCallback, updating_id, channel) 
   // ======================================================================
 
   return {
-    getSource: () => source,
-    setSource: (s) => { source = String(s || ''); render(); },
+    getSource: () => container.innerHTML,
+    setSource: (s) => { container.innerHTML = String(s || ''); render(); },
     edit: () => { showEditor(); },
     render: () => render(),
     setId: (id) => updating_id = id
