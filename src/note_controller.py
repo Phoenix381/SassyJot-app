@@ -36,17 +36,20 @@ class NoteController(QObject):
         new_ids = [int(i) for i in re.findall(pattern, text)]
 
         links = self.app.db.get_note_links(note_id)
-        old_ids = [link['id'] for link in links]
+        old_ids = [link.id for link in links]
 
         ids_to_add = set(new_ids) - set(old_ids)
         ids_to_remove = set(old_ids) - set(new_ids)
 
         # db update
         for id in ids_to_add:
-            self.app.db.create_note_link(current_id, id)
+            if note_id == id:
+                continue
+                
+            self.app.db.create_note_link(note_id, id)
 
         for id in ids_to_remove:
-            self.app.db.delete_note_link(current_id, id)
+            self.app.db.delete_note_link(note_id, id)
 
         self.app.db.update_note_text(text, note_id)
 

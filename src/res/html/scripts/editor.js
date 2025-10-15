@@ -95,7 +95,7 @@ function makeEditor(container, initialText, saveCallback, updating_id, channel) 
     const links = Array.from(container.querySelectorAll('a'));
 
     links.forEach(link => {
-      let note_id = link.getAttribute('note-id');
+      let note_id = link.getAttribute('href');
       // TODO select in notes.js
       let md_link = ` [${link.innerText}](./notes.html&id=${note_id}) `;
 
@@ -202,7 +202,6 @@ function makeEditor(container, initialText, saveCallback, updating_id, channel) 
     );
 
     replacements.forEach(({ match, replacement }) => {
-      // replacement = ` [${replacement.name}](./notes.html&id=${replacement.id}) `;
       replacement = ` <a href="${replacement.id}">${replacement.name}</a> `;
       source = source.replace(match, replacement);
     });
@@ -276,7 +275,7 @@ function makeEditor(container, initialText, saveCallback, updating_id, channel) 
   const debouncedSave = debounce((val) => {
     if(mode !== 'source') return;
 
-    saveCallback && saveCallback(val, updating_id);
+    saveCallback(val, updating_id);
   }, 500);
 
   // finishing editing
@@ -407,47 +406,30 @@ function makeEditor(container, initialText, saveCallback, updating_id, channel) 
 
     // adding link to another note
     if (e.key === '{') {
-      // check prev char
       const { startContainer, startOffset } = range;
-      // only proceed if in a text node
       if (startContainer.nodeType !== Node.TEXT_NODE) return;
 
       const text = startContainer.textContent;
-      let prevChar = '';
-      if (startOffset > 0) {
-        prevChar = text.charAt(startOffset - 1);
-      }
+      if (startOffset > 0 && text.charAt(startOffset - 1) === '{') {
+        e.preventDefault();
+        
+        // move cursor back one position and delete forward
+        const sel = window.getSelection();
+        const newRange = document.createRange();
+        newRange.setStart(startContainer, startOffset - 1);
+        newRange.setEnd(startContainer, startOffset);
+        sel.removeAllRanges();
+        sel.addRange(newRange);
+        
+        // delete the selected '{'
+        document.execCommand('delete', false, null);
 
-      if (prevChar === '{') {
-        if (range.startContainer.nodeType !== Node.TEXT_NODE) return; 
-        const { startContainer, startOffset } = range; 
-        const prevChar = startOffset > 0 ? startContainer.textContent.charAt(startOffset - 1) : ''; 
-        if (prevChar === '{') { 
-          e.preventDefault();
-      
-          // remove the previous '{'
-          const delRange = document.createRange();
-          delRange.setStart(startContainer, startOffset - 1);
-          delRange.setEnd(startContainer, startOffset);
-          delRange.deleteContents();
-          
-          // create and insert temp link
-          // TODO move to search suggestions selection
-          const temp_link = document.createElement('a');
-          temp_link.className = 'note-link';
-          temp_link.href = '1';
-          temp_link.textContent = 'link name';
-          
-          // Insert the link at current position
-          range.insertNode(temp_link);
-          
-          // move caret after link
-          selection.removeAllRanges();
-          const newRange = document.createRange();
-          newRange.setStartAfter(temp_link);
-          newRange.collapse(true);
-          selection.addRange(newRange);
-        } 
+        // add test link
+        // TODO show menu
+        document.execCommand('createLink', false, '1');
+        
+        // Show search suggestions
+        // showNoteSearchSuggestions(sel.getRangeAt(0));
       }
     }
   });
